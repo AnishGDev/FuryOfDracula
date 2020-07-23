@@ -22,8 +22,17 @@
 
 // TODO: ADD YOUR OWN STRUCTS HERE
 
+#define NUM_HUNTERS 4;
+
+
+
 struct gameView {
 	// TODO: ADD FIELDS HERE
+	int score;
+	Round roundNum; 
+	Player whoseTurn; 
+	PlaceId vampireLocation; 
+	PlaceId *trapLocs; 
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -32,7 +41,7 @@ struct gameView {
 GameView GvNew(char *pastPlays, Message messages[])
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	GameView new = malloc(sizeof(*new));
+	GameView new = malloc(sizeof(struct gameView));
 	if (new == NULL) {
 		fprintf(stderr, "Couldn't allocate GameView!\n");
 		exit(EXIT_FAILURE);
@@ -53,18 +62,21 @@ void GvFree(GameView gv)
 Round GvGetRound(GameView gv)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	gv->roundNum; 
 	return 0;
 }
 
 Player GvGetPlayer(GameView gv)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	gv->whoseTurn;
 	return PLAYER_LORD_GODALMING;
 }
 
 int GvGetScore(GameView gv)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	gv->score;
 	return 0;
 }
 
