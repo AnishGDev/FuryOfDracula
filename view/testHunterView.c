@@ -40,8 +40,8 @@ int main(void)
 		assert(HvGetHealth(hv, PLAYER_DRACULA) == GAME_START_BLOOD_POINTS);
 		assert(HvGetVampireLocation(hv) == NOWHERE);
 
-		printf("Test passed\n");
 		HvFree(hv);
+		printf("Test passed\n");
 	}
 
 	{///////////////////////////////////////////////////////////////////
@@ -60,8 +60,8 @@ int main(void)
 		assert(HvGetPlayerLocation(hv, PLAYER_LORD_GODALMING) == STRASBOURG);
 		assert(HvGetPlayerLocation(hv, PLAYER_DR_SEWARD) == NOWHERE);
 
-		printf("Test passed!\n");
 		HvFree(hv);
+		printf("Test passed!\n");
 	}
 	
 	{///////////////////////////////////////////////////////////////////
@@ -75,13 +75,16 @@ int main(void)
 		HunterView hv = HvNew(trail, messages);
 
 		assert(HvGetRound(hv) == 0);
-		assert(HvGetPlayer(hv) == PLAYER_DRACULA);
+		assert(HvGetPlayer(hv) == PLAYER_MINA_HARKER);
 		assert(HvGetScore(hv) == GAME_START_SCORE);
 		assert(HvGetPlayerLocation(hv, PLAYER_LORD_GODALMING) == STRASBOURG);
 		assert(HvGetPlayerLocation(hv, PLAYER_DR_SEWARD) == ATLANTIC_OCEAN);
 		assert(HvGetPlayerLocation(hv, PLAYER_VAN_HELSING) == ZURICH);
 		assert(HvGetPlayerLocation(hv, PLAYER_MINA_HARKER) == NOWHERE);
 		assert(HvGetPlayerLocation(hv, PLAYER_DRACULA) == NOWHERE);
+		
+		HvFree(hv);
+		printf("Test passed!\n");
 	}
 	
 	{///////////////////////////////////////////////////////////////////
@@ -225,10 +228,10 @@ int main(void)
 			"GSZ.... SGE.... HGE.... MGE.... DC?T... "
 			"GSZ.... SGE.... HGE....";
 		
-		Message messages[15] = {};
+		Message messages[18] = {};
 		HunterView hv = HvNew(trail, messages);
 		
-		assert(HvGetPlayerLocation(hv, PLAYER_DRACULA) == GALATZ);
+		assert(HvGetPlayerLocation(hv, PLAYER_DRACULA) == CITY_UNKNOWN);
 		assert(HvGetVampireLocation(hv) == CASTLE_DRACULA);
 		
 		HvFree(hv);
@@ -279,6 +282,9 @@ int main(void)
 		Round round = -1;
 		assert(HvGetLastKnownDraculaLocation(hv, &round) == KLAUSENBURG);
 		assert(round == 1);
+		
+		HvFree(hv);
+		printf("Test passed!\n");
 	}
 
 	{///////////////////////////////////////////////////////////////////
@@ -332,7 +338,7 @@ int main(void)
 			PlaceId *path = HvGetShortestPathTo(hv, PLAYER_MINA_HARKER,
 			                                    CONSTANTA, &pathLength);
 			assert(pathLength == 4);
-			assert(path[0] == GENOA);
+			assert(path[0] == GENOA || path[0] == MILAN);
 			assert(path[1] == VENICE);
 			assert(path[2] == BUDAPEST);
 			assert(path[3] == CONSTANTA);
@@ -347,10 +353,10 @@ int main(void)
 			assert(pathLength == 7);
 			assert(path[0] == SARAGOSSA);
 			assert(path[1] == MARSEILLES);
-			assert(path[2] == GENOA);
+			assert(path[2] == GENOA || path[2] == MILAN);
 			assert(path[3] == VENICE);
 			assert(path[4] == BUDAPEST);
-			assert(path[5] == GALATZ);
+			assert(path[5] == GALATZ || path[5] == KLAUSENBURG);
 			assert(path[6] == CASTLE_DRACULA);
 			free(path);
 		}
@@ -401,7 +407,7 @@ int main(void)
 		assert(numLocs == 5);
 		sortPlaces(locs, numLocs);
 		assert(locs[0] == BORDEAUX);
-		assert(locs[1] == BUCHAREST);
+		assert(locs[1] == BRUSSELS);
 		assert(locs[2] == LE_HAVRE);
 		assert(locs[3] == MARSEILLES);
 		assert(locs[4] == PARIS);
@@ -424,11 +430,12 @@ int main(void)
 		PlaceId *locs = HvWhereCanTheyGoByType(hv, PLAYER_LORD_GODALMING,
 		                                       false, false, true, &numLocs);
 		
-		assert(numLocs == 3);
+		assert(numLocs == 4);
 		sortPlaces(locs, numLocs);
 		assert(locs[0] == ADRIATIC_SEA);
 		assert(locs[1] == BARI);
-		assert(locs[2] == VENICE);
+		assert(locs[2] == IONIAN_SEA);
+		assert(locs[3] == VENICE);
 		free(locs);
 		
 		HvFree(hv);
@@ -449,12 +456,13 @@ int main(void)
 		int numLocs = -1;
 		PlaceId *locs = HvWhereCanTheyGoByType(hv, PLAYER_DRACULA,
 		                                       true, false, false, &numLocs);
-		assert(numLocs == 4);
+		assert(numLocs == 5);
 		sortPlaces(locs, numLocs);
 		assert(locs[0] == BELGRADE);
 		assert(locs[1] == BUDAPEST);
 		assert(locs[2] == KLAUSENBURG);
 		assert(locs[3] == SZEGED);
+		assert(locs[4] == ZAGREB);
 		free(locs);
 		
 		HvFree(hv);
@@ -463,3 +471,4 @@ int main(void)
 	
 	return EXIT_SUCCESS;
 }
+
