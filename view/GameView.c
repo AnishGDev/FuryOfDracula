@@ -22,9 +22,16 @@
 
 // TODO: ADD YOUR OWN STRUCTS HERE
 
-#define NUM_HUNTERS 4;
 
+typedef struct _hunterData {
+	int health; 
+	PlaceId currLoc; 
+} HunterData; 
 
+typedef struct _draculaData {
+	int lifePoints; 
+	PlaceId currLoc; 
+} DraculaData; 
 
 struct gameView {
 	// TODO: ADD FIELDS HERE
@@ -33,6 +40,8 @@ struct gameView {
 	Player whoseTurn; 
 	PlaceId vampireLocation; 
 	PlaceId *trapLocs; 
+	HunterData hunters[NUM_PLAYERS-1];
+	DraculaData dracula; 
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -41,6 +50,7 @@ struct gameView {
 GameView GvNew(char *pastPlays, Message messages[])
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	
 	GameView new = malloc(sizeof(struct gameView));
 	if (new == NULL) {
 		fprintf(stderr, "Couldn't allocate GameView!\n");
