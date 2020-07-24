@@ -22,23 +22,72 @@
 
 // TODO: ADD YOUR OWN STRUCTS HERE
 
+typedef struct _hunterData {
+	int health; 
+	PlaceId currLoc; 
+} HunterData; 
+
+typedef struct _draculaData {
+	int health; 
+	PlaceId currLoc; 
+} DraculaData; 
+
 struct gameView {
 	// TODO: ADD FIELDS HERE
+	int score;
+	Round roundNum; 
+	Player whoseTurn; 
+	PlaceId vampireLocation; 
+	PlaceId trapLocs[TRAIL_SIZE];
+	HunterData *hunters[NUM_PLAYERS-1];
+	DraculaData *dracula; 
 };
 
 ////////////////////////////////////////////////////////////////////////
 // Constructor/Destructor
 
+static HunterData *createNewHunter() {
+	HunterData *h = malloc(sizeof(struct _hunterData)); 
+	if (h == NULL) {
+		fprintf(stderr, "Couldn't allocate HunterData!\n");
+		exit(EXIT_FAILURE);
+	}
+	h->health = GAME_START_HUNTER_LIFE_POINTS;
+	h->currLoc = NOWHERE; 
+	return h;
+}
+
+static DraculaData *createNewDracula(){
+	DraculaData *d = malloc(sizeof(struct _draculaData));
+	if (d == NULL) {
+		fprintf(stderr, "Couldn't allocate DraculaData!\n");
+		exit(EXIT_FAILURE);
+	}
+	d->health = GAME_START_BLOOD_POINTS;
+	d->currLoc = NOWHERE;
+	return d; 
+}
+
 GameView GvNew(char *pastPlays, Message messages[])
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	GameView new = malloc(sizeof(*new));
-	if (new == NULL) {
+	GameView gv = malloc(sizeof(struct gameView));
+	if (gv == NULL) {
 		fprintf(stderr, "Couldn't allocate GameView!\n");
 		exit(EXIT_FAILURE);
 	}
-
-	return new;
+	gv->score = GAME_START_SCORE;
+	gv->roundNum = 0; 
+	gv->whoseTurn = PLAYER_LORD_GODALMING; 
+	gv->vampireLocation = NOWHERE;
+	for(int i =0; i < TRAIL_SIZE; i++){
+		gv->trapLocs[i] = NOWHERE; 
+	}
+	for(int i =0; i < NUM_PLAYERS-1; i++){
+		gv->hunters[i] = createNewHunter();
+	}
+	gv->dracula = createNewDracula();
+	return gv;
 }
 
 void GvFree(GameView gv)
@@ -53,25 +102,32 @@ void GvFree(GameView gv)
 Round GvGetRound(GameView gv)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	return 0;
+	return gv->roundNum; 
 }
 
 Player GvGetPlayer(GameView gv)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	return PLAYER_LORD_GODALMING;
+	return gv->whoseTurn;
+	//return PLAYER_LORD_GODALMING;
 }
 
 int GvGetScore(GameView gv)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	return 0;
+	return gv->score;
 }
 
 int GvGetHealth(GameView gv, Player player)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	return 0;
+	if (player < NUM_PLAYERS - 1) {
+		// The player is a hunter.
+		return gv->hunters[player]->health;
+	} else {
+		// The player is a dracula.
+		return gv->dracula->health; 
+	}
 }
 
 PlaceId GvGetPlayerLocation(GameView gv, Player player)
