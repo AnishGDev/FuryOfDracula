@@ -16,9 +16,9 @@ Members:
 - Nikhil Kumar
   - Student ID: z5311179
   - GitHub username: @civilStructures
-  -Tutorial code: F11A
+  - Tutorial code: F11A
   
 - Rishabh Avdhesh Singh
   - Student ID: z5218655
-  - GitHub username: RishabhASingh
+  - GitHub username: @RishabhASingh
   - Tutorial code: F11A
