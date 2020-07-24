@@ -13,6 +13,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "Game.h"
 #include "GameView.h"
@@ -43,6 +44,8 @@ struct gameView {
 	HunterData *hunters[NUM_PLAYERS-1];
 	DraculaData *dracula; 
 	Map gameMap; 
+	char *pastPlays; 
+	int pastPlaysLength; 
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -90,6 +93,8 @@ GameView GvNew(char *pastPlays, Message messages[])
 	}
 	gv->dracula = createNewDracula();
 	gv->gameMap = MapNew();
+	gv->pastPlays = pastPlays;
+	gv->pastPlaysLength = strlen(pastPlays);
 	return gv;
 }
 
