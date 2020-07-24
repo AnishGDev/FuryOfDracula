@@ -96,6 +96,11 @@ GameView GvNew(char *pastPlays, Message messages[])
 void GvFree(GameView gv)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	free(gv->dracula); 
+	for (int i = 0; i < NUM_PLAYERS-1; i++){
+		free(gv->hunters[i]);
+	}
+	MapFree(gv->gameMap);
 	free(gv);
 }
 
@@ -251,6 +256,7 @@ PlaceId *GvGetReachable(GameView gv, Player player, Round round,
 				*numReturnedLocs+=1;
 			}
 		}
+		dropQueue(railways);
 	} else {
 		ConnList curr = connections;
 		while(curr != NULL) {
