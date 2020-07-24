@@ -133,13 +133,18 @@ int GvGetHealth(GameView gv, Player player)
 PlaceId GvGetPlayerLocation(GameView gv, Player player)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	if (player != PLAYER_DRACULA) {
+		return gv->dracula->currLoc;
+	} else {
+		return gv->hunters[player]->currLoc;
+	}
 	return NOWHERE;
 }
 
 PlaceId GvGetVampireLocation(GameView gv)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	return NOWHERE;
+	return gv->vampireLocation; 
 }
 
 PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
