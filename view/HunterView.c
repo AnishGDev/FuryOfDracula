@@ -87,19 +87,24 @@ PlaceId HvGetVampireLocation(HunterView hv)
 
 PlaceId HvGetLastKnownDraculaLocation(HunterView hv, Round *round)
 {
-	int n;
-	bool canFree;
+	PlaceId result = NOWHERE;
+
+	int n = 0;
+	bool canFree = false;
 	PlaceId *history = GvGetLocationHistory(hv->gv, PLAYER_DRACULA, &n, &canFree);
 
 	// Iterate backwards until a location is found
 	for (int i = n - 1; i >= 0; i++) {
 		if (placeIsReal(history[i])) {
 			*round = i;
-			return history[i];
+			result = history[i];
+			break;
 		}
 	}
 
-	return NOWHERE;
+	if (canFree) free(history);
+
+	return result;
 }
 
 PlaceId *HvGetShortestPathTo(HunterView hv, Player hunter, PlaceId dest,
@@ -115,34 +120,70 @@ PlaceId *HvGetShortestPathTo(HunterView hv, Player hunter, PlaceId dest,
 
 PlaceId *HvWhereCanIGo(HunterView hv, int *numReturnedLocs)
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	*numReturnedLocs = 0;
-	return NULL;
+	return HvWhereCanTheyGoByType(
+		hv,
+		HvGetPlayer(hv),
+		true, true, true,
+		numReturnedLocs
+	);
 }
 
 PlaceId *HvWhereCanIGoByType(HunterView hv, bool road, bool rail,
                              bool boat, int *numReturnedLocs)
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	*numReturnedLocs = 0;
-	return NULL;
+	return HvWhereCanTheyGoByType(
+		hv,
+		HvGetPlayer(hv),
+		road, rail, boat,
+		numReturnedLocs
+	);
 }
 
 PlaceId *HvWhereCanTheyGo(HunterView hv, Player player,
                           int *numReturnedLocs)
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	*numReturnedLocs = 0;
-	return NULL;
+	return HvWhereCanTheyGoByType(
+		hv,
+		player,
+		true, true, true,
+		numReturnedLocs
+	);
 }
 
 PlaceId *HvWhereCanTheyGoByType(HunterView hv, Player player,
                                 bool road, bool rail, bool boat,
                                 int *numReturnedLocs)
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	*numReturnedLocs = 0;
-	return NULL;
+	if (player == PLAYER_DRACULA) {
+		Round round;
+		if (HvGetLastKnownDraculaLocation(hv, &round) == NOWHERE) {
+			*numReturnedLocs = 0;
+			return NULL;
+		}
+	}
+
+	PlaceId *result = NULL;
+
+	int n = 0;
+	bool canFree = false;
+	PlaceId *history = GvGetMoveHistory(hv->gv, player, &n, &canFree);
+
+	if (n == 0) {
+		*numReturnedLocs = 0;
+	} else {
+		result = GvGetReachableByType(
+			hv->gv,
+			player,
+			HvGetRound(hv),
+			HvGetPlayerLocation(hv, player),
+			road, rail, boat,
+			numReturnedLocs
+		);
+	}
+
+	if (canFree) free(history);
+
+	return result;
 }
 
 ////////////////////////////////////////////////////////////////////////
