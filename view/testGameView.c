@@ -47,15 +47,21 @@ int main(void)
 	
 	{///////////////////////////////////////////////////////////////////
 		printf("\t====== CUSTOM TESTS =====\n");
-		printf("\t====== Testing GvGetReachable =====");
+		printf("\t====== Testing GvGetReachable =====\n");
 		char *trail = "";
 		Message messages[] = {};
 		GameView gv = GvNew(trail, messages);
 		int numLocs = -1; 
 		PlaceId *locs = GvGetReachable(gv, PLAYER_DR_SEWARD, 0, MADRID, &numLocs);
-		assert(numLocs >= 0);
+		printf("Num locks is %d\n", numLocs);
+		assert(numLocs == 6);
 		sortPlaces(locs, numLocs);
 		assert(locs[0] == ALICANTE); 
+		
+		locs = GvGetReachable(gv, PLAYER_DRACULA, 0, ZURICH, &numLocs);
+		assert(numLocs == 5);
+		sortPlaces(locs, numLocs);
+		assert(locs[0] == GENEVA);
 	}
 	{///////////////////////////////////////////////////////////////////
 	
