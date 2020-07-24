@@ -74,14 +74,12 @@ int HvGetHealth(HunterView hv, Player player)
 
 PlaceId HvGetPlayerLocation(HunterView hv, Player player)
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	return NOWHERE;
+	return GvGetPlayerLocation(hv->gv, player);
 }
 
 PlaceId HvGetVampireLocation(HunterView hv)
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	return NOWHERE;
+	return GvGetVampireLocation(hv->gv);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -89,8 +87,18 @@ PlaceId HvGetVampireLocation(HunterView hv)
 
 PlaceId HvGetLastKnownDraculaLocation(HunterView hv, Round *round)
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	*round = 0;
+	int n;
+	bool canFree;
+	PlaceId *history = GvGetLocationHistory(hv->gv, PLAYER_DRACULA, &n, &canFree);
+
+	// Iterate backwards until a location is found
+	for (int i = n - 1; i >= 0; i++) {
+		if (placeIsReal(history[i])) {
+			*round = i;
+			return history[i];
+		}
+	}
+
 	return NOWHERE;
 }
 
