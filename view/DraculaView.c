@@ -96,7 +96,26 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves)
 PlaceId *DvWhereCanIGo(DraculaView dv, int *numReturnedLocs)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	*numReturnedLocs = 0;
+
+	PlaceId *places = GvGetReachable(dv->gv, PLAYER_DRACULA,
+		DvGetRound(dv->gv), DvGetPlayerLocation(dv, PLAYER_DRACULA),
+		numReturnedLocs); 	//dont have to check for trains and hospital
+							// since GvGetReachable takes that into account
+	//Remove Items which Dracula cannot visit 
+
+	//Pharse through past plays to see if these have occured
+	int hiddenInTrail = 0;
+	int doubleBackInTrail = 0;
+	if (hiddenInTrail != 0) {
+		//Remove HIDE from array
+		//*numReturnedLocs--;
+	}
+	if (doubleBackInTrail != 0) {
+		//Remove Location of all trail nodes from array
+		//*numReturnedLocs--;
+	}
+
+	//Add TELEPORT to array
 	return NULL;
 }
 
@@ -104,7 +123,11 @@ PlaceId *DvWhereCanIGoByType(DraculaView dv, bool road, bool boat,
                              int *numReturnedLocs)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	*numReturnedLocs = 0;
+	PlaceId *places = GvGetReachableByType(dv->gv, PLAYER_DRACULA,
+		DvGetRound(dv->gv), DvGetPlayerLocation(dv->gv, PLAYER_DRACULA),
+		road, false, boat, numReturnedLocs);
+	//Remove items which break dracula's rules
+	//Add special move items for dracula
 	return NULL;
 }
 
@@ -112,6 +135,7 @@ PlaceId *DvWhereCanTheyGo(DraculaView dv, Player player,
                           int *numReturnedLocs)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	//Should be the same as HvWhereCanIGo
 	*numReturnedLocs = 0;
 	return NULL;
 }
@@ -121,10 +145,20 @@ PlaceId *DvWhereCanTheyGoByType(DraculaView dv, Player player,
                                 int *numReturnedLocs)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	//Should be the same as HvWhereCanIGoByType
 	*numReturnedLocs = 0;
 	return NULL;
 }
 
+//Checks if dracula has used a Hide in the last 5 moves
+static bool hiddenInLast5 (char *pastPlays) {
+	return false;
+}
+
+//Checks if dracula has used a doubleback in the last 5 moves
+static bool DoubleInLast5 (char *pastPlays) {
+	return false;
+}
 ////////////////////////////////////////////////////////////////////////
 // Your own interface functions
 
