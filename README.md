@@ -12,3 +12,8 @@ Members:
   - Student ID: z5218632
   - GitHub username: @AnishGDev
   - Tutorial code: F11A
+
+- Rishabh Avdhesh Singh
+  - Student ID: z5218655
+  - GitHub username: RishabhASingh
+  - Tutorial code: F11A
