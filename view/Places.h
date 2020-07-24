@@ -166,7 +166,7 @@ const char *placeIdToName(PlaceId pid);
 const char *placeIdToAbbrev(PlaceId pid);
 
 ////////////////////////////////////////////////////////////////////////
-
+// Use these test functions in hunter/dracula view
 /** given a type of transport, return a string representation. */
 const char *transportTypeToString(TransportType t);
 
@@ -177,7 +177,7 @@ static inline bool transportTypeIsValid(TransportType t)
 }
 
 ////////////////////////////////////////////////////////////////////////
-
+// Use these test functions in hunter/dracula view
 /** given a place, is it land? */
 static inline bool placeIsLand(PlaceId pid)
 {

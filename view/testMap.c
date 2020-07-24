@@ -22,7 +22,7 @@ int main(void)
 	// MapShow(m);
 	
 	char buffer[MAX_LINE];
-	
+	printf("The amount of rail network edges is %d\n", MapNumConnections(m, RAIL));
 	printf("\nType a location name to see its connections: ");
 	while (fgets(buffer, MAX_LINE, stdin) != NULL) {
 		buffer[strlen(buffer) - 1] = '\0'; // remove newline character

@@ -46,6 +46,18 @@ int main(void)
 	}
 	
 	{///////////////////////////////////////////////////////////////////
+		printf("\t====== CUSTOM TESTS =====\n");
+		printf("\t====== Testing GvGetReachable =====");
+		char *trail = "";
+		Message messages[] = {};
+		GameView gv = GvNew(trail, messages);
+		int numLocs = -1; 
+		PlaceId *locs = GvGetReachable(gv, PLAYER_DR_SEWARD, 0, MADRID, &numLocs);
+		assert(numLocs >= 0);
+		sortPlaces(locs, numLocs);
+		assert(locs[0] == ALICANTE); 
+	}
+	{///////////////////////////////////////////////////////////////////
 	
 		printf("After Lord Godalming's turn\n");
 
@@ -489,6 +501,7 @@ int main(void)
 			assert(locs[0] == ATHENS);
 			free(locs);
 		}
+		///////////////////////////////////////////////////////////////////
 
 		GvFree(gv);
 		printf("Test passed!\n");
