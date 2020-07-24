@@ -235,10 +235,13 @@ PlaceId *GvGetReachable(GameView gv, Player player, Round round,
 	*numReturnedLocs = 0;
 	ConnList connections = MapGetConnections(gv->gameMap, from);
 	PlaceId *reachableLocations = malloc(sizeof(enum placeId) * MAX_REACHABLE);
+	assert(reachableLocations != NULL);
+	reachableLocations[0] = from;
+	*numReturnedLocs+=1; 
 	if (player != PLAYER_DRACULA) {
 		// Player is a hunter.
 		// Evaluate railways first. 
-		int maxRailwayDist = (gv->roundNum + player) % 4;
+		int maxRailwayDist = (round + player) % 4;
 		Queue railways = newQueue();
 		addNextRailway(gv, railways, from, 0, maxRailwayDist);
 		ConnList curr = connections;
@@ -275,8 +278,21 @@ PlaceId *GvGetReachableByType(GameView gv, Player player, Round round,
                               bool boat, int *numReturnedLocs)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	*numReturnedLocs = 0;
-	return NULL;
+	int len = 0; 
+	PlaceId * allReachable = GvGetReachable(gv, player, round, from, &len);
+	PlaceId * reachableFiltered = malloc(sizeof(enum placeId) * len);
+	assert(reachableFiltered != NULL); 
+	reachableFiltered[0] = from; 
+	int retLength = 1; 
+	for (int i =1; i < len; i++) {
+		PlaceType nodeType = placeIdToType(allReachable[i]);
+		if ((nodeType == ROAD && road == true) || (nodeType == BOAT && boat == true) || (nodeType == RAIL && rail == true)) {
+			reachableFiltered[retLength] = allReachable[i];
+			retLength++;
+		}
+	}
+	*numReturnedLocs = retLength;
+	return reachableFiltered;
 }
 
 ////////////////////////////////////////////////////////////////////////
