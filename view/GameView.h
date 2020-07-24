@@ -21,7 +21,7 @@
 #include "Game.h"
 #include "Places.h"
 // add your own #includes here
-
+#include "Queue.h"
 typedef struct gameView *GameView;
 
 ////////////////////////////////////////////////////////////////////////
@@ -253,7 +253,8 @@ PlaceId *GvGetReachableByType(GameView gv, Player player, Round round,
 
 ////////////////////////////////////////////////////////////////////////
 // Your own interface functions
-
+void addNextRailway(GameView gv, Queue railways, PlaceId from, int depth, int maxRailwayDepth);
 // TODO
+bool linearScan(PlaceId *list, PlaceId itemToFind, int len);
 
 #endif // !defined (FOD__GAME_VIEW_H_)

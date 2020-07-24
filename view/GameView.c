@@ -19,8 +19,9 @@
 #include "Map.h"
 #include "Places.h"
 // add your own #includes here
-
+#include "Queue.h"
 // TODO: ADD YOUR OWN STRUCTS HERE
+#define MAX_REACHABLE 200
 
 typedef struct _hunterData {
 	int health; 
@@ -41,6 +42,7 @@ struct gameView {
 	PlaceId trapLocs[TRAIL_SIZE];
 	HunterData *hunters[NUM_PLAYERS-1];
 	DraculaData *dracula; 
+	Map gameMap; 
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -87,6 +89,7 @@ GameView GvNew(char *pastPlays, Message messages[])
 		gv->hunters[i] = createNewHunter();
 	}
 	gv->dracula = createNewDracula();
+	gv->gameMap = MapNew();
 	return gv;
 }
 
@@ -195,13 +198,70 @@ PlaceId *GvGetLastLocations(GameView gv, Player player, int numLocs,
 
 ////////////////////////////////////////////////////////////////////////
 // Making a Move
+// Currently using DFS traversal + linear probing to find railways. 
+// Replace with a better implementation if we find one.
+// Not 100% satisfied with the time complexity.
+
+void addNextRailway(GameView gv, Queue railways, PlaceId from, int depth, int maxRailwayDepth){
+	if (depth >= maxRailwayDepth) return; 
+	ConnList curr = MapGetConnections(gv->gameMap, from);
+	while(curr != NULL) {
+		if (curr->type == RAIL) {
+			QueueJoin(railways, curr->p); // change definition of item to placeID.
+			addNextRailway(gv, railways, curr->p, depth+1, maxRailwayDepth);
+		}
+		curr = curr->next;
+	}
+}
+
+bool linearScan(PlaceId *list, PlaceId itemToFind, int len) {
+    for (int i =0; i < len; i++){
+		if(list[i] == itemToFind){
+            return true;
+		}
+    }
+    return false;
+}
 
 PlaceId *GvGetReachable(GameView gv, Player player, Round round,
                         PlaceId from, int *numReturnedLocs)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 	*numReturnedLocs = 0;
-	return NULL;
+	ConnList connections = MapGetConnections(gv->gameMap, from);
+	PlaceId *reachableLocations = malloc(sizeof(enum placeId) * MAX_REACHABLE);
+	if (player != PLAYER_DRACULA) {
+		// Player is a hunter.
+		// Evaluate railways first. 
+		int maxRailwayDist = (gv->roundNum + player) % 4;
+		Queue railways = newQueue();
+		addNextRailway(gv, railways, from, 0, maxRailwayDist);
+		ConnList curr = connections;
+		while(curr!= NULL) {
+			if (curr->type != RAIL) {
+				reachableLocations[*numReturnedLocs] = curr->p;
+				*numReturnedLocs+=1;
+			}
+			curr = curr->next;
+		}
+		while(!QueueIsEmpty(railways)) {
+			Item popped = QueueLeave(railways);
+			if(linearScan(reachableLocations, popped, *numReturnedLocs) == false){
+				reachableLocations[*numReturnedLocs] = popped;
+				*numReturnedLocs+=1;
+			}
+		}
+	} else {
+		ConnList curr = connections;
+		while(curr != NULL) {
+			if (curr->p != HOSPITAL_PLACE && curr->type != RAIL){
+				reachableLocations[*numReturnedLocs] = curr->p;
+				*numReturnedLocs+=1;
+			}
+			curr = curr->next; 
+		}
+	}
+	return reachableLocations;
 }
 
 PlaceId *GvGetReachableByType(GameView gv, Player player, Round round,
