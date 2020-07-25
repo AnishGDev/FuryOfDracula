@@ -90,6 +90,7 @@ PlaceId *DvGetTrapLocations(DraculaView dv, int *numTraps)
 
 PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves)
 {
+	*numReturnedMoves = 0;
 	PlaceId *places = GvGetReachable(dv->gv, PLAYER_DRACULA,
 		DvGetRound(dv), DvGetPlayerLocation(dv, PLAYER_DRACULA),
 		numReturnedMoves); 	//dont have to check for trains and hospital
@@ -104,7 +105,7 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves)
 	bool doubleBackInTrail = DoubleInLast5(dv);
 
 	if (!hiddenInTrail) {	//Add Hide as a move
-		*numReturnedMoves++;
+		*numReturnedMoves += 1;
 		places = realloc(places, sizeof(PlaceId) * (*numReturnedMoves));
 		places[*numReturnedMoves-1] = HIDE;
 	}
@@ -146,7 +147,7 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves)
 	}
 
 	//Adding Teleport as a move
-	*numReturnedMoves++;
+	*numReturnedMoves += 1;
 	places = realloc(places, sizeof(PlaceId) * (*numReturnedMoves));
 	places[*numReturnedMoves-1] = TELEPORT;
 
@@ -180,7 +181,7 @@ PlaceId *DvWhereCanIGo(DraculaView dv, int *numReturnedLocs)
 				for (int j = i; j < *numReturnedLocs; j++) {
 					places[j] = places[j+1];
 				}
-				*numReturnedLocs--;
+				*numReturnedLocs -= 1;
 				break;
 			}
 		}
@@ -192,7 +193,7 @@ PlaceId *DvWhereCanIGo(DraculaView dv, int *numReturnedLocs)
 				for (int j = i; j < *numReturnedLocs; j++) {
 					places[j] = places[j+1];
 				}
-				*numReturnedLocs--;
+				*numReturnedLocs -= 1;
 				break;
 			}
 		}
@@ -236,7 +237,7 @@ PlaceId *DvWhereCanIGoByType(DraculaView dv, bool road, bool boat,
 				for (int j = i; j < *numReturnedLocs; j++) {
 					places[j] = places[j+1];
 				}
-				*numReturnedLocs--;
+				*numReturnedLocs -= 1;
 				break;
 			}
 		}
@@ -248,7 +249,7 @@ PlaceId *DvWhereCanIGoByType(DraculaView dv, bool road, bool boat,
 				for (int j = i; j < *numReturnedLocs; j++) {
 					places[j] = places[j+1];
 				}
-				*numReturnedLocs--;
+				*numReturnedLocs -= 1;
 				break;
 			}
 		}
