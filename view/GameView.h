@@ -23,7 +23,6 @@
 // add your own #includes here
 #include "Queue.h"
 typedef struct gameView *GameView;
-
 ////////////////////////////////////////////////////////////////////////
 // Constructor/Destructor
 
@@ -256,7 +255,7 @@ PlaceId *GvGetReachableByType(GameView gv, Player player, Round round,
 
 ////////////////////////////////////////////////////////////////////////
 // Your own interface functions
-void addNextRailway(GameView gv, Queue railways, PlaceId from, int depth, int maxRailwayDepth);
+void addNextRailway(GameView gv, PlaceId from, int depth, int maxRailwayDepth, int * visited, int *numReturnedLocs, PlaceId * reachableLocations);
 // TODO
 bool linearScan(PlaceId *list, PlaceId itemToFind, int len);
 
