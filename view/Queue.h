@@ -4,8 +4,6 @@
 #ifndef QUEUE_H
 #define QUEUE_H
 
-#include "Places.h"
-
 typedef struct QueueRep *Queue;
 typedef int Item; 
 Queue newQueue (void);			// create new empty queue

@@ -14,11 +14,11 @@
 
 /** Players */
 typedef enum player {
-	PLAYER_LORD_GODALMING,	/** Lord Godalming - hunter */ // state 0
-	PLAYER_DR_SEWARD,		/** Dr Seward      - hunter */ // state 1
-	PLAYER_VAN_HELSING,		/** Van Helsing    - hunter */ // state 2
-	PLAYER_MINA_HARKER,		/** Mina Harker    - hunter */ // state 3
-	PLAYER_DRACULA			/** Dracula                 */ // state 4
+	PLAYER_LORD_GODALMING,	/** Lord Godalming - hunter */
+	PLAYER_DR_SEWARD,		/** Dr Seward      - hunter */
+	PLAYER_VAN_HELSING,		/** Van Helsing    - hunter */
+	PLAYER_MINA_HARKER,		/** Mina Harker    - hunter */
+	PLAYER_DRACULA			/** Dracula                 */
 } Player;
 
 enum { NUM_PLAYERS = 5 };

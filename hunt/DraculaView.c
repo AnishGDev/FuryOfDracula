@@ -23,7 +23,7 @@
 // TODO: ADD YOUR OWN STRUCTS HERE
 
 struct draculaView {
-	GameView gv;
+	// TODO: ADD FIELDS HERE
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -31,18 +31,19 @@ struct draculaView {
 
 DraculaView DvNew(char *pastPlays, Message messages[])
 {
-	DraculaView new = malloc(sizeof(DraculaView));
+	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	DraculaView new = malloc(sizeof(*new));
 	if (new == NULL) {
 		fprintf(stderr, "Couldn't allocate DraculaView\n");
 		exit(EXIT_FAILURE);
 	}
-	new->gv = GvNew(pastPlays,messages);
+
 	return new;
 }
 
 void DvFree(DraculaView dv)
 {
-	GvFree(dv->gv);
+	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 	free(dv);
 }
 
@@ -51,36 +52,39 @@ void DvFree(DraculaView dv)
 
 Round DvGetRound(DraculaView dv)
 {
-	return GvGetRound(dv->gv);
+	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	return 0;
 }
 
 int DvGetScore(DraculaView dv)
 {
-	return GvGetScore(dv->gv);
+	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	return 0;
 }
 
 int DvGetHealth(DraculaView dv, Player player)
 {
-	return GvGetHealth(dv->gv, player);
+	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	return 0;
 }
 
 PlaceId DvGetPlayerLocation(DraculaView dv, Player player)
 {
-	return GvGetPlayerLocation(dv->gv, player);
+	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	return NOWHERE;
 }
 
 PlaceId DvGetVampireLocation(DraculaView dv)
 {
-	return GvGetVampireLocation(dv->gv);
+	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	return NOWHERE;
 }
 
 PlaceId *DvGetTrapLocations(DraculaView dv, int *numTraps)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	if (numTraps == NULL) { 	//CAN THIS HAPPEN????
-		numTraps = malloc(sizeof(int));
-	}
-	return GvGetTrapLocations(dv->gv, numTraps);
+	*numTraps = 0;
+	return NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////
