@@ -264,9 +264,9 @@ PlaceId *DvWhereCanTheyGo(DraculaView dv, Player player,
                           int *numReturnedLocs)
 {
 	if (GvGetPlayerLocation(dv->gv, player) == NOWHERE) {
-			*numReturnedLocs = 0;
-			return NULL;
-		}
+		*numReturnedLocs = 0;
+		return NULL;
+	}
 
 	*numReturnedLocs = 0;
 	if (player == PLAYER_DRACULA) {
