@@ -142,19 +142,19 @@ int GvGetScore(GameView gv)
 int GvGetHealth(GameView gv, Player player)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	if (player < NUM_PLAYERS - 1) {
+	if (player == PLAYER_DRACULA) {
 		// The player is a hunter.
-		return gv->hunters[player]->health;
+		return gv->dracula->health; 
 	} else {
 		// The player is a dracula.
-		return gv->dracula->health; 
+		return gv->hunters[player]->health;
 	}
 }
 
 PlaceId GvGetPlayerLocation(GameView gv, Player player)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	if (player != PLAYER_DRACULA) {
+	if (player == PLAYER_DRACULA) {
 		return gv->dracula->currLoc;
 	} else {
 		return gv->hunters[player]->currLoc;
