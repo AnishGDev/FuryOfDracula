@@ -104,6 +104,10 @@ GameView GvNew(char *pastPlays, Message messages[])
 	return gv;
 }
 
+void reconstructGameState(GameView gv) {
+	
+}
+
 void GvFree(GameView gv)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
@@ -200,9 +204,15 @@ PlaceId *GvGetLocationHistory(GameView gv, Player player,
                               int *numReturnedLocs, bool *canFree)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	PlaceId *ret = malloc(sizeof(ret));
+	if (player != PLAYER_DRACULA) {
+		ret = gv->hunters[player]->moveHistory;
+	} else {
+
+	}
 	*numReturnedLocs = 0;
 	*canFree = false;
-	return NULL;
+	return ret;
 }
 
 PlaceId *GvGetLastLocations(GameView gv, Player player, int numLocs,
