@@ -19,9 +19,7 @@
 #include "HunterView.h"
 #include "Map.h"
 #include "Places.h"
-// add your own #includes here
-
-// TODO: ADD YOUR OWN STRUCTS HERE
+#include "Queue.h"
 
 struct hunterView {
 	GameView gv;
@@ -107,12 +105,69 @@ PlaceId HvGetLastKnownDraculaLocation(HunterView hv, Round *round)
 	return result;
 }
 
+
 PlaceId *HvGetShortestPathTo(HunterView hv, Player hunter, PlaceId dest,
                              int *pathLength)
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	PlaceId *path = NULL;
 	*pathLength = 0;
-	return NULL;
+	
+	// swap so that path is in correct order when backtracking
+	PlaceId from = dest;
+	PlaceId to = GvGetPlayerLocation(hv->gv, hunter);
+
+	Round currentRound = GvGetRound(hv->gv);
+
+	// synchronised queues, needed due to the lack of type
+	// parameterisation in C
+	Queue seen = newQueue();
+	Queue rounds = newQueue();
+	QueueJoin(seen, from);
+	QueueJoin(rounds, currentRound);
+
+	PlaceId links[NUM_REAL_PLACES];
+	for (int i = 0; i < NUM_REAL_PLACES; i++) {
+		links[i] = NOWHERE;
+	}
+	links[from] = from;
+
+	while (!QueueIsEmpty(seen)) {
+		PlaceId place = QueueLeave(seen);
+		Round round = QueueLeave(rounds);
+
+		if (place == to) {
+			// found!
+
+			PlaceId *path = malloc(NUM_REAL_PLACES * sizeof(PlaceId));
+
+			int i = 0;
+			for (PlaceId place = to; place != from; place = links[place]) {
+				path[i] = place;
+				i++;
+			}
+			*pathLength = i;
+
+			break;
+		} else {
+			int n = 0;
+			PlaceId *reachable = GvGetReachable(hv->gv, hunter, round, place, &n);
+
+			for (int i = 0; i < n; i++) {
+				PlaceId connected = reachable[i];
+
+				if (links[connected] == NOWHERE) {
+					links[connected] = place;
+					QueueJoin(seen, connected);
+					QueueJoin(rounds, ++round);
+				}
+			}
+		}
+	}
+
+	dropQueue(seen);
+	dropQueue(rounds);
+
+	return path;
 }
 
 ////////////////////////////////////////////////////////////////////////
