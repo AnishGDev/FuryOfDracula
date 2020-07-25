@@ -90,10 +90,15 @@ PlaceId *DvGetTrapLocations(DraculaView dv, int *numTraps)
 
 PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves)
 {
+	//Checking if dracula has made a move
+	if (GvGetPlayerLocation(dv->gv, PLAYER_DRACULA) == NOWHERE) {
+		*numReturnedMoves = 0;
+		return NULL;
+	}
 	*numReturnedMoves = 0;
 	PlaceId *places = GvGetReachable(dv->gv, PLAYER_DRACULA,
-		DvGetRound(dv), DvGetPlayerLocation(dv, PLAYER_DRACULA),
-		numReturnedMoves); 	//dont have to check for trains and hospital
+		DvGetRound(dv), DvGetPlayerLocation(dv, PLAYER_DRACULA)
+		,numReturnedMoves); 	//dont have to check for trains and hospital
 							// since GvGetReachable takes that into account
 	
 	//Remove Items which Dracula cannot visit
@@ -157,55 +162,62 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves)
 
 PlaceId *DvWhereCanIGo(DraculaView dv, int *numReturnedLocs)
 {
+	//Checking if dracula has made a move
+	if (GvGetPlayerLocation(dv->gv, PLAYER_DRACULA) == NOWHERE) {
+		*numReturnedLocs = 0;
+		return NULL;
+	}
+
+	*numReturnedLocs = 0;
 	PlaceId *places = GvGetReachable(dv->gv, PLAYER_DRACULA,
 		DvGetRound(dv), DvGetPlayerLocation(dv, PLAYER_DRACULA),
 		numReturnedLocs); 	//dont have to check for trains and hospital
 							// since GvGetReachable takes that into account
 	
 	//Remove Items which Dracula cannot visit
-	//Remove Non Movement Items
-
 	//Checking if only move is teleport
-	if ((*numReturnedLocs == 1) && (places[0] == TELEPORT)) {
-		*numReturnedLocs = 0;
-		return NULL;
-	}
+	if (*numReturnedLocs == 0) return NULL;
 
-	//Check move history to see if these have occured
-	bool hiddenInTrail = hiddenInLast5(dv);
+	//Check move history to see if can doubleback
 	bool doubleBackInTrail = DoubleInLast5(dv);
 
-	if (hiddenInTrail) { //Remove the hide move for dracula
-		for (int i = 0; i < *numReturnedLocs; i++) {
-			if (places[i] == HIDE) {	//found index of Hide
-				for (int j = i; j < *numReturnedLocs; j++) {
-					places[j] = places[j+1];
+	int numHistMoves;
+	bool canFree = false;
+	int numMoves = 5;
+	PlaceId *trailMoves = GvGetLastLocations(dv->gv, PLAYER_DRACULA, 
+		numMoves, &numHistMoves, &canFree);
+
+	if (!doubleBackInTrail) {	//Add Double backs as moves
+		for (int i = 0; i < numHistMoves; i++) {	//Go through places and see if they occur in
+														//Dracula's trail, if they do, replace them with double_back_n
+			 for (int j = 0; j < *numReturnedLocs; j++) {
+				 if (trailMoves[i] == places[j]) {
+					 places[j] = DOUBLE_BACK_5 - i; //Move to somewere 5 moves ago - how many moves before it was
+				 }
+			 }
+		}
+	} else {	//Double Back in trail remove locations visited in last 5 moves
+		PlaceId remove = -3;
+		for (int i = 0; i < numHistMoves; i++) {	//Go through places and see if they occur in
+													//Dracula's trail, if they do, remove them
+			for (int j = 0; j < *numReturnedLocs; j++) {
+				if (trailMoves[i] == places[j]) {
+					places[j] = remove; //Move to somewere 5 moves ago - how many moves before it was
 				}
-				*numReturnedLocs -= 1;
-				break;
 			}
 		}
-	}
-
-	if (doubleBackInTrail) {
-		for (int i = 0; i < *numReturnedLocs; i++) {
-			if (places[i] >= DOUBLE_BACK_1 && places[i] <= DOUBLE_BACK_5) {	//found index of a doubleBack
-				for (int j = i; j < *numReturnedLocs; j++) {
-					places[j] = places[j+1];
-				}
-				*numReturnedLocs -= 1;
-				break;
+		//Rearrange the array
+		int numShift = 0;
+		for (int i = 0; i < *numReturnedLocs - numShift; i++) {
+			if (places[i] == remove) {
+				numShift++;
+				places[i] = places[i+numShift];
 			}
 		}
+		places = realloc(places, sizeof(PlaceId) * (*numReturnedLocs - numShift));
 	}
 
-	//Removing Non Locations
-	for (int i = 0; i < *numReturnedLocs; i++) {
-		if (places[i] == HIDE || places[i] == TELEPORT || places[i] == UNKNOWN_PLACE || places[i] == NOWHERE) {
-			
-		}
-	}
-
+	if (canFree) free(trailMoves);
 	return places;
 }
 
