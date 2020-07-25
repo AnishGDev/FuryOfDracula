@@ -146,7 +146,7 @@ int GvGetScore(GameView gv)
 int GvGetHealth(GameView gv, Player player)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	if (player < NUM_PLAYERS - 1) {
+	if (player != PLAYER_DRACULA) {
 		// The player is a hunter.
 		return gv->hunters[player]->health;
 	} else {
