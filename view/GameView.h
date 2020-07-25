@@ -146,6 +146,9 @@ PlaceId *GvGetTrapLocations(GameView gv, int *numTraps);
  * structure,  you may not want the caller to modify or free it.) If the
  * returned array can be modified/freed, set *canFree to true  to  avoid
  * memory leaks. Otherwise, set it to false.
+ * 
+ * Probably store moveHistory for each player, and canFree = false
+ * since we will manually free it.
  */
 PlaceId *GvGetMoveHistory(GameView gv, Player player,
                           int *numReturnedMoves, bool *canFree);

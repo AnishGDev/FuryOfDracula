@@ -26,12 +26,14 @@
 
 typedef struct _hunterData {
 	int health; 
-	PlaceId currLoc; 
+	PlaceId currLoc;
+	PlaceId * moveHistory; 
 } HunterData; 
 
 typedef struct _draculaData {
 	int health; 
 	PlaceId currLoc; 
+	PlaceId * moveHistory;
 } DraculaData; 
 
 struct gameView {
@@ -51,7 +53,7 @@ struct gameView {
 ////////////////////////////////////////////////////////////////////////
 // Constructor/Destructor
 
-static HunterData *createNewHunter() {
+static HunterData *createNewHunter(int pastPlaysLength) {
 	HunterData *h = malloc(sizeof(struct _hunterData)); 
 	if (h == NULL) {
 		fprintf(stderr, "Couldn't allocate HunterData!\n");
@@ -59,10 +61,12 @@ static HunterData *createNewHunter() {
 	}
 	h->health = GAME_START_HUNTER_LIFE_POINTS;
 	h->currLoc = NOWHERE; 
+	// Should optimize by finding max possible instead of just assigning pastPlaysLength
+	h->moveHistory = malloc(sizeof(enum placeId) * pastPlaysLength); 
 	return h;
 }
 
-static DraculaData *createNewDracula(){
+static DraculaData *createNewDracula(int pastPlaysLength){
 	DraculaData *d = malloc(sizeof(struct _draculaData));
 	if (d == NULL) {
 		fprintf(stderr, "Couldn't allocate DraculaData!\n");
@@ -70,6 +74,7 @@ static DraculaData *createNewDracula(){
 	}
 	d->health = GAME_START_BLOOD_POINTS;
 	d->currLoc = NOWHERE;
+	d->moveHistory = malloc(sizeof(enum placeId) * pastPlaysLength);
 	return d; 
 }
 
@@ -81,6 +86,9 @@ GameView GvNew(char *pastPlays, Message messages[])
 		fprintf(stderr, "Couldn't allocate GameView!\n");
 		exit(EXIT_FAILURE);
 	}
+	int pastPlaysLength = strlen(pastPlays);
+	gv->pastPlays = pastPlays;
+	gv->pastPlaysLength = pastPlaysLength;
 	gv->score = GAME_START_SCORE;
 	gv->roundNum = 0; 
 	gv->whoseTurn = PLAYER_LORD_GODALMING; 
@@ -89,20 +97,20 @@ GameView GvNew(char *pastPlays, Message messages[])
 		gv->trapLocs[i] = NOWHERE; 
 	}
 	for(int i =0; i < NUM_PLAYERS-1; i++){
-		gv->hunters[i] = createNewHunter();
+		gv->hunters[i] = createNewHunter(pastPlaysLength);
 	}
-	gv->dracula = createNewDracula();
+	gv->dracula = createNewDracula(pastPlaysLength);
 	gv->gameMap = MapNew();
-	gv->pastPlays = pastPlays;
-	gv->pastPlaysLength = strlen(pastPlays);
 	return gv;
 }
 
 void GvFree(GameView gv)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	free(gv->dracula->moveHistory);
 	free(gv->dracula); 
 	for (int i = 0; i < NUM_PLAYERS-1; i++){
+		free(gv->hunters[i]->moveHistory);
 		free(gv->hunters[i]);
 	}
 	MapFree(gv->gameMap);
@@ -212,6 +220,7 @@ PlaceId *GvGetLastLocations(GameView gv, Player player, int numLocs,
 // Replace with a better implementation if we find one.
 // Not 100% satisfied with the time complexity.
 
+// I don't think this works because of double railway links. Madrid/Alicante/Barcelona/Saragossa
 void addNextRailway(GameView gv, Queue railways, PlaceId from, int depth, int maxRailwayDepth){
 	if (depth >= maxRailwayDepth) return; 
 	ConnList curr = MapGetConnections(gv->gameMap, from);
