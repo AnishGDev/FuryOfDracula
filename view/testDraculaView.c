@@ -147,7 +147,7 @@ int main(void)
 		int numMoves = -1;
 		PlaceId *moves = DvGetValidMoves(dv, &numMoves);
 		assert(numMoves == 0);
-		assert(moves = NULL);
+		assert(moves == NULL);
 		free(moves);
 
 		printf("Test passed!\n");
