@@ -598,14 +598,141 @@ int main(void)
 
 	{///////////////////////////////////////////////////////////////////
 		printf("HvWhereCanIGo: ");
+
+		HunterView hv;
+		PlaceId *locs;
+		int num = -1;
+
+		hv = HvNew(
+			"GVE.... SAO.... HZU.... MBB.... DC?.V..",
+			(Message[5]) {}
+		);
+
+		locs = HvWhereCanIGo(hv, &num);
+		assert(num == 6);
+		sortPlaces(locs, num);
+		assert(locs[0] == ADRIATIC_SEA);
+		assert(locs[1] == GENOA);
+		assert(locs[2] == MILAN);
+		assert(locs[3] == MUNICH);
+		assert(locs[4] == VENICE);
+		assert(locs[5] == VIENNA);
+		free(locs);
+
+		HvFree(hv);
+
+		printf("passed\n");
 	}
 
 	{///////////////////////////////////////////////////////////////////
 		printf("HvWhereCanIGoByType: ");
+
+		HunterView hv;
+		PlaceId *locs;
+		int num = -1;
+
+		hv = HvNew(
+			"GVE.... SAO.... HZU.... MBB.... DC?.V..",
+			(Message[5]) {}
+		);
+
+		///////////////////////////////////////////////////////////////////
+
+		locs = HvWhereCanIGoByType(hv, true, false, false, &num);
+		assert(num == 4);
+		sortPlaces(locs, num);
+		assert(locs[0] == GENOA);
+		assert(locs[1] == MILAN);
+		assert(locs[2] == MUNICH);
+		assert(locs[3] == VENICE);
+		free(locs);
+
+		///////////////////////////////////////////////////////////////////
+
+		locs = HvWhereCanIGoByType(hv, false, true, false, &num);
+		assert(num == 1);
+		sortPlaces(locs, num);
+		assert(locs[0] == VIENNA);
+		free(locs);
+
+		///////////////////////////////////////////////////////////////////
+
+		locs = HvWhereCanIGoByType(hv, false, false, true, &num);
+		assert(num == 1);
+		sortPlaces(locs, num);
+		assert(locs[0] == ADRIATIC_SEA);
+		free(locs);
+
+		///////////////////////////////////////////////////////////////////
+
+		locs = HvWhereCanIGoByType(hv, true, true, true, &num);
+		assert(num == 6);
+		sortPlaces(locs, num);
+		assert(locs[0] == ADRIATIC_SEA);
+		assert(locs[1] == GENOA);
+		assert(locs[2] == MILAN);
+		assert(locs[3] == MUNICH);
+		assert(locs[4] == VENICE);
+		assert(locs[5] == VIENNA);
+		free(locs);
+
+		///////////////////////////////////////////////////////////////////
+
+		HvFree(hv);
+
+		printf("passed\n");
 	}
 
 	{///////////////////////////////////////////////////////////////////
 		printf("HvWhereCanTheyGo: ");
+
+		HunterView hv;
+		PlaceId *locs;
+		int num = -1;
+
+		///////////////////////////////////////////////////////////////////
+
+		hv = HvNew(
+			"GLE....",
+			(Message[1]) {}
+		);
+
+		locs = HvWhereCanTheyGo(hv, PLAYER_LORD_GODALMING, &num);
+		assert(num == 5);
+		sortPlaces(locs, num);
+		assert(locs[0] == BRUSSELS);
+		assert(locs[1] == ENGLISH_CHANNEL);
+		assert(locs[2] == LE_HAVRE);
+		assert(locs[3] == NANTES);
+		assert(locs[4] == PARIS);
+		free(locs);
+
+		HvFree(hv);
+
+		///////////////////////////////////////////////////////////////////
+
+		hv = HvNew(
+			"GLE.... SLE....",
+			(Message[2]) {}
+		);
+
+		locs = HvWhereCanTheyGoByType(hv, PLAYER_LORD_GODALMING, &num);
+		assert(num == 7);
+		sortPlaces(locs, num);
+		assert(locs[0] == BORDEAUX);
+		assert(locs[1] == BRUSSELS);
+		assert(locs[2] == ENGLISH_CHANNEL);
+		assert(locs[3] == LE_HAVRE);
+		assert(locs[4] == MARSEILLES);
+		assert(locs[5] == NANTES);
+		assert(locs[6] == PARIS);
+		free(locs);
+
+		HvFree(hv);
+
+		///////////////////////////////////////////////////////////////////
+
+		printf("passed\n");
 	}
 
 	{///////////////////////////////////////////////////////////////////
@@ -674,6 +801,51 @@ int main(void)
 		assert(locs[2] == KLAUSENBURG);
 		assert(locs[3] == SZEGED);
 		assert(locs[4] == ZAGREB);
+		free(locs);
+
+		HvFree(hv);
+
+		///////////////////////////////////////////////////////////////////
+		///////////////////////////////////////////////////////////////////
+
+		hv = HvNew(
+			"GLE....",
+			(Message[1]) {}
+		);
+
+		locs = HvWhereCanTheyGoByType(
+			hv, PLAYER_LORD_GODALMING, true, true, true, &num
+		);
+		assert(num == 5);
+		sortPlaces(locs, num);
+		assert(locs[0] == BRUSSELS);
+		assert(locs[1] == ENGLISH_CHANNEL);
+		assert(locs[2] == LE_HAVRE);
+		assert(locs[3] == NANTES);
+		assert(locs[4] == PARIS);
+		free(locs);
+
+		HvFree(hv);
+
+		///////////////////////////////////////////////////////////////////
+
+		hv = HvNew(
+			"GLE.... SLE....",
+			(Message[2]) {}
+		);
+
+		locs = HvWhereCanTheyGoByType(
+			hv, PLAYER_LORD_GODALMING, true, true, true, &num
+		);
+		assert(num == 7);
+		sortPlaces(locs, num);
+		assert(locs[0] == BORDEAUX);
+		assert(locs[1] == BRUSSELS);
+		assert(locs[2] == ENGLISH_CHANNEL);
+		assert(locs[3] == LE_HAVRE);
+		assert(locs[4] == MARSEILLES);
+		assert(locs[5] == NANTES);
+		assert(locs[6] == PARIS);
 		free(locs);
 
 		HvFree(hv);
