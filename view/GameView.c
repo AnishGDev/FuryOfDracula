@@ -138,29 +138,36 @@ void reconstructGameState(GameView gv) {
 					break;
 				case HIDE:
 					DRAC_LHIST[gv->roundNum] = DRAC_LHIST[gv->roundNum-1];
+					gv->dracula->currLoc = DRAC_LHIST[gv->roundNum - 1];
 					break;
 				case DOUBLE_BACK_1:
 					DRAC_LHIST[gv->roundNum] = DRAC_LHIST[gv->roundNum-1];
+					gv->dracula->currLoc = DRAC_LHIST[gv->roundNum - 1];
 					break;
 				case DOUBLE_BACK_2:
 					DRAC_LHIST[gv->roundNum] = DRAC_LHIST[gv->roundNum-2];
+					gv->dracula->currLoc = DRAC_LHIST[gv->roundNum - 2];
 					break;
 				case DOUBLE_BACK_3:
 					DRAC_LHIST[gv->roundNum] = DRAC_LHIST[gv->roundNum-3];
+					gv->dracula->currLoc = DRAC_LHIST[gv->roundNum - 3];
 					break;
 				case DOUBLE_BACK_4:
 					DRAC_LHIST[gv->roundNum] = DRAC_LHIST[gv->roundNum-4];
+					gv->dracula->currLoc = DRAC_LHIST[gv->roundNum - 4];
 					break;
 				case DOUBLE_BACK_5:
 					DRAC_LHIST[gv->roundNum] = DRAC_LHIST[gv->roundNum-5];
+					gv->dracula->currLoc = DRAC_LHIST[gv->roundNum - 5];
 					break;
 				default:
 					DRAC_LHIST[gv->roundNum] = currentLoc;
+					gv->dracula->currLoc = currentLoc;
 					break;
 			}
 			//printf("%d\n", i);
 			DRAC_MHIST[gv->roundNum] = currentLoc;
-			gv->dracula->currLoc = currentLoc;
+			//gv->dracula->currLoc = currentLoc;
 			if (DRAC_LHIST[gv->roundNum] == CASTLE_DRACULA) 
 				gv->dracula->health += 10;
 			if (placeIdToType(DRAC_LHIST[gv->roundNum]) == SEA) 
@@ -173,7 +180,7 @@ void reconstructGameState(GameView gv) {
 		} else {
 			if (currentLoc == CURR_HUNTER->currLoc)
 				CURR_HUNTER->health += 3;
-			if (CURR_HUNTER->health > 9) 
+			if (CURR_HUNTER->health > 9)
 				CURR_HUNTER->health = 9;
 			CURR_HUNTER->moveHistory[gv->roundNum] = currentLoc;
 			CURR_HUNTER->currLoc = currentLoc;
@@ -195,7 +202,7 @@ void reconstructGameState(GameView gv) {
 			}	
 		}
 		gv->whoseTurn++;
-		gv->whoseTurn %= 5;
+		gv->whoseTurn %= NUM_PLAYERS;
 	}
 	if (gv->whoseTurn > PLAYER_DRACULA) gv->whoseTurn = PLAYER_LORD_GODALMING;
 }
