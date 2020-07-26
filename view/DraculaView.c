@@ -201,15 +201,18 @@ PlaceId *DvWhereCanIGo(DraculaView dv, int *numReturnedLocs)
 		}
 		//Rearrange the array
 		int numShift = 0;
-		for (int i = 0; i < *numReturnedLocs - numShift; i++) {
+		for (int i = 0; i < *numReturnedLocs; i++) {
 			if (places[i] == remove) {
 				numShift++;
-				places[i] = places[i+numShift];
+				for (int j = i; j < *numReturnedLocs; j++) {
+					places[j] = places[j+1];
+				}
 			}
 		}
+		*numReturnedLocs -= numShift;
 		places = realloc(places, sizeof(PlaceId) * (*numReturnedLocs - numShift));
 	}
-
+	
 	if (canFree) free(trailMoves);
 	return places;
 }
