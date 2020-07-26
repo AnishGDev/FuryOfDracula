@@ -113,6 +113,86 @@ int main(void)
 		DvFree(dv);
 	}
 
+	{	
+		printf("Custom Test Could be wrong-Nikhil\n");
+		printf("Test for Dracula With No Moves\n");
+
+		char *trail =
+			"GGE.... SGE.... HGE.... MGE.... DDU.V.. "
+			"GST.... SST.... HST.... MST.... DIR.... "
+			"GST.... SST.... HST.... MST.... DAO.... "
+			"GST.... SST.... HST.... MST.... DGWT... "
+			"GST.... SST.... HST.... MST.... DHIT... "
+			"GST.... SST.... HST.... MST.... DD4T... "	//Pretty sure its D4
+			"GST.... SST.... HST.... MST....";
+
+
+		Message messages[24] = {};
+		DraculaView dv = DvNew(trail, messages);
+
+		assert(DvGetRound(dv) == 6);
+		assert(DvGetVampireLocation(dv) == DUBLIN);
+
+		assert(DvGetPlayerLocation(dv, PLAYER_DRACULA) == DUBLIN);
+
+		int numTraps = -1;
+		PlaceId *traps = DvGetTrapLocations(dv, &numTraps);
+		assert(numTraps == 3);
+		sortPlaces(traps, numTraps);
+		assert(traps[0] == DUBLIN);
+		assert(traps[1] == GALWAY);
+		assert(traps[2] == GALWAY);
+		free(traps);
+		
+		int numMoves = -1;
+		PlaceId *moves = DvGetValidMoves(dv, &numMoves);
+		assert(numMoves == 0);
+		assert(moves == NULL);
+		free(moves);
+
+		printf("Test passed!\n");
+		DvFree(dv);
+	}
+
+	{	
+		printf("Custom Test Could be wrong-Nikhil\n");
+		printf("Test for traps falling off the trail and if vampires mature properly.\n");
+
+		char *trail =
+			"GGE.... SGE.... HGE.... MGE.... DCD.V.. "
+			"GST.... SST.... HST.... MST.... DKLT... "
+			"GST.... SST.... HST.... MST.... DSZT... "
+			"GST.... SST.... HST.... MST.... DBDT... "
+			"GST.... SST.... HST.... MST.... DVIT... "
+			"GST.... SST.... HST.... MST.... DZAT.V. "
+			"GST.... SST.... HST.... MST.... DMUT... "
+			"GST.... SST.... HST.... MST....";
+
+
+		Message messages[24] = {};
+		DraculaView dv = DvNew(trail, messages);
+
+		assert(DvGetRound(dv) == 6);
+		assert(DvGetVampireLocation(dv) == NOWHERE);
+
+		assert(DvGetPlayerLocation(dv, PLAYER_DRACULA) == MUNICH);
+
+		int numTraps = -1;
+		PlaceId *traps = DvGetTrapLocations(dv, &numTraps);
+		assert(numTraps == 6);
+		sortPlaces(traps, numTraps);
+		assert(traps[0] == BUDAPEST);
+		assert(traps[1] == KLAUSENBURG);
+		assert(traps[2] == MUNICH);
+		assert(traps[3] == SZEGED);
+		assert(traps[4] == VIENNA);
+		assert(traps[5] == ZAGREB);
+		free(traps);
+
+		printf("Test passed!\n");
+		DvFree(dv);
+	}
+
 	{///////////////////////////////////////////////////////////////////
 	
 		printf("Test for Dracula's valid moves 1\n");
