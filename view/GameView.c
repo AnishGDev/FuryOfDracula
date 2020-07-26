@@ -118,10 +118,10 @@ GameView GvNew(char *pastPlays, Message messages[])
 }
 
 void appendTrapLoc(GameView gv, PlaceId loc) {
-	for (int i = 0; i < TRAIL_SIZE - 2; i++) {
-		gv->trapLocs[i] = gv->trapLocs[i+1];
+	for (int i = TRAIL_SIZE - 1; i > 0; i--) {
+		gv->trapLocs[i] = gv->trapLocs[i-1];
 	}
-	gv->trapLocs[TRAIL_SIZE-1] = loc;
+	gv->trapLocs[0] = loc;
 	gv->numTraps+=1;
 }
 
