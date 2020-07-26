@@ -95,15 +95,13 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves)
 		*numReturnedMoves = 0;
 		return NULL;
 	}
-	*numReturnedMoves = 0;
+
 	PlaceId *places = GvGetReachable(dv->gv, PLAYER_DRACULA,
 		DvGetRound(dv), DvGetPlayerLocation(dv, PLAYER_DRACULA)
 		,numReturnedMoves); 	//dont have to check for trains and hospital
 							// since GvGetReachable takes that into account
 	
 	//Remove Items which Dracula cannot visit
-	//Checking if only move is teleport
-	if (*numReturnedMoves == 0) return NULL;
 
 	//Check move history to see if these have occured
 	bool hiddenInTrail = hiddenInLast5(dv);
@@ -150,11 +148,6 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves)
 		}
 		places = realloc(places, sizeof(PlaceId) * (*numReturnedMoves - numShift));
 	}
-
-	//Adding Teleport as a move
-	*numReturnedMoves += 1;
-	places = realloc(places, sizeof(PlaceId) * (*numReturnedMoves));
-	places[*numReturnedMoves-1] = TELEPORT;
 
 	if (canFree) free(trailMoves);
 	return places;
