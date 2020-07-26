@@ -324,9 +324,9 @@ PlaceId *GvGetMoveHistory(GameView gv, Player player,
 		ret = DRAC_MHIST;
 	}
 	if (player >= gv->whoseTurn) {
-		*numReturnedMoves = gv->roundNum-1;
-	} else {
 		*numReturnedMoves = gv->roundNum;
+	} else {
+		*numReturnedMoves = gv->roundNum+1;
 	}
 	*canFree = false;
 	return ret;
@@ -352,9 +352,9 @@ PlaceId *GvGetLocationHistory(GameView gv, Player player,
 		ret = DRAC_LHIST;
 	}
 	if (player >= gv->whoseTurn) {
-		*numReturnedLocs = gv->roundNum-1;
-	} else {
 		*numReturnedLocs = gv->roundNum;
+	} else {
+		*numReturnedLocs = gv->roundNum+1;
 	}
 	*canFree = false;
 	return ret;
