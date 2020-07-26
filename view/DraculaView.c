@@ -121,19 +121,19 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves)
 	PlaceId *trailMoves = GvGetLastLocations(dv->gv, PLAYER_DRACULA, 
 		numMoves, &numHistMoves, &canFree);
 
-	/*
+	
 	printf("num hist: %d\n", numHistMoves);
 
 	for (int i = 0; i < numHistMoves; i++) {
-		printf("%s\n", placeIdToName(trailMoves[i]));
+		printf("Mov: %s\n", placeIdToName(trailMoves[i]));
 	}
-	*/
+	
 	if (!doubleBackInTrail) {	//Add Double backs as moves
 		for (int i = 0; i < numHistMoves; i++) {	//Go through places and see if they occur in
 														//Dracula's trail, if they do, replace them with double_back_n
 			 for (int j = 0; j < *numReturnedMoves; j++) {
 				 if (trailMoves[i] == places[j]) {
-					 places[j] = DOUBLE_BACK_5 - i; //Move to somewere 5 moves ago - how many moves before it was
+					 places[j] = DOUBLE_BACK_1 + i; //Move to somewere 5 moves ago - how many moves before it was
 				 }
 			 }
 		}
@@ -203,7 +203,7 @@ PlaceId *DvWhereCanIGoByType(DraculaView dv, bool road, bool boat,
 													//Dracula's trail, if they do, replace them with double_back_n
 			 for (int j = 0; j < *numReturnedLocs; j++) {
 				 if (trailMoves[i] == places[j]) {
-					 places[j] = DOUBLE_BACK_5 - i; //Move to somewere 5 moves ago - how many moves before it was
+					 places[j] = DOUBLE_BACK_1 + i; //Move to somewere 1 moves ago - how many moves before it was
 				 }
 			 }
 		}
@@ -293,7 +293,7 @@ static bool hiddenInLast5 (DraculaView dv) {
 static bool DoubleInLast5 (DraculaView dv) {
 
 	bool canfree = false;
-	bool found = true;
+	bool found = false;
 	int numReturnedMoves;
 	PlaceId *moveHist = GvGetLastMoves (dv->gv, PLAYER_DRACULA, 
 		5, &numReturnedMoves, &canfree);

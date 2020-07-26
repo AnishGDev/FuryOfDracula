@@ -116,7 +116,7 @@ int main(void)
 		DvFree(dv);
 	}
 
-/*
+
 	{///////////////////////////////////////////////////////////////////
 	
 		printf("Test for Dracula's valid moves 1\n");
@@ -130,6 +130,9 @@ int main(void)
 		
 		int numMoves = -1;
 		PlaceId *moves = DvGetValidMoves(dv, &numMoves);
+		for (int i = 0; i < numMoves; i++) {
+			printf("Mov: %s\n", placeIdToName(moves[i]));
+		}
 		assert(numMoves == 4);
 		sortPlaces(moves, numMoves);
 		for (int i = 0; i < numMoves; i++) {
@@ -219,7 +222,7 @@ int main(void)
 		printf("Test passed!\n");
 		DvFree(dv);
 	}
-*/
+
 	{//Test for traps falling off the trail and if vampires mature properly.
 		printf("Custom Test Could be wrong-Nikhil\n");
 		printf("Test for traps falling off the trail and if vampires mature properly.\n");
