@@ -88,6 +88,7 @@ static DraculaData *createNewDracula(int pastPlaysLength){
 	d->lastRevealed = 0; // #define it later.
 	d->moveHistory = malloc(sizeof(enum placeId) * (pastPlaysLength/ROUND_CHARACTER_LENGTH+1));
 	d->locHistory = malloc(sizeof(enum placeId) * (pastPlaysLength/ROUND_CHARACTER_LENGTH+1));
+	d->locHistory[0] = NOWHERE;
 	return d; 
 }
 
@@ -134,6 +135,7 @@ void reconstructGameState(GameView gv) {
 		sprintf(loc, "%c%c", gv->pastPlays[i+1], gv->pastPlays[i+2]);
 		currentLoc = placeAbbrevToId(loc);
 		if (gv->whoseTurn == PLAYER_DRACULA) {
+			// Might have to loop until its not hide/double back
 			switch (currentLoc) {
 				case TELEPORT:
 					DRAC_LHIST[gv->roundNum] = CASTLE_DRACULA;
@@ -177,7 +179,7 @@ void reconstructGameState(GameView gv) {
 				gv->dracula->health += LIFE_GAIN_CASTLE_DRACULA;
 			if (placeIdToType(DRAC_LHIST[gv->roundNum]) == SEA) 
 				gv->dracula->health -= LIFE_LOSS_SEA;
-			if (gv->pastPlays[i+3] == 'T') appendTrapLoc(gv, currentLoc);
+			if (gv->pastPlays[i+3] == 'T') appendTrapLoc(gv, gv->dracula->currLoc);
 			if (gv->pastPlays[i+4] == 'V') gv->vampireLocation = currentLoc;
 			if (gv->pastPlays[i+5] == 'V') {
 				 gv->score -= SCORE_LOSS_VAMPIRE_MATURES;
@@ -456,6 +458,9 @@ PlaceId *GvGetReachableByType(GameView gv, Player player, Round round,
 }
 
 PlaceId lastKnownDraculaLocation(GameView gv, int *round) {
+	if (DRAC_LHIST[gv->dracula->lastRevealed] != NOWHERE) {
+		*round = gv->dracula->lastRevealed;
+	}
 	return DRAC_LHIST[gv->dracula->lastRevealed];
 }
 ////////////////////////////////////////////////////////////////////////
