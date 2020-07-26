@@ -287,7 +287,7 @@ PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
 	PlaceId *ret = malloc(sizeof(enum placeId));
 	ret = gv->trapLocs;
 	*numTraps = 6;
-	return NULL;
+	return ret;
 }
 
 ////////////////////////////////////////////////////////////////////////
