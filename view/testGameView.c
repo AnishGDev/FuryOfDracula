@@ -627,7 +627,7 @@ int main(void)
 	}
 
 	{
-	printf("Testing hunter's getLastLocation\n");
+	printf("Testing hunter's getLastLocation and getLastMoves\n");
 		char *trail =
 			"GLS.... SGE.... HGE.... MGE.... DST.V.. "
 			"GCA.... SGE.... HGE.... MGE.... DC?T... "
@@ -642,33 +642,57 @@ int main(void)
 		bool canFree; 
 		printf("\t Checking PLAYER_LORD_GODALMING\n");
 		PlaceId *locHistory = GvGetLastLocations(gv, PLAYER_LORD_GODALMING, 3, &numReturned, &canFree);
+		PlaceId *movHistory = GvGetLastMoves(gv, PLAYER_LORD_GODALMING, 3, &numReturned, &canFree);
 		assert(numReturned == 3); 
+		printf("\t\t Checking Location History\n");
 		assert(locHistory[0] == SARAGOSSA);
 		assert(locHistory[1] == SANTANDER);
 		assert(locHistory[2] == MADRID);
+		printf("\t\t Checking Move History\n");
+		assert(movHistory[0] == SARAGOSSA);
+		assert(movHistory[1] == SANTANDER);
+		assert(movHistory[2] == MADRID);
 		printf("\t Checking PLAYER_DR_SEWARD\n");
 		locHistory = GvGetLastLocations(gv, PLAYER_DR_SEWARD, 3, &numReturned, &canFree);
+		movHistory = GvGetLastMoves(gv, PLAYER_DR_SEWARD, 3, &numReturned, &canFree);
 		assert(numReturned == 3); 
+		printf("\t\t Checking Location History\n");
 		assert(locHistory[0] == GENEVA);
 		assert(locHistory[1] == GENEVA);
 		assert(locHistory[2] == STRASBOURG);
+		printf("\t\t Checking Move History\n");
+		assert(movHistory[0] == GENEVA);
+		assert(movHistory[1] == GENEVA);
+		assert(movHistory[2] == STRASBOURG);
 		printf("\t Checking PLAYER_VAN_HELSING\n");
 		locHistory = GvGetLastLocations(gv, PLAYER_VAN_HELSING, 3, &numReturned, &canFree);
+		movHistory = GvGetLastMoves(gv, PLAYER_VAN_HELSING, 3, &numReturned, &canFree);
 		assert(numReturned == 3); 
+		printf("\t\t Checking Location History\n");
 		assert(locHistory[0] == GENEVA);
 		assert(locHistory[1] == GENEVA);
 		assert(locHistory[2] == GENEVA);
+		printf("\t\t Checking Move History\n");
+		assert(movHistory[0] == GENEVA);
+		assert(movHistory[1] == GENEVA);
+		assert(movHistory[2] == GENEVA);
 		printf("\t Checking PLAYER_MINA_HARKER\n");
 		locHistory = GvGetLastLocations(gv, PLAYER_MINA_HARKER, 3, &numReturned, &canFree);
+		movHistory = GvGetLastMoves(gv, PLAYER_MINA_HARKER, 3, &numReturned, &canFree);
 		assert(numReturned == 3); 
+		printf("\t\t Checking Location History\n");
 		assert(locHistory[0] == GENEVA);
 		assert(locHistory[1] == GENEVA);
 		assert(locHistory[2] == GENEVA);
+		printf("\t\t Checking Move History\n");
+		assert(movHistory[0] == GENEVA);
+		assert(movHistory[1] == GENEVA);
+		assert(movHistory[2] == GENEVA);
 		if (canFree){
 			free(locHistory);
 		}
 		GvFree(gv); 
-		printf("Testing Dracula's getLastLocation\n");
+		printf("Testing Dracula's getLastLocation amd getLastMoves\n");
 				trail = "GLS.... SGE.... HGE.... MGE.... DST.V.. "
 							"GCA.... SGE.... HGE.... MGE.... DZUT... "
 							"GGR.... SGE.... HGE.... MGE.... DMUT... "
@@ -679,15 +703,23 @@ int main(void)
 		// Reconstruct game view in point of Dracula. 
 		gv = GvNew(trail, messages);
 		locHistory = GvGetLastLocations(gv, PLAYER_DRACULA, 3, &numReturned, &canFree);
+		movHistory = GvGetLastMoves(gv, PLAYER_DRACULA, 3, &numReturned, &canFree);
 		assert(numReturned == 3); 
+		printf("\t\t Checking Location History\n");
 		assert(locHistory[0] == STRASBOURG);
 		assert(locHistory[1] == STRASBOURG);
 		assert(locHistory[2] == MILAN);
+		printf("\t\t Checking Move History\n");
+		assert(movHistory[0] == DOUBLE_BACK_3);
+		assert(movHistory[1] == HIDE);
+		assert(movHistory[2] == MILAN);
 		if (canFree){
 			free(locHistory);
 		}
 		GvFree(gv);
 	}	
+
+	printf("ALL TESTS PASSED SUCCESSFULLY!!!\n");
 	return EXIT_SUCCESS;
 }
 
