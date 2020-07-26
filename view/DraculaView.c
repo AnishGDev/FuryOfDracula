@@ -140,12 +140,15 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves)
 		}
 		//Rearrange the array
 		int numShift = 0;
-		for (int i = 0; i < *numReturnedMoves - numShift; i++) {
+		for (int i = 0; i < *numReturnedMoves; i++) {
 			if (places[i] == remove) {
 				numShift++;
-				places[i] = places[i+numShift];
+				for (int j = i; j < *numReturnedMoves; j++) {
+					places[j] = places[j+1];
+				}
 			}
 		}
+		*numReturnedMoves -= numShift;
 		places = realloc(places, sizeof(PlaceId) * (*numReturnedMoves - numShift));
 	}
 
@@ -155,6 +158,12 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves)
 
 PlaceId *DvWhereCanIGo(DraculaView dv, int *numReturnedLocs)
 {
+	return DvWhereCanIGoByType(dv, true, true, numReturnedLocs);
+}
+
+PlaceId *DvWhereCanIGoByType(DraculaView dv, bool road, bool boat,
+                             int *numReturnedLocs)
+{
 	//Checking if dracula has made a move
 	if (GvGetPlayerLocation(dv->gv, PLAYER_DRACULA) == NOWHERE) {
 		*numReturnedLocs = 0;
@@ -162,9 +171,9 @@ PlaceId *DvWhereCanIGo(DraculaView dv, int *numReturnedLocs)
 	}
 
 	*numReturnedLocs = 0;
-	PlaceId *places = GvGetReachable(dv->gv, PLAYER_DRACULA,
+	PlaceId *places = GvGetReachableByType(dv->gv, PLAYER_DRACULA,
 		DvGetRound(dv), DvGetPlayerLocation(dv, PLAYER_DRACULA),
-		numReturnedLocs); 	//dont have to check for trains and hospital
+		road, false, boat, numReturnedLocs); 	//dont have to check for trains and hospital
 							//since GvGetReachable takes that into account
 	
 	//Checking if only move is teleport
@@ -212,47 +221,8 @@ PlaceId *DvWhereCanIGo(DraculaView dv, int *numReturnedLocs)
 		*numReturnedLocs -= numShift;
 		places = realloc(places, sizeof(PlaceId) * (*numReturnedLocs - numShift));
 	}
-	
+
 	if (canFree) free(trailMoves);
-	return places;
-}
-
-PlaceId *DvWhereCanIGoByType(DraculaView dv, bool road, bool boat,
-                             int *numReturnedLocs)
-{
-	//Checking if dracula has made a move
-	if (GvGetPlayerLocation(dv->gv, PLAYER_DRACULA) == NOWHERE) {
-		*numReturnedLocs = 0;
-		return NULL;
-	}
-
-	PlaceId *places = GvGetReachableByType(dv->gv, PLAYER_DRACULA,
-		DvGetRound(dv), DvGetPlayerLocation(dv, PLAYER_DRACULA),
-		road, false, boat, numReturnedLocs);	//dont have to check for trains and hospital
-												// since GvGetReachable takes that into account
-
-	//Checking if only move is teleport
-	if (*numReturnedLocs == 0) {
-		*numReturnedLocs = 0;
-		return NULL;
-	}
-
-	//Remove Items which Dracula cannot visit 
-
-	//Check move history to see if doubleback has occured
-	bool doubleBackInTrail = DoubleInLast5(dv);
-
-	if (doubleBackInTrail) {
-		for (int i = 0; i < *numReturnedLocs; i++) {
-			if (places[i] >= DOUBLE_BACK_1 && places[i] <= DOUBLE_BACK_5) {	//found index of a doubleBack
-				for (int j = i; j < *numReturnedLocs; j++) {	//Since double back can only occur once, shift the array
-					places[j] = places[j+1];
-				}
-				*numReturnedLocs -= 1;
-				break;
-			}
-		}
-	}
 	return places;
 }
 
