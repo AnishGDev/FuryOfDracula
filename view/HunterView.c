@@ -77,6 +77,9 @@ PlaceId HvGetVampireLocation(HunterView hv) {
 
 PlaceId HvGetLastKnownDraculaLocation(HunterView hv, Round *round) {
 	PlaceId result = lastKnownDraculaLocation(hv->gv, round);
+	if (result == CITY_UNKNOWN) {
+		return NOWHERE; 
+	}
 	/*
 	int n = 0;
 	bool canFree = false;
@@ -118,65 +121,67 @@ PlaceId *HvGetShortestPathTo(
 	
 	PlaceId src = GvGetPlayerLocation(hv->gv, hunter);
 
-	Round currentRound = GvGetRound(hv->gv);
+	if (src != NOWHERE) {
+		Round currentRound = GvGetRound(hv->gv);
 
-	// synchronised queues, needed due to the lack of type
-	// parameterisation in C
-	Queue seen = newQueue();
-	Queue rounds = newQueue();
-	QueueJoin(seen, src);
-	QueueJoin(rounds, currentRound);
+		// synchronised queues, needed due to the lack of type
+		// parameterisation in C
+		Queue seen = newQueue();
+		Queue rounds = newQueue();
+		QueueJoin(seen, src);
+		QueueJoin(rounds, currentRound);
 
-	PlaceId links[NUM_REAL_PLACES];
-	for (int i = 0; i < NUM_REAL_PLACES; i++) {
-		links[i] = NOWHERE;
-	}
-	links[src] = src;
+		PlaceId links[NUM_REAL_PLACES];
+		for (int i = 0; i < NUM_REAL_PLACES; i++) {
+			links[i] = NOWHERE;
+		}
+		links[src] = src;
 
-	while (!QueueIsEmpty(seen)) {
-		PlaceId place = QueueLeave(seen);
+		while (!QueueIsEmpty(seen)) {
+			PlaceId place = QueueLeave(seen);
 
-		if (place == dest) {
-			// Found!
+			if (place == dest) {
+				// Found!
 
-			path = malloc(NUM_REAL_PLACES * sizeof(enum placeId));
+				path = malloc(NUM_REAL_PLACES * sizeof(enum placeId));
 
-			int i = 0;
-			for (PlaceId place = dest; place != src; place = links[place]) {
-				path[i] = place;
-				i++;
-			}
+				int i = 0;
+				for (PlaceId place = dest; place != src; place = links[place]) {
+					path[i] = place;
+					i++;
+				}
 
-			// reverse the path to become src to dest order
-			reverse(path, i);
+				// reverse the path to become src to dest order
+				reverse(path, i);
 
-			*pathLength = i;
+				*pathLength = i;
 
-			break;
-		} else {
-			Round round = QueueLeave(rounds);
+				break;
+			} else {
+				Round round = QueueLeave(rounds);
 
-			int n = 0;
-			PlaceId *reachable = GvGetReachable(
-				hv->gv, hunter, round, place, &n
-			);
+				int n = 0;
+				PlaceId *reachable = GvGetReachable(
+					hv->gv, hunter, round, place, &n
+				);
 
-			round++;
+				round++;
 
-			for (int i = 0; i < n; i++) {
-				PlaceId connected = reachable[i];
+				for (int i = 0; i < n; i++) {
+					PlaceId connected = reachable[i];
 
-				if (links[connected] == NOWHERE) {
-					links[connected] = place;
-					QueueJoin(seen, connected);
-					QueueJoin(rounds, round);
+					if (links[connected] == NOWHERE) {
+						links[connected] = place;
+						QueueJoin(seen, connected);
+						QueueJoin(rounds, round);
+					}
 				}
 			}
 		}
-	}
 
-	dropQueue(seen);
-	dropQueue(rounds);
+		dropQueue(seen);
+		dropQueue(rounds);
+	}
 
 	return path;
 }
@@ -217,10 +222,16 @@ PlaceId *HvWhereCanTheyGoByType(
 	bool road, bool rail, bool boat,
 	int *numReturnedLocs
 ) {
+	*numReturnedLocs = 0;
+
+	PlaceId location = GvGetPlayerLocation(hv->gv, player);
+	if (location == NOWHERE) {
+		return NULL;
+	}
+
 	if (player == PLAYER_DRACULA) {
 		Round round;
 		if (HvGetLastKnownDraculaLocation(hv, &round) == NOWHERE) {
-			*numReturnedLocs = 0;
 			return NULL;
 		}
 	}
@@ -236,12 +247,10 @@ PlaceId *HvWhereCanTheyGoByType(
 		round = (round + 1) % NUM_PLAYERS;
 	}
 
-	if (n == 0) {
-		*numReturnedLocs = 0;
-	} else {
+	if (n != 0) {
 		result = GvGetReachableByType(
 			hv->gv, player, round,
-			GvGetPlayerLocation(hv->gv, player),
+			location,
 			road, rail, boat,
 			numReturnedLocs
 		);
