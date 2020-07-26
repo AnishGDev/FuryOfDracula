@@ -104,10 +104,10 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves)
 	bool hiddenInTrail = hiddenInLast5(dv);
 	bool doubleBackInTrail = DoubleInLast5(dv);
 
-	/*
+	
 	if (doubleBackInTrail) printf("DOUBLE\n");
 	else printf("Can DOUBLE\n");
-	*/
+	
 
 	if (!hiddenInTrail) {	//Add Hide as a move
 		*numReturnedMoves += 1;
@@ -120,13 +120,6 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves)
 	int numMoves = 5;
 	PlaceId *trailMoves = GvGetLastLocations(dv->gv, PLAYER_DRACULA, 
 		numMoves, &numHistMoves, &canFree);
-
-	
-	printf("num hist: %d\n", numHistMoves);
-
-	for (int i = 0; i < numHistMoves; i++) {
-		printf("Mov: %s\n", placeIdToName(trailMoves[i]));
-	}
 	
 	if (!doubleBackInTrail) {	//Add Double backs as moves
 		for (int i = 0; i < numHistMoves; i++) {	//Go through places and see if they occur in
@@ -152,7 +145,7 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves)
 		for (int i = 0; i < *numReturnedMoves; i++) {
 			if (places[i] == remove) {
 				numShift++;
-				for (int j = i; j < *numReturnedMoves; j++) {
+				for (int j = i; j < *numReturnedMoves - 1; j++) {
 					places[j] = places[j+1];
 				}
 			}

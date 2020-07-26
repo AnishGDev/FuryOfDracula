@@ -214,7 +214,6 @@ int main(void)
 		
 		int numMoves = -1;
 		PlaceId *moves = DvGetValidMoves(dv, &numMoves);
-		printf("NMov %d\n", numMoves);
 		assert(numMoves == 0);
 		assert(moves == NULL);
 		free(moves);
