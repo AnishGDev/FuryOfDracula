@@ -85,7 +85,7 @@ PlaceId HvGetLastKnownDraculaLocation(HunterView hv, Round *round) {
 	);
 
 	// Iterate backwards until a location is found
-	for (int i = n - 1; i >= 0; i++) {
+	for (int i = n - 1; i >= 0; i--) {
 		if (placeIsReal(history[i])) {
 			*round = i;
 			result = history[i];
@@ -98,6 +98,16 @@ PlaceId HvGetLastKnownDraculaLocation(HunterView hv, Round *round) {
 	return result;
 }
 
+char *debugPlaces[] = {"ADRIATIC_SEA", "ALICANTE", "AMSTERDAM", "ATHENS", "ATLANTIC_OCEAN", "BARCELONA", "BARI", "BAY_OF_BISCAY", "BELGRADE", "BERLIN", "BLACK_SEA", "BORDEAUX", "BRUSSELS", "BUCHAREST", "BUDAPEST", "CADIZ", "CAGLIARI", "CASTLE_DRACULA", "CLERMONT_FERRAND", "COLOGNE", "CONSTANTA", "DUBLIN", "EDINBURGH", "ENGLISH_CHANNEL", "FLORENCE", "FRANKFURT", "GALATZ", "GALWAY", "GENEVA", "GENOA", "GRANADA", "HAMBURG", "IONIAN_SEA", "IRISH_SEA", "KLAUSENBURG", "LE_HAVRE", "LEIPZIG", "LISBON", "LIVERPOOL", "LONDON", "MADRID", "MANCHESTER", "MARSEILLES", "MEDITERRANEAN_SEA", "MILAN", "MUNICH", "NANTES", "NAPLES", "NORTH_SEA", "NUREMBURG", "PARIS", "PLYMOUTH", "PRAGUE", "ROME", "SALONICA", "SANTANDER", "SARAGOSSA", "SARAJEVO", "SOFIA", "ST_JOSEPH_AND_ST_MARY", "STRASBOURG", "SWANSEA", "SZEGED", "TOULOUSE", "TYRRHENIAN_SEA", "VALONA", "VARNA", "VENICE", "VIENNA", "ZAGREB", "ZURICH"};
+
+// Written by Luke Fisk-Lennon for COMP2521 Lab 7
+void reverse(int *array, int n) {
+	for (int i = 0; i < n / 2; i++) {
+		int temp = array[i];
+		array[i] = array[n - i - 1];
+		array[n - i - 1] = temp;
+	}
+}
 
 PlaceId *HvGetShortestPathTo(
 	HunterView hv, Player hunter, PlaceId dest, int *pathLength
@@ -105,9 +115,7 @@ PlaceId *HvGetShortestPathTo(
 	PlaceId *path = NULL;
 	*pathLength = 0;
 	
-	// swap so that path is in correct order when backtracking
-	PlaceId from = dest;
-	PlaceId to = GvGetPlayerLocation(hv->gv, hunter);
+	PlaceId src = GvGetPlayerLocation(hv->gv, hunter);
 
 	Round currentRound = GvGetRound(hv->gv);
 
@@ -115,37 +123,44 @@ PlaceId *HvGetShortestPathTo(
 	// parameterisation in C
 	Queue seen = newQueue();
 	Queue rounds = newQueue();
-	QueueJoin(seen, from);
+	QueueJoin(seen, src);
 	QueueJoin(rounds, currentRound);
 
 	PlaceId links[NUM_REAL_PLACES];
 	for (int i = 0; i < NUM_REAL_PLACES; i++) {
 		links[i] = NOWHERE;
 	}
-	links[from] = from;
+	links[src] = src;
 
 	while (!QueueIsEmpty(seen)) {
 		PlaceId place = QueueLeave(seen);
-		Round round = QueueLeave(rounds);
 
-		if (place == to) {
-			// found!
+		if (place == dest) {
+			// Found!
 
-			PlaceId *path = malloc(NUM_REAL_PLACES * sizeof(enum placeId));
+			path = malloc(NUM_REAL_PLACES * sizeof(enum placeId));
 
 			int i = 0;
-			for (PlaceId place = to; place != from; place = links[place]) {
+			for (PlaceId place = dest; place != src; place = links[place]) {
 				path[i] = place;
 				i++;
 			}
+
+			// reverse the path to become src to dest order
+			reverse(path, i);
+
 			*pathLength = i;
 
 			break;
 		} else {
+			Round round = QueueLeave(rounds);
+
 			int n = 0;
 			PlaceId *reachable = GvGetReachable(
 				hv->gv, hunter, round, place, &n
 			);
+
+			round++;
 
 			for (int i = 0; i < n; i++) {
 				PlaceId connected = reachable[i];
@@ -153,7 +168,7 @@ PlaceId *HvGetShortestPathTo(
 				if (links[connected] == NOWHERE) {
 					links[connected] = place;
 					QueueJoin(seen, connected);
-					QueueJoin(rounds, ++round);
+					QueueJoin(rounds, round);
 				}
 			}
 		}
@@ -214,14 +229,18 @@ PlaceId *HvWhereCanTheyGoByType(
 	int n = 0;
 	bool canFree = false;
 	PlaceId *history = GvGetMoveHistory(hv->gv, player, &n, &canFree);
+	Round round = GvGetRound(hv->gv);
+
+	if (GvGetPlayer(hv->gv) > player) {
+		round = (round + 1) % NUM_PLAYERS;
+	}
 
 	if (n == 0) {
 		*numReturnedLocs = 0;
 	} else {
 		result = GvGetReachableByType(
-			hv->gv, player,
-			HvGetRound(hv),
-			HvGetPlayerLocation(hv, player),
+			hv->gv, player, round,
+			GvGetPlayerLocation(hv->gv, player),
 			road, rail, boat,
 			numReturnedLocs
 		);

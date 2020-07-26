@@ -135,28 +135,28 @@ int main(void)
 			"GST....",
 			(Message[1]) {}
 		);
-		assert(HvGetRound(hv) == PLAYER_DR_SEWARD);
+		assert(HvGetPlayer(hv) == PLAYER_DR_SEWARD);
 		HvFree(hv);
 
 		hv = HvNew(
 			"GST.... SAO.... HZU....",
 			(Message[3]) {}
 		);
-		assert(HvGetRound(hv) == PLAYER_MINA_HARKER);
+		assert(HvGetPlayer(hv) == PLAYER_MINA_HARKER);
 		HvFree(hv);
 
 		hv = HvNew(
 			"GST.... SAO.... HZU.... MBB....",
 			(Message[4]) {}
 		);
-		assert(HvGetRound(hv) == PLAYER_DRACULA);
+		assert(HvGetPlayer(hv) == PLAYER_DRACULA);
 		HvFree(hv);
 
 		hv = HvNew(
 			"GST.... SAO.... HZU.... MBB.... DC?.V..",
 			(Message[5]) {}
 		);
-		assert(HvGetRound(hv) == PLAYER_LORD_GODALMING);
+		assert(HvGetPlayer(hv) == PLAYER_LORD_GODALMING);
 		HvFree(hv);
 
 		printf("passed\n");
@@ -212,7 +212,7 @@ int main(void)
 			(Message[21]) {}
 		);
 		assert(HvGetScore(hv) == GAME_START_SCORE - (
-			4 * SCORE_LOSS_DRACULA_TURN - SCORE_LOSS_HUNTER_HOSPITAL
+			4 * SCORE_LOSS_DRACULA_TURN + SCORE_LOSS_HUNTER_HOSPITAL
 		));
 		HvFree(hv);
 
@@ -227,7 +227,7 @@ int main(void)
 			(Message[35]) {}
 		);
 		assert(HvGetScore(hv) == GAME_START_SCORE - (
-			 7 * SCORE_LOSS_DRACULA_TURN - SCORE_LOSS_VAMPIRE_MATURES
+			 7 * SCORE_LOSS_DRACULA_TURN + SCORE_LOSS_VAMPIRE_MATURES
 		));
 		HvFree(hv);
 
@@ -303,6 +303,7 @@ int main(void)
 		assert(HvGetHealth(hv, PLAYER_DR_SEWARD) == GAME_START_HUNTER_LIFE_POINTS);
 		assert(HvGetHealth(hv, PLAYER_VAN_HELSING) == GAME_START_HUNTER_LIFE_POINTS);
 		assert(HvGetHealth(hv, PLAYER_MINA_HARKER) == GAME_START_HUNTER_LIFE_POINTS);
+		printf("\nHvGetHealth(hv, PLAYER_DRACULA) == %d\n", HvGetHealth(hv, PLAYER_DRACULA));
 		assert(HvGetHealth(hv, PLAYER_DRACULA) == (
 			GAME_START_BLOOD_POINTS - LIFE_LOSS_HUNTER_ENCOUNTER
 		));
@@ -398,7 +399,7 @@ int main(void)
 			"GGEVD..",
 			(Message[6]) {}
 		);
-		assert(HvGetPlayerLocation(hv, PLAYER_LORD_GODALMING) == STRASBOURG);
+		assert(HvGetPlayerLocation(hv, PLAYER_LORD_GODALMING) == GENEVA);
 		assert(HvGetPlayerLocation(hv, PLAYER_DR_SEWARD) == ATLANTIC_OCEAN);
 		assert(HvGetPlayerLocation(hv, PLAYER_VAN_HELSING) == CASTLE_DRACULA);
 		assert(HvGetPlayerLocation(hv, PLAYER_MINA_HARKER) == ATLANTIC_OCEAN);
@@ -451,7 +452,7 @@ int main(void)
 			"GSZ.... SGE.... HGE....",
 			(Message[18]) {}
 		);
-		assert(HvGetPlayerLocation(hv, PLAYER_LORD_GODALMING) == GENEVA);
+		assert(HvGetPlayerLocation(hv, PLAYER_LORD_GODALMING) == SZEGED);
 		assert(HvGetPlayerLocation(hv, PLAYER_DR_SEWARD) == GENEVA);
 		assert(HvGetPlayerLocation(hv, PLAYER_VAN_HELSING) == GENEVA);
 		assert(HvGetPlayerLocation(hv, PLAYER_MINA_HARKER) == GENEVA);
