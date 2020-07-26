@@ -39,6 +39,7 @@ typedef struct _hunterData {
 typedef struct _draculaData {
 	int health; 
 	PlaceId currLoc; 
+	Round lastRevealed; 
 	PlaceId * moveHistory;
 	PlaceId * locHistory;
 } DraculaData; 
@@ -84,6 +85,7 @@ static DraculaData *createNewDracula(int pastPlaysLength){
 	}
 	d->health = GAME_START_BLOOD_POINTS;
 	d->currLoc = NOWHERE;
+	d->lastRevealed = 0; // #define it later.
 	d->moveHistory = malloc(sizeof(enum placeId) * (pastPlaysLength/ROUND_CHARACTER_LENGTH+1));
 	d->locHistory = malloc(sizeof(enum placeId) * (pastPlaysLength/ROUND_CHARACTER_LENGTH+1));
 	return d; 
@@ -163,6 +165,9 @@ void reconstructGameState(GameView gv) {
 				default:
 					DRAC_LHIST[gv->roundNum] = currentLoc;
 					gv->dracula->currLoc = currentLoc;
+					if(currentLoc != CITY_UNKNOWN && currentLoc != NOWHERE) {
+						gv->dracula->lastRevealed = gv->roundNum;
+					}
 					break;
 			}
 			//printf("%d\n", i);
@@ -450,6 +455,9 @@ PlaceId *GvGetReachableByType(GameView gv, Player player, Round round,
 	return reachableLocations;
 }
 
+PlaceId lastKnownDraculaLocation(GameView gv, int *round) {
+	return DRAC_LHIST[gv->dracula->lastRevealed];
+}
 ////////////////////////////////////////////////////////////////////////
 // Your own interface functions
 
