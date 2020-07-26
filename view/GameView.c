@@ -24,7 +24,8 @@
 // TODO: ADD YOUR OWN STRUCTS HERE
 #define MAX_REACHABLE 200
 #define CURR_HUNTER gv->hunters[gv->whoseTurn]
-#define DRAC_HIST 
+#define DRAC_LHIST gv->dracula->locHistory
+#define DRAC_MHIST gv->dracula->moveHistory
 #define NOT_VISITED -1
 #define VISITED 1
 
@@ -38,6 +39,7 @@ typedef struct _draculaData {
 	int health; 
 	PlaceId currLoc; 
 	PlaceId * moveHistory;
+	PlaceId * locHistory;
 } DraculaData; 
 
 struct gameView {
@@ -114,9 +116,9 @@ GameView GvNew(char *pastPlays, Message messages[])
 	switch (player) {
 		case 'D':
 			if (!strcmp(loc, "C?"))
-				DRAC_HIST[round] = CITY_UNKNOWN;
+				DRAC_LHIST[round] = CITY_UNKNOWN;
 			else if (!strcmp(loc, "S?"))
-				DRAC_HIST[round] = SEA_UNKNOWN;
+				DRAC_LHIST[round] = SEA_UNKNOWN;
 			else
 			else for (int i = 0; i < 71)
 			break;
@@ -156,34 +158,35 @@ void reconstructGameState(GameView gv) {
 		if (gv->whoseTurn == PLAYER_DRACULA) {
 			switch (currentLoc) {
 				case TELEPORT:
-					DRAC_HIST[gv->roundNum] = CASTLE_DRACULA;
+					DRAC_LHIST[gv->roundNum] = CASTLE_DRACULA;
 					break;
 				case HIDE:
-					DRAC_HIST[gv->roundNum] = DRAC_HIST[gv->roundNum-1];
+					DRAC_LHIST[gv->roundNum] = DRAC_LHIST[gv->roundNum-1];
 					break;
 				case DOUBLE_BACK_1:
-					DRAC_HIST[gv->roundNum] = DRAC_HIST[gv->roundNum-1];
+					DRAC_LHIST[gv->roundNum] = DRAC_LHIST[gv->roundNum-1];
 					break;
 				case DOUBLE_BACK_2:
-					DRAC_HIST[gv->roundNum] = DRAC_HIST[gv->roundNum-2];
+					DRAC_LHIST[gv->roundNum] = DRAC_LHIST[gv->roundNum-2];
 					break;
 				case DOUBLE_BACK_3:
-					DRAC_HIST[gv->roundNum] = DRAC_HIST[gv->roundNum-3];
+					DRAC_LHIST[gv->roundNum] = DRAC_LHIST[gv->roundNum-3];
 					break;
 				case DOUBLE_BACK_4:
-					DRAC_HIST[gv->roundNum] = DRAC_HIST[gv->roundNum-4];
+					DRAC_LHIST[gv->roundNum] = DRAC_LHIST[gv->roundNum-4];
 					break;
 				case DOUBLE_BACK_5:
-					DRAC_HIST[gv->roundNum] = DRAC_HIST[gv->roundNum-5];
+					DRAC_LHIST[gv->roundNum] = DRAC_LHIST[gv->roundNum-5];
 					break;
 				case DOUBLE_BACK_6:
-					DRAC_HIST[gv->roundNum] = DRAC_HIST[gv->roundNum-6];
+					DRAC_LHIST[gv->roundNum] = DRAC_LHIST[gv->roundNum-6];
 					break;
 				default:
-					DRAC_HIST[gv->roundNum] = currentLoc;
+					DRAC_LHIST[gv->roundNum] = currentLoc;
 					break;
 			}
-			if (DRAC_HIST[gv->roundNum] == CASTLE_DRACULA) 
+			DRAC_MHIST[gv->roundNum] = currentLoc;
+			if (DRAC_LHIST[gv->roundNum] == CASTLE_DRACULA) 
 				gv->dracula->health += 10;
 			if (pastPlays[i+3] == 'T') appendTrapLoc(gv, currentLoc);
 			if (pastPlays[i+4] == 'V') gv->vampireLocation = currentLoc;
@@ -216,7 +219,7 @@ void reconstructGameState(GameView gv) {
 void GvFree(GameView gv)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	free(DRAC_HIST);
+	free(DRAC_LHIST);
 	free(gv->dracula); 
 	for (int i = 0; i < NUM_PLAYERS-1; i++){
 		free(gv->hunters[i]->moveHistory);
@@ -309,11 +312,11 @@ PlaceId *GvGetLocationHistory(GameView gv, Player player,
                               int *numReturnedLocs, bool *canFree)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	PlaceId *ret = malloc(sizeof(ret));
+	PlaceId *ret = malloc(sizeof(*ret));
 	if (player != PLAYER_DRACULA) {
 		ret = gv->hunters[player]->moveHistory;
 	} else {
-		ret = DRAC_HIST;
+		ret = DRAC_LHIST;
 	}
 	if (player >= gv->whoseTurn) {
 		*numReturnedLocs = gv->roundNum-1;
