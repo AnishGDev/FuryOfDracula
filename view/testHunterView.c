@@ -322,6 +322,36 @@ int main(void)
 		));
 		HvFree(hv);
 
+		hv = HvNew(
+			"GGE.... SGE.... HGE.... MGE.... DC?T... "
+			"GGET...",
+			(Message[6]) {}
+		);
+		assert(HvGetHealth(hv, PLAYER_LORD_GODALMING) == (
+			GAME_START_HUNTER_LIFE_POINTS - LIFE_LOSS_TRAP_ENCOUNTER
+		));
+		assert(HvGetHealth(hv, PLAYER_DR_SEWARD) == GAME_START_HUNTER_LIFE_POINTS);
+		assert(HvGetHealth(hv, PLAYER_VAN_HELSING) == GAME_START_HUNTER_LIFE_POINTS);
+		assert(HvGetHealth(hv, PLAYER_MINA_HARKER) == GAME_START_HUNTER_LIFE_POINTS);
+		assert(HvGetHealth(hv, PLAYER_DRACULA) == GAME_START_BLOOD_POINTS);
+		HvFree(hv);
+
+		hv = HvNew(
+			"GGE.... SGE.... HGE.... MGE.... DC?T... "
+			"GGE.... SGE.... HGE.... MGE.... DC?T... "
+			"GGETT.. SGE.... HGE.... MGE.... DC?.... "
+			"GGE....",
+			(Message[16]) {}
+		);
+		assert(HvGetHealth(hv, PLAYER_LORD_GODALMING) == (
+			GAME_START_HUNTER_LIFE_POINTS - (LIFE_LOSS_TRAP_ENCOUNTER * 2) + LIFE_GAIN_REST
+		));
+		assert(HvGetHealth(hv, PLAYER_DR_SEWARD) == GAME_START_HUNTER_LIFE_POINTS);
+		assert(HvGetHealth(hv, PLAYER_VAN_HELSING) == GAME_START_HUNTER_LIFE_POINTS);
+		assert(HvGetHealth(hv, PLAYER_MINA_HARKER) == GAME_START_HUNTER_LIFE_POINTS);
+		assert(HvGetHealth(hv, PLAYER_DRACULA) == GAME_START_BLOOD_POINTS);
+		HvFree(hv);
+
 		printf("passed\n");
 	}
 
@@ -636,8 +666,6 @@ int main(void)
 			(Message[5]) {}
 		);
 
-		///////////////////////////////////////////////////////////////////
-
 		locs = HvWhereCanIGoByType(hv, true, false, false, &num);
 		assert(num == 4);
 		sortPlaces(locs, num);
@@ -647,23 +675,17 @@ int main(void)
 		assert(locs[3] == VENICE);
 		free(locs);
 
-		///////////////////////////////////////////////////////////////////
-
 		locs = HvWhereCanIGoByType(hv, false, true, false, &num);
 		assert(num == 1);
 		sortPlaces(locs, num);
 		assert(locs[0] == VIENNA);
 		free(locs);
 
-		///////////////////////////////////////////////////////////////////
-
 		locs = HvWhereCanIGoByType(hv, false, false, true, &num);
 		assert(num == 1);
 		sortPlaces(locs, num);
 		assert(locs[0] == ADRIATIC_SEA);
 		free(locs);
-
-		///////////////////////////////////////////////////////////////////
 
 		locs = HvWhereCanIGoByType(hv, true, true, true, &num);
 		assert(num == 6);
@@ -676,8 +698,6 @@ int main(void)
 		assert(locs[5] == VIENNA);
 		free(locs);
 
-		///////////////////////////////////////////////////////////////////
-
 		HvFree(hv);
 
 		printf("passed\n");
@@ -689,8 +709,6 @@ int main(void)
 		HunterView hv;
 		PlaceId *locs;
 		int num = -1;
-
-		///////////////////////////////////////////////////////////////////
 
 		hv = HvNew(
 			"GLE....",
@@ -708,8 +726,6 @@ int main(void)
 		free(locs);
 
 		HvFree(hv);
-
-		///////////////////////////////////////////////////////////////////
 
 		hv = HvNew(
 			"GLE.... SLE....",
@@ -730,8 +746,6 @@ int main(void)
 
 		HvFree(hv);
 
-		///////////////////////////////////////////////////////////////////
-
 		printf("passed\n");
 	}
 
@@ -741,8 +755,6 @@ int main(void)
 		HunterView hv;
 		PlaceId *locs;
 		int num = -1;
-
-		///////////////////////////////////////////////////////////////////
 
 		hv = HvNew(
 			"GGA....",
@@ -763,8 +775,6 @@ int main(void)
 
 		HvFree(hv);
 
-		///////////////////////////////////////////////////////////////////
-
 		hv = HvNew(
 			"GPA....",
 			(Message[1]) {}
@@ -783,8 +793,6 @@ int main(void)
 		free(locs);
 
 		HvFree(hv);
-
-		///////////////////////////////////////////////////////////////////
 
 		hv = HvNew(
 			"GSZ.... SGE.... HGE.... MGE.... DSZ.V..",
@@ -805,9 +813,6 @@ int main(void)
 
 		HvFree(hv);
 
-		///////////////////////////////////////////////////////////////////
-		///////////////////////////////////////////////////////////////////
-
 		hv = HvNew(
 			"GLE....",
 			(Message[1]) {}
@@ -826,8 +831,6 @@ int main(void)
 		free(locs);
 
 		HvFree(hv);
-
-		///////////////////////////////////////////////////////////////////
 
 		hv = HvNew(
 			"GLE.... SLE....",
@@ -849,8 +852,6 @@ int main(void)
 		free(locs);
 
 		HvFree(hv);
-
-		///////////////////////////////////////////////////////////////////
 
 		printf("passed\n");
 	}
