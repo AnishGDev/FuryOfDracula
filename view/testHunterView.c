@@ -524,16 +524,14 @@ int main(void)
 			"",
 			(Message[0]) {}
 		);
-		// TODO: uncomment me!
-		// assert(HvGetLastKnownDraculaLocation(hv, &round) == NOWHERE);
+		assert(HvGetLastKnownDraculaLocation(hv, &round) == NOWHERE);
 		HvFree(hv);
 
 		hv = HvNew(
 			"GST.... SAO.... HZU.... MBB.... DC?.V..",
 			(Message[5]) {}
 		);
-		// TODO: uncomment me!
-		// assert(HvGetLastKnownDraculaLocation(hv, &round) == NOWHERE);
+		assert(HvGetLastKnownDraculaLocation(hv, &round) == NOWHERE);
 		HvFree(hv);
 
 		hv = HvNew(
@@ -554,8 +552,7 @@ int main(void)
 			(Message[25]) {}
 		);
 		assert(HvGetLastKnownDraculaLocation(hv, &round) == KLAUSENBURG);
-		// TODO: uncomment me!
-		// assert(round == 1);
+		assert(round == 1);
 		HvFree(hv);
 
 		printf("passed\n");
