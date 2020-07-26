@@ -128,6 +128,25 @@ void appendTrapLoc(GameView gv, PlaceId loc) {
     gv->numTraps+=1;
 }
 
+int findTrap(PlaceId *trapLocList, PlaceId trapToDelete, int originalLength) {
+	for (int i=0; i < originalLength; i++){
+		if (trapLocList[i] == trapToDelete){
+			return i; 
+		}
+	}
+	return -1; 
+}
+
+void deleteTrapAndShift(PlaceId *trapLocList, PlaceId trapToDelete, int originalLength) {
+	int index = findTrap(trapLocList, trapToDelete, originalLength);
+	assert(index != -1); // Should not be -1 since we placed trap earlier on.
+	trapLocList[index] = NOWHERE;
+	for (int i=index; i < originalLength - 1; i++) {
+		// Lets shift
+		trapLocList[i] = trapLocList[i+1]; 
+	}
+}
+
 void reconstructGameState(GameView gv) {
 	char* loc = malloc(sizeof(char)*3);
 	PlaceId currentLoc;
@@ -212,12 +231,8 @@ void reconstructGameState(GameView gv) {
 			for (int hunterAction = 3; hunterAction < 7; hunterAction++) {
 				if (gv->pastPlays[i+hunterAction] == 'T') {
 					CURR_HUNTER->health -= LIFE_LOSS_TRAP_ENCOUNTER;
-					for (int i = 0; i < TRAIL_SIZE; i++) {
-						if (gv->trapLocs[i] == currentLoc){ 
-							gv->trapLocs[i] = NOWHERE;
-							gv->numTraps--;
-						}
-					}
+					deleteTrapAndShift(gv->trapLocs, currentLoc, gv->numTraps);
+					gv->numTraps--;
 				} else if (gv->pastPlays[i+hunterAction] == 'V') {
 					gv->vampireLocation = NOWHERE;
 				} else if (gv->pastPlays[i+hunterAction] == 'D') {
@@ -234,8 +249,8 @@ void reconstructGameState(GameView gv) {
 		}
 		gv->whoseTurn++;
 		gv->whoseTurn %= NUM_PLAYERS;
-	}
 	if (gv->whoseTurn > PLAYER_DRACULA) gv->whoseTurn = PLAYER_LORD_GODALMING;
+	}
 }
 
 void GvFree(GameView gv)
@@ -407,7 +422,6 @@ PlaceId *GvGetLastLocations(GameView gv, Player player, int numLocs,
 		//return &(gv->hunters[player]->moveHistory[startFrom]);
 	}
 	return ret; 
-	//return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////
