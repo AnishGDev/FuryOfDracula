@@ -118,11 +118,11 @@ GameView GvNew(char *pastPlays, Message messages[])
 }
 
 void appendTrapLoc(GameView gv, PlaceId loc) {
-	for (int i = 0; i < TRAIL_SIZE - 2; i++) {
-		gv->trapLocs[i] = gv->trapLocs[i+1];
-	}
-	gv->trapLocs[TRAIL_SIZE-1] = loc;
-	gv->numTraps+=1;
+    for (int i = TRAIL_SIZE - 1; i > 0; i--) {
+        gv->trapLocs[i] = gv->trapLocs[i-1];
+    }
+    gv->trapLocs[0] = loc;
+    gv->numTraps+=1;
 }
 
 void reconstructGameState(GameView gv) {
@@ -295,7 +295,7 @@ PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 	PlaceId *ret = malloc(sizeof(enum placeId) * gv->numTraps);
-	memcpy(ret, gv->trapLocs, gv->numTraps);
+	memcpy(ret, gv->trapLocs, sizeof(gv->trapLocs[0]) * gv->numTraps);
 	for (int i =0; i < gv->numTraps; i++) {
 		printf("Trap was in %s \n", placeIdToName(gv->trapLocs[i])); 
 	}
