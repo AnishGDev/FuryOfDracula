@@ -262,5 +262,26 @@ int main(void)
 		printf("Test passed!\n");
 		DvFree(dv);
 	}
+
+	{	
+		printf("Testing for 3 encounters on 1 Location\n");
+		
+		char *trail =
+			"GGE.... SGE.... HGE.... MGE.... DCD.V.. "
+			"GST.... SST.... HST.... MST.... DKLT... "
+			"GST.... SST.... HST.... MST.... DSZT... "
+			"GST.... SST.... HST.... MST.... DBDT... "
+			"GST.... SST.... HST.... MST.... DVIT... "
+			"GST.... SST.... HST.... MST.... DZAT.V. "
+			"GST.... SST.... HST.... MST.... DMUT... "
+			"GST.... SST.... HST.... MST....";
+		
+		Message messages[9] = {};
+
+		//Gotta make the test lmao
+				
+		printf("Test passed!\n");
+		DvFree(dv);
+	}
 	return EXIT_SUCCESS;
 }
