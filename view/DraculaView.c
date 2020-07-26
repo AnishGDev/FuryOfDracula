@@ -104,18 +104,30 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves)
 	bool hiddenInTrail = hiddenInLast5(dv);
 	bool doubleBackInTrail = DoubleInLast5(dv);
 
+	/*
+	if (doubleBackInTrail) printf("DOUBLE\n");
+	else printf("Can DOUBLE\n");
+	*/
+
 	if (!hiddenInTrail) {	//Add Hide as a move
 		*numReturnedMoves += 1;
 		places = realloc(places, sizeof(PlaceId) * (*numReturnedMoves));
 		places[*numReturnedMoves-1] = HIDE;
 	}
 
-	int numHistMoves;
+	int numHistMoves = -1;
 	bool canFree = false;
 	int numMoves = 5;
 	PlaceId *trailMoves = GvGetLastLocations(dv->gv, PLAYER_DRACULA, 
 		numMoves, &numHistMoves, &canFree);
 
+	/*
+	printf("num hist: %d\n", numHistMoves);
+
+	for (int i = 0; i < numHistMoves; i++) {
+		printf("%s\n", placeIdToName(trailMoves[i]));
+	}
+	*/
 	if (!doubleBackInTrail) {	//Add Double backs as moves
 		for (int i = 0; i < numHistMoves; i++) {	//Go through places and see if they occur in
 														//Dracula's trail, if they do, replace them with double_back_n
@@ -248,7 +260,7 @@ PlaceId *DvWhereCanTheyGoByType(DraculaView dv, Player player,
 		*numReturnedLocs = 0;
 		return NULL;
 	}
-
+	
 	if (player == PLAYER_DRACULA) {
 		return DvWhereCanIGoByType(dv, road, boat, numReturnedLocs);
 	} else {
@@ -281,11 +293,11 @@ static bool hiddenInLast5 (DraculaView dv) {
 static bool DoubleInLast5 (DraculaView dv) {
 
 	bool canfree = false;
-	bool found = false;
+	bool found = true;
 	int numReturnedMoves;
 	PlaceId *moveHist = GvGetLastMoves (dv->gv, PLAYER_DRACULA, 
 		5, &numReturnedMoves, &canfree);
-
+	
 	for (int i = 0; i < numReturnedMoves; i++) {
 		//IF move is DOUBLE_BACK_1 or 2 or 3 or 4 or 5
 		if (moveHist[i] >= DOUBLE_BACK_1 && moveHist[i] <= DOUBLE_BACK_5) {
