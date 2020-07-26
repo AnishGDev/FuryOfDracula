@@ -109,6 +109,7 @@ GameView GvNew(char *pastPlays, Message messages[])
 	}
 	gv->dracula = createNewDracula(pastPlaysLength);
 	gv->gameMap = MapNew();
+	reconstructGameState(gv);
 	return gv;
 }
 

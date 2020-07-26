@@ -258,5 +258,5 @@ PlaceId *GvGetReachableByType(GameView gv, Player player, Round round,
 void addNextRailway(GameView gv, PlaceId from, int depth, int maxRailwayDepth, int * visited, int *numReturnedLocs, PlaceId * reachableLocations);
 // TODO
 bool linearScan(PlaceId *list, PlaceId itemToFind, int len);
-
+void reconstructGameState(GameView gv);
 #endif // !defined (FOD__GAME_VIEW_H_)
