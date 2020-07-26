@@ -23,6 +23,7 @@
 #include "Queue.h"
 // TODO: ADD YOUR OWN STRUCTS HERE
 #define MAX_REACHABLE 200
+#define CURR_HUNTER gv->hunters[gv->whoseTurn]
 
 typedef struct _hunterData {
 	int health; 
@@ -180,22 +181,33 @@ void reconstructGameState(GameView gv) {
 					break;
 			}
 			if (gv->dracula->moveHistory[gv->roundNum] == CASTLE_DRACULA) 
-				gv->dracula->health += 10; 
+				gv->dracula->health += 10;
 			if (pastPlays[i+3] == 'T') appendTrapLoc(gv, currentLoc);
 			if (pastPlays[i+4] == 'V') gv->vampireLocation = currentLoc;
 			if (pastPlays[i+5] == 'V') gv->score -= 13;
 		} else {
-			gv->hunters[gv->whoseTurn]->moveHistory[gv->roundNum] = currentLoc;
-			if (pastPlays[i+3] == 'T') gv->hunters[gv->whoseTurn]->health -= 2;
-			if (pastPlays[i+4] == 'V') gv->vampireLocation = NOWHERE;
+			if (currentLoc == CURR_HUNTER->currLoc)
+				CURR_HUNTER->health += 3;
+			if (CURR_HUNTER->health > 9) 
+				CURR_HUNTER->health = 9;
+			CURR_HUNTER->moveHistory[gv->roundNum] = currentLoc;
+			CURR_HUNTER->currLoc = currentLoc;
+			if (pastPlays[i+3] == 'T') 
+				CURR_HUNTER->health -= 2;
+			if (pastPlays[i+4] == 'V')
+				gv->vampireLocation = NOWHERE;
 			if (pastPlays[i+4] == 'D') {
-				gv->hunters[gv->whoseTurn]->health -= 4;
+				CURR_HUNTER->health -= 4;
 				gv->dracula->health -= 10;
 			}
-			if (gv->hunters[gv->whoseTurn]->health 
+			if (CURR_HUNTER->health <= 0) {
+				gv->score -= 6;
+				CURR_HUNTER->health = 9;
+			}	
 		}
 		gv->whoseTurn++;
 	}
+	if (gv->whoseTurn >= PLAYER_DRACULA) gv->whoseTurn = PLAYER_LORD_GODALMING;
 }
 
 void GvFree(GameView gv)
