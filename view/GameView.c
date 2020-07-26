@@ -139,7 +139,9 @@ int findTrap(PlaceId *trapLocList, PlaceId trapToDelete, int originalLength) {
 
 void deleteTrapAndShift(PlaceId *trapLocList, PlaceId trapToDelete, int originalLength) {
 	int index = findTrap(trapLocList, trapToDelete, originalLength);
-	assert(index != -1); // Should not be -1 since we placed trap earlier on.
+	if (index == -1) {
+		return; 
+	}
 	trapLocList[index] = NOWHERE;
 	for (int i=index; i < originalLength - 1; i++) {
 		// Lets shift
