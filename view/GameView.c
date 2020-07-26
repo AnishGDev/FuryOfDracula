@@ -50,6 +50,78 @@ struct gameView {
 	int pastPlaysLength; 
 };
 
+char** locationCodes = {"AS",
+"AL",
+"AM",
+"AT",
+"AO",
+"BA",
+"BI",
+"BB",
+"BE",
+"BR",
+"BS",
+"BO",
+"BU",
+"BC",
+"BD",
+"CA",
+"CG",
+"CD",
+"CF",
+"CO",
+"CN",
+"DU",
+"ED",
+"EC",
+"FL",
+"FR",
+"GA",
+"GW",
+"GE",
+"GO",
+"GR",
+"HA",
+"IO",
+"IR",
+"KL",
+"LI",
+"LE",
+"LS",
+"LV",
+"LO",
+"MA",
+"MN",
+"MR",
+"MS",
+"MI",
+"MU",
+"NA",
+"NP",
+"NS",
+"NU",
+"PA",
+"PL",
+"PR",
+"RO",
+"SA",
+"SN",
+"SR",
+"SJ",
+"SO",
+"JM",
+"ST",
+"SW",
+"SZ",
+"TO",
+"TS",
+"VA",
+"VR",
+"VE",
+"VI",
+"ZA",
+"ZU"};
+
 ////////////////////////////////////////////////////////////////////////
 // Constructor/Destructor
 
@@ -104,19 +176,37 @@ GameView GvNew(char *pastPlays, Message messages[])
 	return gv;
 }
 
-void populateLocation(char player, char* location) {
-	if (player == 'D') {
-		
-	} else {
+void populateLocation(char player, char* location, int round) {
+	switch (player) {
+		case 'D':
+			if (!strcmp(loc, "C?"))
+				gv->dracula->moveHistory[round] = CITY_UNKNOWN;
+			else if (!strcmp(loc, "S?"))
+				gv->dracula->moveHistory[round] = SEA_UNKNOWN;
+			else for (int i = 0; i < 100)
+			break;
+		case 'G':
 
+			break;
+		case 'S':
+
+			break;
+		case 'H':
+
+			break;
+		case 'M':
+
+			break;
 	}
 }
 
 void reconstructGameState(GameView gv) {
-	char loc[] = "  ";
+	char* loc = malloc(sizeof(char)*3);
+	int round = -1;
 	for (int i = 0; i < gv->pastPlaysLength; i += 8) {
-		loc = {gv->pastPlays[i+1], gv->pastPlays[i+2], '\0'};
-		populateLocation(gv->pastPlays[i], loc)
+		if (round % 5 == 0) round++;
+		sprintf(loc, "%c%c", gv->pastPlays[i+1], gv->pastPlays[i+2])
+		populateLocation(gv->pastPlays[i], loc, round)
 	}
 }
 
