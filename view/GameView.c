@@ -365,14 +365,32 @@ PlaceId *GvGetLocationHistory(GameView gv, Player player,
 	*canFree = false;
 	return ret;
 }
-
+// Need to test this function. 
 PlaceId *GvGetLastLocations(GameView gv, Player player, int numLocs,
                             int *numReturnedLocs, bool *canFree)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	*numReturnedLocs = 0;
+	int startFrom = 0; 
+	if (numLocs > gv->roundNum) {
+		startFrom = 0; 
+		*numReturnedLocs = gv->roundNum; 
+	} else {
+		startFrom = gv->roundNum - numLocs; 
+		*numReturnedLocs = numLocs; 
+	}
+	PlaceId * ret = malloc(sizeof(enum placeId) * numLocs);
 	*canFree = false;
-	return 0;
+	if(player == PLAYER_DRACULA) {
+		ret = &(gv->dracula->moveHistory[startFrom]);
+		//memset(ret, &(gv->dracula->moveHistory[startFrom]), sizeof(enum placeId) * (gv->roundNum - startFrom));
+		//return &(gv->dracula->moveHistory[startFrom]);
+	} else {
+		ret = &(gv->hunters[player]->moveHistory[startFrom]);
+		//memset(ret, &(gv->dracula->moveHistory[startFrom]), sizeof(enum placeId) * (gv->roundNum - startFrom));
+		//return &(gv->hunters[player]->moveHistory[startFrom]);
+	}
+	return ret; 
+	//return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////
