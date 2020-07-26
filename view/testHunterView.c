@@ -303,6 +303,7 @@ int main(void)
 		assert(HvGetHealth(hv, PLAYER_DR_SEWARD) == GAME_START_HUNTER_LIFE_POINTS);
 		assert(HvGetHealth(hv, PLAYER_VAN_HELSING) == GAME_START_HUNTER_LIFE_POINTS);
 		assert(HvGetHealth(hv, PLAYER_MINA_HARKER) == GAME_START_HUNTER_LIFE_POINTS);
+		printf("\nHvGetHealth(hv, PLAYER_DRACULA) == %d\n", HvGetHealth(hv, PLAYER_DRACULA));
 		assert(HvGetHealth(hv, PLAYER_DRACULA) == (
 			GAME_START_BLOOD_POINTS - LIFE_LOSS_HUNTER_ENCOUNTER
 		));
