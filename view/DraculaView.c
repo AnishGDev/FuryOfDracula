@@ -196,7 +196,7 @@ PlaceId *DvWhereCanIGoByType(DraculaView dv, bool road, bool boat,
 													//Dracula's trail, if they do, replace them with double_back_n
 			 for (int j = 0; j < *numReturnedLocs; j++) {
 				 if (trailMoves[i] == places[j]) {
-					 places[j] = DOUBLE_BACK_1 + i; //Move to somewere 1 moves ago - how many moves before it was
+					 places[j] = trailMoves[i];//DOUBLE_BACK_1 + i; //Move to somewere 1 moves ago - how many moves before it was
 				 }
 			 }
 		}

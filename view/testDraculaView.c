@@ -387,15 +387,17 @@ int main(void)
 
 		int numLocs = -1;
 		PlaceId *locs = DvWhereCanIGo(dv, &numLocs);
-		assert(numLocs == 7);
+		printf("num is %d\n", numLocs);
+		assert(numLocs == 8);
 		sortPlaces(locs, numLocs);
 		assert(locs[0] == MILAN);
-		assert(locs[1] == NUREMBURG);
-		assert(locs[2] == STRASBOURG);
-		assert(locs[3] == VENICE);
-		assert(locs[4] == VIENNA);
-		assert(locs[5] == ZAGREB);
-		assert(locs[6] == ZURICH);
+		assert(locs[1] == MUNICH); // HIDE
+		assert(locs[2] == NUREMBURG);
+		assert(locs[3] == STRASBOURG);
+		assert(locs[4] == VENICE);
+		assert(locs[5] == VIENNA);
+		assert(locs[6] == ZAGREB);
+		assert(locs[7] == ZURICH);
 
 		printf("Test passed!\n");
 		DvFree(dv);
@@ -426,13 +428,18 @@ int main(void)
 		assert(locs[0] == BAY_OF_BISCAY);
 		assert(locs[1] == LISBON);
 		assert(locs[2] == MADRID);
+		printf("it is %s and %s \n",placeIdToName(locs[3]), placeIdToName(locs[4]));
 		assert(locs[3] == SANTANDER);
 		assert(locs[4] == SARAGOSSA);
 		free(locs);
 
 		numLocs = -1;
 		locs = DvWhereCanTheyGo(dv, PLAYER_LORD_GODALMING, &numLocs);
-		assert(numLocs == 6);
+		printf("NumLocs is %d\n", numLocs);
+		for (int i =0; i < numLocs; i++) {
+			printf("Location is %s \n", placeIdToName(locs[i]));
+		}
+		assert(numLocs == 7); // Should be 7 not 6.
 		sortPlaces(locs, numLocs);
 		assert(locs[0] == BELGRADE);
 		assert(locs[1] == BUCHAREST);
@@ -465,9 +472,9 @@ int main(void)
 		sortPlaces(locs, numLocs);
 		assert(locs[0] == EDINBURGH);
 		assert(locs[1] == ENGLISH_CHANNEL);
-		assert(locs[2] == MANCHESTER);
-		assert(locs[3] == LIVERPOOL);
-		assert(locs[4] == LONDON);
+		assert(locs[2] == LIVERPOOL); // Alphabetical order
+		assert(locs[3] == LONDON);
+		assert(locs[4] == MANCHESTER);
 		assert(locs[5] == PLYMOUTH);
 		assert(locs[6] == SWANSEA);
 		free(locs);
@@ -569,18 +576,20 @@ int main(void)
 		assert(numLocs == 5);
 		sortPlaces(locs, numLocs);
 		assert(locs[0] == EDINBURGH);
-		assert(locs[1] == MANCHESTER);
-		assert(locs[2] == LIVERPOOL);
-		assert(locs[3] == LONDON);
+		assert(locs[1] == LIVERPOOL);
+		assert(locs[2] == LONDON);
+		assert(locs[3] == MANCHESTER);
 		assert(locs[4] == SWANSEA);
 		free(locs);
 		
 		numLocs = -1;
 		locs = DvWhereCanTheyGoByType(dv, PLAYER_MINA_HARKER, false, false, true, &numLocs);
-		assert(numLocs == 2);
+		assert(numLocs == 4);
 		sortPlaces(locs, numLocs);
 		assert(locs[0] == BLACK_SEA);
-		assert(locs[1] == IONIAN_SEA);
+		assert(locs[1] == CONSTANTA);
+		assert(locs[2] == IONIAN_SEA);
+		assert(locs[3] == VARNA);
 		free(locs);
 
 		printf("Test passed!\n");
