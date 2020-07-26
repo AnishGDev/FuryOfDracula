@@ -661,9 +661,9 @@ int main(void)
 		int num = -1;
 
 		hv = HvNew(
-			"GVE.... SAO.... HZU.... MBB.... DC?.V.."
-			"GVE.... SAO.... HZU.... MBB.... DC?.V.."
-			"GVE.... SAO.... HZU.... MBB.... DC?.V.."
+			"GVE.... SAO.... HZU.... MBB.... DC?.V.. "
+			"GVE.... SAO.... HZU.... MBB.... DC?.V.. "
+			"GVE.... SAO.... HZU.... MBB.... DC?.V.. "
 			"GVE.... SAO.... HZU.... MBB.... DC?.V..",
 			(Message[20]) {}
 		);
@@ -679,14 +679,15 @@ int main(void)
 		assert(locs[4] == VENICE);
 		free(locs);
 
+		// Currently no rail travel since round is 4 and 0th player.
 		locs = HvWhereCanIGoByType(hv, false, true, false, &num);
 		assert(num == 1);
 		sortPlaces(locs, num);
-		assert(locs[0] == VIENNA);
+		assert(locs[0] == VENICE);
 		free(locs);
 
 		locs = HvWhereCanIGoByType(hv, false, false, true, &num);
-		assert(num == 1);
+		assert(num == 2); // num will be two since its adjacent to sea and it returns itself
 		sortPlaces(locs, num);
 		assert(locs[0] == ADRIATIC_SEA);
 		free(locs);
@@ -695,11 +696,12 @@ int main(void)
 		assert(num == 6);
 		sortPlaces(locs, num);
 		assert(locs[0] == ADRIATIC_SEA);
-		assert(locs[1] == GENOA);
-		assert(locs[2] == MILAN);
-		assert(locs[3] == MUNICH);
-		assert(locs[4] == VENICE);
-		assert(locs[5] == VIENNA);
+		assert(locs[1] == FLORENCE); 
+		assert(locs[2] == GENOA);
+		assert(locs[3] == MILAN);
+		assert(locs[4] == MUNICH);
+		assert(locs[5] == VENICE);
+		//assert(locs[5] == VIENNA);
 		free(locs);
 
 		HvFree(hv);
