@@ -77,6 +77,9 @@ PlaceId HvGetVampireLocation(HunterView hv) {
 
 PlaceId HvGetLastKnownDraculaLocation(HunterView hv, Round *round) {
 	PlaceId result = lastKnownDraculaLocation(hv->gv, round);
+	if (result == CITY_UNKNOWN) {
+		return NOWHERE; 
+	}
 	/*
 	int n = 0;
 	bool canFree = false;
