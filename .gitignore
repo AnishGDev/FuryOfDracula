@@ -1,7 +1,10 @@
-# Ignore files without extension
+# Files without extension
 *
 !/**/
 !*.*
+
+# Old files
+*Old.c
 
 # Prerequisites
 *.d
