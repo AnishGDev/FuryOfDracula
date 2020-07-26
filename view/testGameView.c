@@ -53,7 +53,7 @@ int main(void)
 		GameView gv = GvNew(trail, messages);
 		int numLocs = -1; 
 		PlaceId *locs = GvGetReachable(gv, PLAYER_DR_SEWARD, 0, MADRID, &numLocs);
-		//printf("Num locks is %d\n", numLocs);
+		printf("Num locks is %d\n", numLocs);
 		assert(numLocs == 7);
 		sortPlaces(locs, numLocs);
 		assert(locs[0] == ALICANTE); 
