@@ -28,6 +28,7 @@
 #define DRAC_MHIST gv->dracula->moveHistory
 #define NOT_VISITED -1
 #define VISITED 1
+#define ROUND_CHARACTER_LENGTH 40
 
 typedef struct _hunterData {
 	int health; 
@@ -49,6 +50,7 @@ struct gameView {
 	Player whoseTurn; 
 	PlaceId vampireLocation; 
 	PlaceId trapLocs[TRAIL_SIZE];
+	int numTraps; 
 	HunterData *hunters[NUM_PLAYERS-1];
 	DraculaData *dracula; 
 	Map gameMap; 
@@ -82,8 +84,8 @@ static DraculaData *createNewDracula(int pastPlaysLength){
 	}
 	d->health = GAME_START_BLOOD_POINTS;
 	d->currLoc = NOWHERE;
-	d->moveHistory = malloc(sizeof(enum placeId) * (pastPlaysLength/40+1));
-	d->locHistory = malloc(sizeof(enum placeId) * (pastPlaysLength/40+1));
+	d->moveHistory = malloc(sizeof(enum placeId) * (pastPlaysLength/ROUND_CHARACTER_LENGTH+1));
+	d->locHistory = malloc(sizeof(enum placeId) * (pastPlaysLength/ROUND_CHARACTER_LENGTH+1));
 	return d; 
 }
 
@@ -102,6 +104,7 @@ GameView GvNew(char *pastPlays, Message messages[])
 	gv->roundNum = 0; 
 	gv->whoseTurn = PLAYER_LORD_GODALMING; 
 	gv->vampireLocation = NOWHERE;
+	gv->numTraps = 0; 
 	for(int i =0; i < TRAIL_SIZE; i++){
 		gv->trapLocs[i] = NOWHERE; 
 	}
@@ -115,10 +118,11 @@ GameView GvNew(char *pastPlays, Message messages[])
 }
 
 void appendTrapLoc(GameView gv, PlaceId loc) {
-	for (int i = 0; i < TRAIL_SIZE - 1; i++) {
+	for (int i = 0; i < TRAIL_SIZE - 2; i++) {
 		gv->trapLocs[i] = gv->trapLocs[i+1];
 	}
 	gv->trapLocs[TRAIL_SIZE-1] = loc;
+	gv->numTraps+=1;
 }
 
 void reconstructGameState(GameView gv) {
@@ -264,9 +268,13 @@ PlaceId GvGetVampireLocation(GameView gv)
 PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	PlaceId *ret = malloc(sizeof(enum placeId));
-	ret = gv->trapLocs;
-	*numTraps = 6;
+	PlaceId *ret = malloc(sizeof(enum placeId) * gv->numTraps);
+	memcpy(ret, gv->trapLocs, gv->numTraps);
+	for (int i =0; i < gv->numTraps; i++) {
+		printf("Trap was in %s \n", placeIdToName(gv->trapLocs[i])); 
+	}
+	//ret = gv->trapLocs;
+	*numTraps = gv->numTraps;
 	return ret;
 }
 

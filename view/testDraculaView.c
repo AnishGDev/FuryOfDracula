@@ -38,7 +38,7 @@ int main(void)
 		};
 		
 		DraculaView dv = DvNew(trail, messages);
-
+		printf("Created Dracula. Now testing");
 		assert(DvGetRound(dv) == 0);
 		assert(DvGetScore(dv) == GAME_START_SCORE);
 		assert(DvGetHealth(dv, PLAYER_DRACULA) == GAME_START_BLOOD_POINTS);
@@ -49,7 +49,9 @@ int main(void)
 		assert(DvGetPlayerLocation(dv, PLAYER_DRACULA) == NOWHERE);
 		assert(DvGetVampireLocation(dv) == NOWHERE);
 		int numTraps = -1;
+		printf("Testing traps");
 		PlaceId *traps = DvGetTrapLocations(dv, &numTraps);
+		printf("Number of Traps is %d\n", numTraps);
 		assert(numTraps == 0);
 		free(traps);
 
@@ -104,6 +106,7 @@ int main(void)
 		PlaceId *traps = DvGetTrapLocations(dv, &numTraps);
 		assert(numTraps == 3);
 		sortPlaces(traps, numTraps);
+		printf("Trap loc is %s\n", placeIdToName(traps[0]));
 		assert(traps[0] == LONDON);
 		assert(traps[1] == LONDON);
 		assert(traps[2] == MANCHESTER);
