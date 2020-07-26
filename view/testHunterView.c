@@ -739,15 +739,15 @@ int main(void)
 		);
 
 		locs = HvWhereCanTheyGo(hv, PLAYER_LORD_GODALMING, &num);
-		assert(num == 7);
+		assert(num == 5);
 		sortPlaces(locs, num);
-		assert(locs[0] == BORDEAUX);
-		assert(locs[1] == BRUSSELS);
-		assert(locs[2] == ENGLISH_CHANNEL);
-		assert(locs[3] == LE_HAVRE);
-		assert(locs[4] == MARSEILLES);
-		assert(locs[5] == NANTES);
-		assert(locs[6] == PARIS);
+		// Since there is no rail travel this round should remove 
+		// Bordeaux and Marseilles
+		assert(locs[0] == BRUSSELS);
+		assert(locs[1] == ENGLISH_CHANNEL);
+		assert(locs[2] == LE_HAVRE);
+		assert(locs[3] == NANTES);
+		assert(locs[4] == PARIS);
 		free(locs);
 
 		HvFree(hv);
@@ -843,18 +843,16 @@ int main(void)
 			(Message[2]) {}
 		);
 
-		locs = HvWhereCanTheyGoByType(
-			hv, PLAYER_LORD_GODALMING, true, true, true, &num
-		);
-		assert(num == 7);
+			locs = HvWhereCanTheyGo(hv, PLAYER_LORD_GODALMING, &num);
+		assert(num == 5);
 		sortPlaces(locs, num);
-		assert(locs[0] == BORDEAUX);
-		assert(locs[1] == BRUSSELS);
-		assert(locs[2] == ENGLISH_CHANNEL);
-		assert(locs[3] == LE_HAVRE);
-		assert(locs[4] == MARSEILLES);
-		assert(locs[5] == NANTES);
-		assert(locs[6] == PARIS);
+		// Since there is no rail travel this round should remove 
+		// Bordeaux and Marseilles
+		assert(locs[0] == BRUSSELS);
+		assert(locs[1] == ENGLISH_CHANNEL);
+		assert(locs[2] == LE_HAVRE);
+		assert(locs[3] == NANTES);
+		assert(locs[4] == PARIS);
 		free(locs);
 
 		HvFree(hv);
