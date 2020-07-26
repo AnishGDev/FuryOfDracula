@@ -179,6 +179,8 @@ void reconstructGameState(GameView gv) {
 			gv->score--;
 			gv->roundNum++;
 		} else {
+			if (CURR_HUNTER->health <= 0)
+				CURR_HUNTER->health = 9;
 			if (currentLoc == CURR_HUNTER->currLoc)
 				CURR_HUNTER->health += 3;
 			if (CURR_HUNTER->health > 9)
@@ -214,8 +216,9 @@ void reconstructGameState(GameView gv) {
 			}
 			if (CURR_HUNTER->health <= 0) {
 				gv->score -= 6;
-				CURR_HUNTER->health = 9;
-			}	
+				CURR_HUNTER->health = 0;//printf("%d\n", CURR_HUNTER->health);
+				CURR_HUNTER->currLoc = HOSPITAL_PLACE;
+			}
 		}
 		gv->whoseTurn++;
 		gv->whoseTurn %= NUM_PLAYERS;
