@@ -27,19 +27,24 @@ int main(void)
 	{///////////////////////////////////////////////////////////////////
 		printf("HvNew: ");
 
-		Message m[] = {};
+		HvFree(HvNew(
+			"",
+			(Message[0]) {}
+		));
 
 		HvFree(HvNew(
-			"", m
+			"GST....",
+			(Message[1]) {}
 		));
+
 		HvFree(HvNew(
-			"GST....", m
+			"GST.... SAO.... HZU....",
+			(Message[3]) {}
 		));
+
 		HvFree(HvNew(
-			"GST.... SAO.... HZU....", m
-		));
-		HvFree(HvNew(
-			"GST.... SAO.... HZU.... MBB.... DC?.V..", m
+			"GST.... SAO.... HZU.... MBB.... DC?.V..",
+			(Message[5]) {}
 		));
 
 		printf("passed\n");
@@ -49,34 +54,38 @@ int main(void)
 		printf("HvGetRound: ");
 
 		HunterView hv;
-		Message m[] = {};
 
 		hv = HvNew(
-			"", m
+			"",
+			(Message[0]) {}
 		);
 		assert(HvGetRound(hv) == 0);
 		HvFree(hv);
 
 		hv = HvNew(
-			"GST....", m
+			"GST....",
+			(Message[1]) {}
 		);
 		assert(HvGetRound(hv) == 0);
 		HvFree(hv);
 
 		hv = HvNew(
-			"GST.... SAO.... HZU....", m
+			"GST.... SAO.... HZU....",
+			(Message[3]) {}
 		);
 		assert(HvGetRound(hv) == 0);
 		HvFree(hv);
 
 		hv = HvNew(
-			"GST.... SAO.... HZU.... MBB....", m
+			"GST.... SAO.... HZU.... MBB....",
+			(Message[4]) {}
 		);
 		assert(HvGetRound(hv) == 0);
 		HvFree(hv);
 
 		hv = HvNew(
-			"GST.... SAO.... HZU.... MBB.... DC?.V..", m
+			"GST.... SAO.... HZU.... MBB.... DC?.V..",
+			(Message[5]) {}
 		);
 		assert(HvGetRound(hv) == 1);
 		HvFree(hv);
@@ -88,7 +97,8 @@ int main(void)
 			"GGE.... SGE.... HGE.... MGE.... DC?T... "
 			"GGE.... SGE.... HGE.... MGE.... DC?T... "
 			"GGE.... SGE.... HGE.... MGE.... DC?T... "
-			"GGE.... SGE.... HGE.... MGE....", m
+			"GGE.... SGE.... HGE.... MGE....",
+			(Message[34]) {}
 		);
 		assert(HvGetRound(hv) == 6);
 		HvFree(hv);
@@ -100,7 +110,8 @@ int main(void)
 			"GGE.... SGE.... HGE.... MGE.... DC?T... "
 			"GGE.... SGE.... HGE.... MGE.... DC?T... "
 			"GGE.... SGE.... HGE.... MGE.... DC?T... "
-			"GGE.... SGE.... HGE.... MGE.... DC?T.V.", m
+			"GGE.... SGE.... HGE.... MGE.... DC?T.V.",
+			(Message[35]) {}
 		);
 		assert(HvGetRound(hv) == 7);
 		HvFree(hv);
@@ -112,34 +123,38 @@ int main(void)
 		printf("HvGetPlayer: ");
 
 		HunterView hv;
-		Message m[] = {};
 
 		hv = HvNew(
-			"", m
+			"",
+			(Message[0]) {}
 		);
 		assert(HvGetPlayer(hv) == PLAYER_LORD_GODALMING);
 		HvFree(hv);
 
 		hv = HvNew(
-			"GST....", m
+			"GST....",
+			(Message[1]) {}
 		);
 		assert(HvGetRound(hv) == PLAYER_DR_SEWARD);
 		HvFree(hv);
 
 		hv = HvNew(
-			"GST.... SAO.... HZU....", m
+			"GST.... SAO.... HZU....",
+			(Message[3]) {}
 		);
 		assert(HvGetRound(hv) == PLAYER_MINA_HARKER);
 		HvFree(hv);
 
 		hv = HvNew(
-			"GST.... SAO.... HZU.... MBB....", m
+			"GST.... SAO.... HZU.... MBB....",
+			(Message[4]) {}
 		);
 		assert(HvGetRound(hv) == PLAYER_DRACULA);
 		HvFree(hv);
 
 		hv = HvNew(
-			"GST.... SAO.... HZU.... MBB.... DC?.V..", m
+			"GST.... SAO.... HZU.... MBB.... DC?.V..",
+			(Message[5]) {}
 		);
 		assert(HvGetRound(hv) == PLAYER_LORD_GODALMING);
 		HvFree(hv);
@@ -151,35 +166,39 @@ int main(void)
 		printf("HvGetScore: ");
 
 		HunterView hv;
-		Message m[] = {};
 
 		hv = HvNew(
-			"", m
+			"",
+			(Message[0]) {}
 		);
 		assert(HvGetScore(hv) == GAME_START_SCORE);
 		HvFree(hv);
 
 		hv = HvNew(
-			"GST....", m
+			"GST....",
+			(Message[1]) {}
 		);
 		assert(HvGetScore(hv) == GAME_START_SCORE);
 		HvFree(hv);
 
 		hv = HvNew(
-			"GST.... SAO.... HZU.... MBB....", m
+			"GST.... SAO.... HZU.... MBB....",
+			(Message[4]) {}
 		);
 		assert(HvGetScore(hv) == GAME_START_SCORE);
 		HvFree(hv);
 
 		hv = HvNew(
-			"GST.... SAO.... HZU.... MBB.... DC?.V..", m
+			"GST.... SAO.... HZU.... MBB.... DC?.V..",
+			(Message[5]) {}
 		);
 		assert(HvGetScore(hv) == GAME_START_SCORE - SCORE_LOSS_DRACULA_TURN);
 		HvFree(hv);
 
 		hv = HvNew(
 			"GGE.... SGE.... HGE.... MGE.... DS?.... "
-			"GST.... SST.... HST.... MST.... DD1....", m
+			"GST.... SST.... HST.... MST.... DD1....",
+			(Message[10]) {}
 		);
 		assert(HvGetScore(hv) == GAME_START_SCORE - 2 * SCORE_LOSS_DRACULA_TURN);
 		HvFree(hv);
@@ -189,7 +208,8 @@ int main(void)
 			"GGE.... SGE.... HGE.... MGE.... DSTT... "
 			"GGE.... SGE.... HGE.... MGE.... DHIT... "
 			"GGE.... SGE.... HGE.... MGE.... DD1T... "
-			"GSTTTTD", m
+			"GSTTTTD", 
+			(Message[21]) {}
 		);
 		assert(HvGetScore(hv) == GAME_START_SCORE - (
 			4 * SCORE_LOSS_DRACULA_TURN - SCORE_LOSS_HUNTER_HOSPITAL
@@ -203,7 +223,8 @@ int main(void)
 			"GGE.... SGE.... HGE.... MGE.... DC?T... "
 			"GGE.... SGE.... HGE.... MGE.... DC?T... "
 			"GGE.... SGE.... HGE.... MGE.... DC?T... "
-			"GGE.... SGE.... HGE.... MGE.... DC?T.V.", m
+			"GGE.... SGE.... HGE.... MGE.... DC?T.V.",
+			(Message[35]) {}
 		);
 		assert(HvGetScore(hv) == GAME_START_SCORE - (
 			 7 * SCORE_LOSS_DRACULA_TURN - SCORE_LOSS_VAMPIRE_MATURES
@@ -217,10 +238,10 @@ int main(void)
 		printf("HvGetHealth: ");
 
 		HunterView hv;
-		Message m[] = {};
 
 		hv = HvNew(
-			"", m
+			"",
+			(Message[0]) {}
 		);
 		assert(HvGetHealth(hv, PLAYER_LORD_GODALMING) == GAME_START_HUNTER_LIFE_POINTS);
 		assert(HvGetHealth(hv, PLAYER_DR_SEWARD) == GAME_START_HUNTER_LIFE_POINTS);
@@ -230,7 +251,8 @@ int main(void)
 		HvFree(hv);
 
 		hv = HvNew(
-			"GST.... SAO.... HZU.... MBB.... DC?.V..", m
+			"GST.... SAO.... HZU.... MBB.... DC?.V..",
+			(Message[5]) {}
 		);
 		assert(HvGetHealth(hv, PLAYER_LORD_GODALMING) == GAME_START_HUNTER_LIFE_POINTS);
 		assert(HvGetHealth(hv, PLAYER_DR_SEWARD) == GAME_START_HUNTER_LIFE_POINTS);
@@ -241,7 +263,8 @@ int main(void)
 
 		hv = HvNew(
 			"GST.... SAO.... HCD.... MAO.... DGE.V.. "
-			"GGEVD..", m
+			"GGEVD..",
+			(Message[6]) {}
 		);
 		assert(HvGetHealth(hv, PLAYER_LORD_GODALMING) == (
 			GAME_START_HUNTER_LIFE_POINTS - LIFE_LOSS_DRACULA_ENCOUNTER
@@ -256,7 +279,8 @@ int main(void)
 
 		hv = HvNew(
 			"GGE.... SGE.... HGE.... MGE.... DS?.... "
-			"GST.... SST.... HST.... MST.... DD1....", m
+			"GST.... SST.... HST.... MST.... DD1....",
+			(Message[10]) {}
 		);
 		assert(HvGetHealth(hv, PLAYER_LORD_GODALMING) == GAME_START_HUNTER_LIFE_POINTS);
 		assert(HvGetHealth(hv, PLAYER_DR_SEWARD) == GAME_START_HUNTER_LIFE_POINTS);
@@ -272,7 +296,8 @@ int main(void)
 			"GGE.... SGE.... HGE.... MGE.... DSTT... "
 			"GGE.... SGE.... HGE.... MGE.... DHIT... "
 			"GGE.... SGE.... HGE.... MGE.... DD1T... "
-			"GSTTTTD", m
+			"GSTTTTD",
+			(Message[21]) {}
 		);
 		assert(HvGetHealth(hv, PLAYER_LORD_GODALMING) == 0);
 		assert(HvGetHealth(hv, PLAYER_DR_SEWARD) == GAME_START_HUNTER_LIFE_POINTS);
@@ -285,7 +310,8 @@ int main(void)
 
 		hv = HvNew(
 			"GGE.... SGE.... HGE.... MGE.... DCD.V.. "
-			"GGE.... SGE.... HGE.... MGE.... DD1T...", m
+			"GGE.... SGE.... HGE.... MGE.... DD1T...",
+			(Message[10]) {}
 		);
 		assert(HvGetHealth(hv, PLAYER_LORD_GODALMING) == GAME_START_HUNTER_LIFE_POINTS);
 		assert(HvGetHealth(hv, PLAYER_DR_SEWARD) == GAME_START_HUNTER_LIFE_POINTS);
@@ -303,10 +329,10 @@ int main(void)
 		printf("HvGetPlayerLocation: ");
 
 		HunterView hv;
-		Message m[] = {};
 
 		hv = HvNew(
-			"", m
+			"",
+			(Message[0]) {}
 		);
 		assert(HvGetPlayerLocation(hv, PLAYER_LORD_GODALMING) == NOWHERE);
 		assert(HvGetPlayerLocation(hv, PLAYER_DR_SEWARD) == NOWHERE);
@@ -316,7 +342,8 @@ int main(void)
 		HvFree(hv);
 
 		hv = HvNew(
-			"GST....", m
+			"GST....",
+			(Message[1]) {}
 		);
 		assert(HvGetPlayerLocation(hv, PLAYER_LORD_GODALMING) == STRASBOURG);
 		assert(HvGetPlayerLocation(hv, PLAYER_DR_SEWARD) == NOWHERE);
@@ -326,7 +353,8 @@ int main(void)
 		HvFree(hv);
 
 		hv = HvNew(
-			"GST.... SAO.... HZU.... MBB.... DC?.V..", m
+			"GST.... SAO.... HZU.... MBB.... DC?.V..",
+			(Message[5]) {}
 		);
 		assert(HvGetPlayerLocation(hv, PLAYER_LORD_GODALMING) == STRASBOURG);
 		assert(HvGetPlayerLocation(hv, PLAYER_DR_SEWARD) == ATLANTIC_OCEAN);
@@ -337,7 +365,8 @@ int main(void)
 
 		hv = HvNew(
 			"GST.... SAO.... HCD.... MAO.... DGE.V.. "
-			"GGEVD..", m
+			"GGEVD..",
+			(Message[6]) {}
 		);
 		assert(HvGetPlayerLocation(hv, PLAYER_LORD_GODALMING) == STRASBOURG);
 		assert(HvGetPlayerLocation(hv, PLAYER_DR_SEWARD) == ATLANTIC_OCEAN);
@@ -348,7 +377,8 @@ int main(void)
 
 		hv = HvNew(
 			"GGE.... SGE.... HGE.... MGE.... DS?.... "
-			"GST.... SST.... HST.... MST.... DD1....", m
+			"GST.... SST.... HST.... MST.... DD1....",
+			(Message[10]) {}
 		);
 		assert(HvGetPlayerLocation(hv, PLAYER_LORD_GODALMING) == STRASBOURG);
 		assert(HvGetPlayerLocation(hv, PLAYER_DR_SEWARD) == STRASBOURG);
@@ -362,7 +392,8 @@ int main(void)
 			"GGE.... SGE.... HGE.... MGE.... DSTT... "
 			"GGE.... SGE.... HGE.... MGE.... DHIT... "
 			"GGE.... SGE.... HGE.... MGE.... DD1T... "
-			"GSTTTTD", m
+			"GSTTTTD",
+			(Message[21]) {}
 		);
 		assert(HvGetPlayerLocation(hv, PLAYER_LORD_GODALMING) == HOSPITAL_PLACE);
 		assert(HvGetPlayerLocation(hv, PLAYER_DR_SEWARD) == GENEVA);
@@ -373,7 +404,8 @@ int main(void)
 
 		hv = HvNew(
 			"GGE.... SGE.... HGE.... MGE.... DCD.V.. "
-			"GGE.... SGE.... HGE.... MGE.... DD1T...", m
+			"GGE.... SGE.... HGE.... MGE.... DD1T...",
+			(Message[10]) {}
 		);
 		assert(HvGetPlayerLocation(hv, PLAYER_LORD_GODALMING) == GENEVA);
 		assert(HvGetPlayerLocation(hv, PLAYER_DR_SEWARD) == GENEVA);
@@ -386,7 +418,8 @@ int main(void)
 			"GVI.... SGE.... HGE.... MGE.... DCD.V.. "
 			"GBD.... SGE.... HGE.... MGE.... DC?T... "
 			"GSZ.... SGE.... HGE.... MGE.... DC?T... "
-			"GSZ.... SGE.... HGE....", m
+			"GSZ.... SGE.... HGE....",
+			(Message[18]) {}
 		);
 		assert(HvGetPlayerLocation(hv, PLAYER_LORD_GODALMING) == GENEVA);
 		assert(HvGetPlayerLocation(hv, PLAYER_DR_SEWARD) == GENEVA);
@@ -402,23 +435,25 @@ int main(void)
 		printf("HvGetVampireLocation: ");
 
 		HunterView hv;
-		Message m[] = {};
 
 		hv = HvNew(
-			"", m
+			"",
+			(Message[0]) {}
 		);
 		assert(HvGetVampireLocation(hv) == NOWHERE);
 		HvFree(hv);
 
 		hv = HvNew(
-			"GST.... SAO.... HZU.... MBB.... DC?.V..", m
+			"GST.... SAO.... HZU.... MBB.... DC?.V..",
+			(Message[5]) {}
 		);
 		assert(HvGetVampireLocation(hv) == CITY_UNKNOWN);
 		HvFree(hv);
 
 		hv = HvNew(
 			"GST.... SAO.... HCD.... MAO.... DGE.V.. "
-			"GGEVD..", m
+			"GGEVD..",
+			(Message[6]) {}
 		);
 		assert(HvGetVampireLocation(hv) == NOWHERE);
 		HvFree(hv);
@@ -427,7 +462,8 @@ int main(void)
 			"GVI.... SGE.... HGE.... MGE.... DCD.V.. "
 			"GBD.... SGE.... HGE.... MGE.... DC?T... "
 			"GSZ.... SGE.... HGE.... MGE.... DC?T... "
-			"GSZ.... SGE.... HGE....", m
+			"GSZ.... SGE.... HGE....",
+			(Message[18]) {}
 		);
 		assert(HvGetVampireLocation(hv) == CASTLE_DRACULA);
 		HvFree(hv);
@@ -439,7 +475,8 @@ int main(void)
 			"GGE.... SGE.... HGE.... MGE.... DC?T... "
 			"GGE.... SGE.... HGE.... MGE.... DC?T... "
 			"GGE.... SGE.... HGE.... MGE.... DC?T... "
-			"GGE.... SGE.... HGE.... MGE.... DC?T.V.", m
+			"GGE.... SGE.... HGE.... MGE.... DC?T.V.",
+			(Message[35]) {}
 		);
 		assert(HvGetVampireLocation(hv) == NOWHERE);
 		HvFree(hv);
@@ -451,24 +488,26 @@ int main(void)
 		printf("HvGetLastKnownDraculaLocation: ");
 
 		HunterView hv;
-		Message m[] = {};
 		Round round;
 
 		hv = HvNew(
-			"", m
+			"",
+			(Message[0]) {}
 		);
 		assert(HvGetLastKnownDraculaLocation(hv, &round) == NOWHERE);
 		HvFree(hv);
 
 		hv = HvNew(
-			"GST.... SAO.... HZU.... MBB.... DC?.V..", m
+			"GST.... SAO.... HZU.... MBB.... DC?.V..",
+			(Message[5]) {}
 		);
 		assert(HvGetLastKnownDraculaLocation(hv, &round) == NOWHERE);
 		HvFree(hv);
 
 		hv = HvNew(
 			"GST.... SAO.... HCD.... MAO.... DGE.V.. "
-			"GGEVD..", m
+			"GGEVD..",
+			(Message[6]) {}
 		);
 		assert(HvGetLastKnownDraculaLocation(hv, &round) == GENEVA);
 		assert(round == 0);
@@ -479,7 +518,8 @@ int main(void)
 			"GGE.... SGE.... HBD.... MGE.... DKLT... "
 			"GGE.... SGE.... HSZ.... MGE.... DC?T... "
 			"GGE.... SGE.... HKLT... MGE.... DC?T... "
-			"GGE.... SGE.... HCDV... MGE.... DD1T...", m
+			"GGE.... SGE.... HCDV... MGE.... DD1T...",
+			(Message[25]) {}
 		);
 		assert(HvGetLastKnownDraculaLocation(hv, &round) == KLAUSENBURG);
 		assert(round == 1);
@@ -492,13 +532,13 @@ int main(void)
 		printf("HvGetShortestPathTo: ");
 
 		HunterView hv;
-		Message m[] = {};
 		PlaceId *path = NULL;
 		int length = -1;
 
 		hv = HvNew(
 			"GST.... SAO.... HCD.... MAO.... DGE.V.. "
-			"GGEVD..", m
+			"GGEVD..",
+			(Message[6]) {}
 		);
 
 		path = HvGetShortestPathTo(
@@ -572,14 +612,14 @@ int main(void)
 		printf("HvWhereCanTheyGoByType: ");
 
 		HunterView hv;
-		Message m[] = {};
 		PlaceId *locs;
 		int num = -1;
 
 		///////////////////////////////////////////////////////////////////
 
 		hv = HvNew(
-			"GGA....", m
+			"GGA....",
+			(Message[1]) {}
 		);
 
 		locs = HvWhereCanTheyGoByType(
@@ -599,7 +639,8 @@ int main(void)
 		///////////////////////////////////////////////////////////////////
 
 		hv = HvNew(
-			"GPA....", m
+			"GPA....",
+			(Message[1]) {}
 		);
 
 		locs = HvWhereCanTheyGoByType(
@@ -619,7 +660,8 @@ int main(void)
 		///////////////////////////////////////////////////////////////////
 
 		hv = HvNew(
-			"GSZ.... SGE.... HGE.... MGE.... DSZ.V..", m
+			"GSZ.... SGE.... HGE.... MGE.... DSZ.V..",
+			(Message[5]) {}
 		);
 
 		locs = HvWhereCanTheyGoByType(
