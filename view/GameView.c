@@ -342,9 +342,26 @@ PlaceId *GvGetLastMoves(GameView gv, Player player, int numMoves,
                         int *numReturnedMoves, bool *canFree)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	*numReturnedMoves = 0;
+	int startFrom = 0; 
+	if (numMoves > gv->roundNum) {
+		startFrom = 0; 
+		*numReturnedMoves = gv->roundNum; 
+	} else {
+		startFrom = gv->roundNum - numMoves; 
+		*numReturnedMoves = numMoves; 
+	}
+	PlaceId * ret = malloc(sizeof(enum placeId) * numMoves);
 	*canFree = false;
-	return NULL;
+	if(player == PLAYER_DRACULA) {
+		ret = &(gv->dracula->moveHistory[startFrom]);
+		//memset(ret, &(gv->dracula->moveHistory[startFrom]), sizeof(enum placeId) * (gv->roundNum - startFrom));
+		//return &(gv->dracula->moveHistory[startFrom]);
+	} else {
+		ret = &(gv->hunters[player]->moveHistory[startFrom]);
+		//memset(ret, &(gv->dracula->moveHistory[startFrom]), sizeof(enum placeId) * (gv->roundNum - startFrom));
+		//return &(gv->hunters[player]->moveHistory[startFrom]);
+	}
+	return ret; 
 }
 
 PlaceId *GvGetLocationHistory(GameView gv, Player player,
@@ -381,7 +398,7 @@ PlaceId *GvGetLastLocations(GameView gv, Player player, int numLocs,
 	PlaceId * ret = malloc(sizeof(enum placeId) * numLocs);
 	*canFree = false;
 	if(player == PLAYER_DRACULA) {
-		ret = &(gv->dracula->moveHistory[startFrom]);
+		ret = &(gv->dracula->locHistory[startFrom]);
 		//memset(ret, &(gv->dracula->moveHistory[startFrom]), sizeof(enum placeId) * (gv->roundNum - startFrom));
 		//return &(gv->dracula->moveHistory[startFrom]);
 	} else {
