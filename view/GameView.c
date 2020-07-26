@@ -404,10 +404,12 @@ PlaceId *GvGetLastLocations(GameView gv, Player player, int numLocs,
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 	int startFrom = 0; 
 	if (numLocs > gv->roundNum) {
-		startFrom = 0; 
-		*numReturnedLocs = gv->roundNum; 
+		startFrom = 0;
+		// The current round + whether or not the player has had his turn.
+		*numReturnedLocs = gv->roundNum + (gv->whoseTurn > player);; 
 	} else {
-		startFrom = gv->roundNum - numLocs; 
+		// If the player has had a turn this round add 1 to gv->roundNum - numLocs.
+		startFrom = gv->roundNum - numLocs + (gv->whoseTurn > player);  
 		*numReturnedLocs = numLocs; 
 	}
 	PlaceId * ret = malloc(sizeof(enum placeId) * numLocs);
