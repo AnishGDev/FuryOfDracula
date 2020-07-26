@@ -70,7 +70,7 @@ static HunterData *createNewHunter(int pastPlaysLength) {
 	h->currLoc = NOWHERE; 
 	// Should optimize by finding max possible instead of just assigning pastPlaysLength
 	// optimise.
-	h->moveHistory = malloc(sizeof(enum PlaceId) * (pastPlaysLength/40+1)); 
+	h->moveHistory = malloc(sizeof(enum placeId) * (pastPlaysLength/40+1)); 
 	return h;
 }
 
@@ -82,7 +82,7 @@ static DraculaData *createNewDracula(int pastPlaysLength){
 	}
 	d->health = GAME_START_BLOOD_POINTS;
 	d->currLoc = NOWHERE;
-	d->moveHistory = malloc(sizeof(enum PlaceId) * (pastPlaysLength/40+1));
+	d->moveHistory = malloc(sizeof(enum placeId) * (pastPlaysLength/40+1));
 	return d; 
 }
 
@@ -153,8 +153,8 @@ void reconstructGameState(GameView gv) {
 			gv->score--;
 			gv->whoseTurn = PLAYER_LORD_GODALMING;
 		}
-		sprintf(loc, "%c%c", gv->pastPlays[i+1], gv->pastPlays[i+2])
-		currentLoc = placeAbbrevToID(loc);
+		sprintf(loc, "%c%c", gv->pastPlays[i+1], gv->pastPlays[i+2]);
+		currentLoc = placeAbbrevToId(loc);
 		if (gv->whoseTurn == PLAYER_DRACULA) {
 			switch (currentLoc) {
 				case TELEPORT:
@@ -178,9 +178,6 @@ void reconstructGameState(GameView gv) {
 				case DOUBLE_BACK_5:
 					DRAC_LHIST[gv->roundNum] = DRAC_LHIST[gv->roundNum-5];
 					break;
-				case DOUBLE_BACK_6:
-					DRAC_LHIST[gv->roundNum] = DRAC_LHIST[gv->roundNum-6];
-					break;
 				default:
 					DRAC_LHIST[gv->roundNum] = currentLoc;
 					break;
@@ -188,9 +185,9 @@ void reconstructGameState(GameView gv) {
 			DRAC_MHIST[gv->roundNum] = currentLoc;
 			if (DRAC_LHIST[gv->roundNum] == CASTLE_DRACULA) 
 				gv->dracula->health += 10;
-			if (pastPlays[i+3] == 'T') appendTrapLoc(gv, currentLoc);
-			if (pastPlays[i+4] == 'V') gv->vampireLocation = currentLoc;
-			if (pastPlays[i+5] == 'V') gv->score -= 13;
+			if (gv->pastPlays[i+3] == 'T') appendTrapLoc(gv, currentLoc);
+			if (gv->pastPlays[i+4] == 'V') gv->vampireLocation = currentLoc;
+			if (gv->pastPlays[i+5] == 'V') gv->score -= 13;
 		} else {
 			if (currentLoc == CURR_HUNTER->currLoc)
 				CURR_HUNTER->health += 3;
@@ -198,11 +195,15 @@ void reconstructGameState(GameView gv) {
 				CURR_HUNTER->health = 9;
 			CURR_HUNTER->moveHistory[gv->roundNum] = currentLoc;
 			CURR_HUNTER->currLoc = currentLoc;
-			if (pastPlays[i+3] == 'T') 
+			if (gv->pastPlays[i+3] == 'T') {
 				CURR_HUNTER->health -= 2;
-			if (pastPlays[i+4] == 'V')
+				for (int i = 0; i < TRAIL_SIZE; i++) {
+					if (gv->trapLocs[i] == currentLoc) gv->trapLocs[i] = NOWHERE;
+				}
+			}
+			if (gv->pastPlays[i+4] == 'V')
 				gv->vampireLocation = NOWHERE;
-			if (pastPlays[i+4] == 'D') {
+			if (gv->pastPlays[i+4] == 'D') {
 				CURR_HUNTER->health -= 4;
 				gv->dracula->health -= 10;
 			}
@@ -283,8 +284,10 @@ PlaceId GvGetVampireLocation(GameView gv)
 PlaceId *GvGetTrapLocations(GameView gv, int *numTraps)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	*numTraps = 0;
-	return NULL;
+	PlaceId *ret = malloc(sizeof(enum placeId));
+	ret = gv->trapLocs;
+	*numTraps = 6;
+	return ret;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -294,16 +297,16 @@ PlaceId *GvGetMoveHistory(GameView gv, Player player,
                           int *numReturnedMoves, bool *canFree)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	PlaceId* ret = malloc(sizeof(enum PlaceId));
+	PlaceId* ret = malloc(sizeof(enum placeId));
 	if (player != PLAYER_DRACULA) {
 		ret = gv->hunters[player]->moveHistory;
 	} else {
 		ret = DRAC_MHIST;
 	}
 	if (player >= gv->whoseTurn) {
-		*numReturnedLocs = gv->roundNum-1;
+		*numReturnedMoves = gv->roundNum-1;
 	} else {
-		*numReturnedLocs = gv->roundNum;
+		*numReturnedMoves = gv->roundNum;
 	}
 	*canFree = false;
 	return ret;
@@ -322,7 +325,7 @@ PlaceId *GvGetLocationHistory(GameView gv, Player player,
                               int *numReturnedLocs, bool *canFree)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	PlaceId* ret = malloc(sizeof(enum PlaceId));
+	PlaceId* ret = malloc(sizeof(enum placeId));
 	if (player != PLAYER_DRACULA) {
 		ret = gv->hunters[player]->moveHistory;
 	} else {
