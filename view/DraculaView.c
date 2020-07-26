@@ -79,7 +79,6 @@ PlaceId DvGetVampireLocation(DraculaView dv)
 
 PlaceId *DvGetTrapLocations(DraculaView dv, int *numTraps)
 {
-
 	return GvGetTrapLocations(dv->gv, numTraps);
 }
 
@@ -249,6 +248,7 @@ PlaceId *DvWhereCanTheyGoByType(DraculaView dv, Player player,
 		*numReturnedLocs = 0;
 		return NULL;
 	}
+
 	if (player == PLAYER_DRACULA) {
 		return DvWhereCanIGoByType(dv, road, boat, numReturnedLocs);
 	} else {
