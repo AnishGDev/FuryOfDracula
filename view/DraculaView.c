@@ -79,9 +79,7 @@ PlaceId DvGetVampireLocation(DraculaView dv)
 
 PlaceId *DvGetTrapLocations(DraculaView dv, int *numTraps)
 {
-	if (numTraps == NULL) { 	//CAN THIS HAPPEN????
-		numTraps = malloc(sizeof(int));
-	}
+
 	return GvGetTrapLocations(dv->gv, numTraps);
 }
 
