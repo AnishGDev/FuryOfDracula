@@ -172,11 +172,11 @@ PlaceId *DvWhereCanIGo(DraculaView dv, int *numReturnedLocs)
 	PlaceId *places = GvGetReachable(dv->gv, PLAYER_DRACULA,
 		DvGetRound(dv), DvGetPlayerLocation(dv, PLAYER_DRACULA),
 		numReturnedLocs); 	//dont have to check for trains and hospital
-							// since GvGetReachable takes that into account
+							//since GvGetReachable takes that into account
 	
-	//Remove Items which Dracula cannot visit
 	//Checking if only move is teleport
 	if (*numReturnedLocs == 0) return NULL;
+	//Remove Items which Dracula cannot visit
 
 	//Check move history to see if can doubleback
 	bool doubleBackInTrail = DoubleInLast5(dv);
@@ -189,7 +189,7 @@ PlaceId *DvWhereCanIGo(DraculaView dv, int *numReturnedLocs)
 
 	if (!doubleBackInTrail) {	//Add Double backs as moves
 		for (int i = 0; i < numHistMoves; i++) {	//Go through places and see if they occur in
-														//Dracula's trail, if they do, replace them with double_back_n
+													//Dracula's trail, if they do, replace them with double_back_n
 			 for (int j = 0; j < *numReturnedLocs; j++) {
 				 if (trailMoves[i] == places[j]) {
 					 places[j] = DOUBLE_BACK_5 - i; //Move to somewere 5 moves ago - how many moves before it was
@@ -294,7 +294,7 @@ PlaceId *DvWhereCanTheyGoByType(DraculaView dv, Player player,
 	}
 }
 
-//Checks if dracula has used a Hide in the last 6 moves
+//Checks if dracula has used a Hide in the last 5 moves
 static bool hiddenInLast5 (DraculaView dv) {
 	bool canFree = false;
 	bool found = false;
@@ -313,7 +313,7 @@ static bool hiddenInLast5 (DraculaView dv) {
 	return found;
 }
 
-//Checks if dracula has used a doubleback in the last 6 moves
+//Checks if dracula has used a doubleback in the last 5 moves
 static bool DoubleInLast5 (DraculaView dv) {
 
 	bool canfree = false;
