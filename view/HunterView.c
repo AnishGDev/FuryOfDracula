@@ -131,7 +131,7 @@ PlaceId *HvGetShortestPathTo(
 		if (place == to) {
 			// found!
 
-			PlaceId *path = malloc(NUM_REAL_PLACES * sizeof(PlaceId));
+			PlaceId *path = malloc(NUM_REAL_PLACES * sizeof(enum placeId));
 
 			int i = 0;
 			for (PlaceId place = to; place != from; place = links[place]) {
