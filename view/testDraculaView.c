@@ -247,6 +247,20 @@ int main(void)
 		printf("Test passed!\n");
 		DvFree(dv);
 	}
-	
+
+	{	
+		printf("Test for Get Score\n");
+		
+		char *trail =
+			"GGE.... SGE.... HGE.... MGE.... ";
+		
+		Message messages[9] = {};
+		DraculaView dv = DvNew(trail, messages);
+		
+		assert(DvGetScore(dv) == 366);
+				
+		printf("Test passed!\n");
+		DvFree(dv);
+	}
 	return EXIT_SUCCESS;
 }
