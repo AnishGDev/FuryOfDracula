@@ -89,9 +89,9 @@ GameView GvNew(char *pastPlays, Message messages[])
 	int pastPlaysLength = strlen(pastPlays);
 	gv->pastPlays = pastPlays;
 	gv->pastPlaysLength = pastPlaysLength;
-	gv->score = GAME_START_SCORE;
-	gv->roundNum = 0; 
-	gv->whoseTurn = PLAYER_LORD_GODALMING; 
+	//gv->score = GAME_START_SCORE;
+	//gv->roundNum = 0; 
+	//gv->whoseTurn = PLAYER_LORD_GODALMING; 
 	gv->vampireLocation = NOWHERE;
 	for(int i =0; i < TRAIL_SIZE; i++){
 		gv->trapLocs[i] = NOWHERE; 
@@ -104,8 +104,20 @@ GameView GvNew(char *pastPlays, Message messages[])
 	return gv;
 }
 
+void populateLocation(char player, char* location) {
+	if (player == 'D') {
+		
+	} else {
+
+	}
+}
+
 void reconstructGameState(GameView gv) {
-	
+	char loc[] = "  ";
+	for (int i = 0; i < gv->pastPlaysLength; i += 8) {
+		loc = {gv->pastPlays[i+1], gv->pastPlays[i+2], '\0'};
+		populateLocation(gv->pastPlays[i], loc)
+	}
 }
 
 void GvFree(GameView gv)
