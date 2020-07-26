@@ -398,7 +398,7 @@ int main(void)
 			"GGEVD..",
 			(Message[6]) {}
 		);
-		assert(HvGetPlayerLocation(hv, PLAYER_LORD_GODALMING) == STRASBOURG);
+		assert(HvGetPlayerLocation(hv, PLAYER_LORD_GODALMING) == GENEVA);
 		assert(HvGetPlayerLocation(hv, PLAYER_DR_SEWARD) == ATLANTIC_OCEAN);
 		assert(HvGetPlayerLocation(hv, PLAYER_VAN_HELSING) == CASTLE_DRACULA);
 		assert(HvGetPlayerLocation(hv, PLAYER_MINA_HARKER) == ATLANTIC_OCEAN);
@@ -451,7 +451,7 @@ int main(void)
 			"GSZ.... SGE.... HGE....",
 			(Message[18]) {}
 		);
-		assert(HvGetPlayerLocation(hv, PLAYER_LORD_GODALMING) == GENEVA);
+		assert(HvGetPlayerLocation(hv, PLAYER_LORD_GODALMING) == SZEGED);
 		assert(HvGetPlayerLocation(hv, PLAYER_DR_SEWARD) == GENEVA);
 		assert(HvGetPlayerLocation(hv, PLAYER_VAN_HELSING) == GENEVA);
 		assert(HvGetPlayerLocation(hv, PLAYER_MINA_HARKER) == GENEVA);
