@@ -294,9 +294,19 @@ PlaceId *GvGetMoveHistory(GameView gv, Player player,
                           int *numReturnedMoves, bool *canFree)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	*numReturnedMoves = 0;
+	PlaceId* ret = malloc(sizeof(enum PlaceId));
+	if (player != PLAYER_DRACULA) {
+		ret = gv->hunters[player]->moveHistory;
+	} else {
+		ret = DRAC_MHIST;
+	}
+	if (player >= gv->whoseTurn) {
+		*numReturnedLocs = gv->roundNum-1;
+	} else {
+		*numReturnedLocs = gv->roundNum;
+	}
 	*canFree = false;
-	return NULL;
+	return ret;
 }
 
 PlaceId *GvGetLastMoves(GameView gv, Player player, int numMoves,
@@ -312,7 +322,7 @@ PlaceId *GvGetLocationHistory(GameView gv, Player player,
                               int *numReturnedLocs, bool *canFree)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	PlaceId *ret = malloc(sizeof(*ret));
+	PlaceId* ret = malloc(sizeof(enum PlaceId));
 	if (player != PLAYER_DRACULA) {
 		ret = gv->hunters[player]->moveHistory;
 	} else {
