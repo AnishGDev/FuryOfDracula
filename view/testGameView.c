@@ -27,24 +27,6 @@ int main(void)
 {
 	{///////////////////////////////////////////////////////////////////
 	
-		printf("Luke's temp test\n");
-
-		char *trail = "GST.... SAO.... HZU.... MBB.... DC?.V..";
-		Message messages[] = {};
-		GameView gv = GvNew(trail, messages);
-
-		int n = -1;
-		bool canFree;
-		PlaceId *history = GvGetLocationHistory(gv, PLAYER_DRACULA, &n, &canFree);
-		printf("%d\n", history[0]);
-		assert(n == 0);
-
-		GvFree(gv);
-		printf("Test passed!\n");
-	}
-
-	{///////////////////////////////////////////////////////////////////
-	
 		printf("Basic initialisation\n");
 
 		char *trail = "";
