@@ -127,6 +127,7 @@ void appendTrapLoc(GameView gv, PlaceId loc) {
 
 void reconstructGameState(GameView gv) {
 	char* loc = malloc(sizeof(char)*3);
+	int hunterAction;
 	PlaceId currentLoc;
 	for (int i = 0; i < gv->pastPlaysLength; i += 8) {
 		sprintf(loc, "%c%c", gv->pastPlays[i+1], gv->pastPlays[i+2]);
@@ -184,7 +185,7 @@ void reconstructGameState(GameView gv) {
 				CURR_HUNTER->health = 9;
 			CURR_HUNTER->moveHistory[gv->roundNum] = currentLoc;
 			CURR_HUNTER->currLoc = currentLoc;
-			if (gv->pastPlays[i+3] == 'T') {
+			/*if (gv->pastPlays[i+3] == 'T') {
 				CURR_HUNTER->health -= 2;
 				for (int i = 0; i < TRAIL_SIZE; i++) {
 					if (gv->trapLocs[i] == currentLoc) gv->trapLocs[i] = NOWHERE;
@@ -195,6 +196,21 @@ void reconstructGameState(GameView gv) {
 			if (gv->pastPlays[i+4] == 'D') {
 				CURR_HUNTER->health -= 4;
 				gv->dracula->health -= 10;
+			}*/
+			hunterAction = 3;
+			while (gv->pastPlays[i+hunterAction] != '.') {
+				if (gv->pastPlays[i+hunterAction] == 'T') {
+					CURR_HUNTER->health -= 2;
+					for (int i = 0; i < TRAIL_SIZE; i++) {
+						if (gv->trapLocs[i] == currentLoc) gv->trapLocs[i] = NOWHERE;
+					}
+				} else if (gv->pastPlays[i+hunterAction] == 'V') {
+					gv->vampireLocation = NOWHERE;
+				} else if (gv->pastPlays[i+hunterAction] == 'D') {
+					CURR_HUNTER->health -= 4;
+					gv->dracula->health -= 10;
+				}
+				hunterAction++;
 			}
 			if (CURR_HUNTER->health <= 0) {
 				gv->score -= 6;
