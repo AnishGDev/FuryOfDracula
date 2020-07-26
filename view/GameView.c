@@ -148,9 +148,8 @@ void reconstructGameState(GameView gv) {
 	char* loc = malloc(sizeof(char)*3);
 	PlaceId currentLoc;
 	for (int i = 0; i < gv->pastPlaysLength; i += 8) {
-		if (i % 5 == 0) {
-			if (i > 0) gv->roundNum++;
-			gv->score--;
+		if (i % 5 == 0 && i > 0) {
+			gv->roundNum++;
 			gv->whoseTurn = PLAYER_LORD_GODALMING;
 		}
 		sprintf(loc, "%c%c", gv->pastPlays[i+1], gv->pastPlays[i+2]);
@@ -188,6 +187,7 @@ void reconstructGameState(GameView gv) {
 			if (gv->pastPlays[i+3] == 'T') appendTrapLoc(gv, currentLoc);
 			if (gv->pastPlays[i+4] == 'V') gv->vampireLocation = currentLoc;
 			if (gv->pastPlays[i+5] == 'V') gv->score -= 13;
+			gv->score--;
 		} else {
 			if (currentLoc == CURR_HUNTER->currLoc)
 				CURR_HUNTER->health += 3;
