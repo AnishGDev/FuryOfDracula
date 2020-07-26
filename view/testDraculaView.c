@@ -123,7 +123,7 @@ int main(void)
 			"GST.... SST.... HST.... MST.... DAO.... "
 			"GST.... SST.... HST.... MST.... DGWT... "
 			"GST.... SST.... HST.... MST.... DHIT... "
-			"GST.... SST.... HST.... MST.... DD5T... "
+			"GST.... SST.... HST.... MST.... DD4T... "	//Pretty sure its D4
 			"GST.... SST.... HST.... MST....";
 
 
