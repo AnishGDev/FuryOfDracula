@@ -83,6 +83,7 @@ static DraculaData *createNewDracula(int pastPlaysLength){
 	d->health = GAME_START_BLOOD_POINTS;
 	d->currLoc = NOWHERE;
 	d->moveHistory = malloc(sizeof(enum placeId) * (pastPlaysLength/40+1));
+	d->locHistory = malloc(sizeof(enum placeId) * (pastPlaysLength/40+1));
 	return d; 
 }
 
@@ -112,31 +113,6 @@ GameView GvNew(char *pastPlays, Message messages[])
 	reconstructGameState(gv);
 	return gv;
 }
-
-/*void populateLocation(char player, char* location, int round) {
-	switch (player) {
-		case 'D':
-			if (!strcmp(loc, "C?"))
-				DRAC_LHIST[round] = CITY_UNKNOWN;
-			else if (!strcmp(loc, "S?"))
-				DRAC_LHIST[round] = SEA_UNKNOWN;
-			else
-			else for (int i = 0; i < 71)
-			break;
-		case 'G':
-
-			break;
-		case 'S':
-
-			break;
-		case 'H':
-
-			break;
-		case 'M':
-
-			break;
-	}
-}*/
 
 void appendTrapLoc(GameView gv, PlaceId loc) {
 	for (int i = 0; i < TRAIL_SIZE - 1; i++) {
@@ -182,13 +158,16 @@ void reconstructGameState(GameView gv) {
 					DRAC_LHIST[gv->roundNum] = currentLoc;
 					break;
 			}
+			//printf("%d\n", i);
 			DRAC_MHIST[gv->roundNum] = currentLoc;
+			gv->dracula->currLoc = currentLoc;
 			if (DRAC_LHIST[gv->roundNum] == CASTLE_DRACULA) 
 				gv->dracula->health += 10;
 			if (gv->pastPlays[i+3] == 'T') appendTrapLoc(gv, currentLoc);
 			if (gv->pastPlays[i+4] == 'V') gv->vampireLocation = currentLoc;
 			if (gv->pastPlays[i+5] == 'V') gv->score -= 13;
 			gv->score--;
+			gv->roundNum++;
 		} else {
 			if (currentLoc == CURR_HUNTER->currLoc)
 				CURR_HUNTER->health += 3;
@@ -202,7 +181,7 @@ void reconstructGameState(GameView gv) {
 					if (gv->trapLocs[i] == currentLoc) gv->trapLocs[i] = NOWHERE;
 				}
 			}
-			if (gv->pastPlays[i+4] == 'V')
+			if (gv->pastPlays[i+3] == 'V')
 				gv->vampireLocation = NOWHERE;
 			if (gv->pastPlays[i+4] == 'D') {
 				CURR_HUNTER->health -= 4;
@@ -215,7 +194,7 @@ void reconstructGameState(GameView gv) {
 		}
 		gv->whoseTurn++;
 	}
-	if (gv->whoseTurn >= PLAYER_DRACULA) gv->whoseTurn = PLAYER_LORD_GODALMING;
+	if (gv->whoseTurn > PLAYER_DRACULA) gv->whoseTurn = PLAYER_LORD_GODALMING;
 }
 
 void GvFree(GameView gv)
@@ -243,6 +222,7 @@ Round GvGetRound(GameView gv)
 Player GvGetPlayer(GameView gv)
 {
 	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
+	//printf("%d\n", gv->whoseTurn);
 	return gv->whoseTurn;
 	//return PLAYER_LORD_GODALMING;
 }
