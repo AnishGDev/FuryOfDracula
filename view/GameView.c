@@ -175,7 +175,10 @@ void reconstructGameState(GameView gv) {
 				gv->dracula->health -= 2;
 			if (gv->pastPlays[i+3] == 'T') appendTrapLoc(gv, currentLoc);
 			if (gv->pastPlays[i+4] == 'V') gv->vampireLocation = currentLoc;
-			if (gv->pastPlays[i+5] == 'V') gv->score -= 13;
+			if (gv->pastPlays[i+5] == 'V') {
+				 gv->score -= 13;
+				 gv->vampireLocation = NOWHERE;
+			}
 			gv->score--;
 			gv->roundNum++;
 		} else {
@@ -204,7 +207,10 @@ void reconstructGameState(GameView gv) {
 				if (gv->pastPlays[i+hunterAction] == 'T') {
 					CURR_HUNTER->health -= 2;
 					for (int i = 0; i < TRAIL_SIZE; i++) {
-						if (gv->trapLocs[i] == currentLoc) gv->trapLocs[i] = NOWHERE;
+						if (gv->trapLocs[i] == currentLoc){ 
+							gv->trapLocs[i] = NOWHERE;
+							gv->numTraps--;
+						}
 					}
 				} else if (gv->pastPlays[i+hunterAction] == 'V') {
 					gv->vampireLocation = NOWHERE;
