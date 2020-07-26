@@ -732,7 +732,7 @@ int main(void)
 			(Message[2]) {}
 		);
 
-		locs = HvWhereCanTheyGoByType(hv, PLAYER_LORD_GODALMING, &num);
+		locs = HvWhereCanTheyGo(hv, PLAYER_LORD_GODALMING, &num);
 		assert(num == 7);
 		sortPlaces(locs, num);
 		assert(locs[0] == BORDEAUX);
