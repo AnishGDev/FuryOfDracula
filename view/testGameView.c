@@ -625,6 +625,69 @@ int main(void)
 		GvFree(gv);
 		printf("Test passed!\n");
 	}
+
+	{
+	printf("Testing hunter's getLastLocation\n");
+		char *trail =
+			"GLS.... SGE.... HGE.... MGE.... DST.V.. "
+			"GCA.... SGE.... HGE.... MGE.... DC?T... "
+			"GGR.... SGE.... HGE.... MGE.... DC?T... "
+			"GAL.... SGE.... HGE.... MGE.... DD3T... "
+			"GSR.... SGE.... HGE.... MGE.... DHIT... "
+			"GSN.... SGE.... HGE.... MGE.... DC?T... "
+			"GMA.... SSTTTV.";
+		Message messages[32] = {};
+		GameView gv = GvNew(trail, messages);
+		int numReturned = -1; 
+		bool canFree; 
+		printf("\t Checking PLAYER_LORD_GODALMING\n");
+		PlaceId *locHistory = GvGetLastLocations(gv, PLAYER_LORD_GODALMING, 3, &numReturned, &canFree);
+		assert(numReturned == 3); 
+		assert(locHistory[0] == SARAGOSSA);
+		assert(locHistory[1] == SANTANDER);
+		assert(locHistory[2] == MADRID);
+		printf("\t Checking PLAYER_DR_SEWARD\n");
+		locHistory = GvGetLastLocations(gv, PLAYER_DR_SEWARD, 3, &numReturned, &canFree);
+		assert(numReturned == 3); 
+		assert(locHistory[0] == GENEVA);
+		assert(locHistory[1] == GENEVA);
+		assert(locHistory[2] == STRASBOURG);
+		printf("\t Checking PLAYER_VAN_HELSING\n");
+		locHistory = GvGetLastLocations(gv, PLAYER_VAN_HELSING, 3, &numReturned, &canFree);
+		assert(numReturned == 3); 
+		assert(locHistory[0] == GENEVA);
+		assert(locHistory[1] == GENEVA);
+		assert(locHistory[2] == GENEVA);
+		printf("\t Checking PLAYER_MINA_HARKER\n");
+		locHistory = GvGetLastLocations(gv, PLAYER_MINA_HARKER, 3, &numReturned, &canFree);
+		assert(numReturned == 3); 
+		assert(locHistory[0] == GENEVA);
+		assert(locHistory[1] == GENEVA);
+		assert(locHistory[2] == GENEVA);
+		if (canFree){
+			free(locHistory);
+		}
+		GvFree(gv); 
+		printf("Testing Dracula's getLastLocation\n");
+				trail = "GLS.... SGE.... HGE.... MGE.... DST.V.. "
+							"GCA.... SGE.... HGE.... MGE.... DZUT... "
+							"GGR.... SGE.... HGE.... MGE.... DMUT... "
+							"GAL.... SGE.... HGE.... MGE.... DD3T... "
+							"GSR.... SGE.... HGE.... MGE.... DHIT... "
+							"GSN.... SGE.... HGE.... MGE.... DMIT... "
+							"GMA.... SSTTTV. HGE.... MGE....";
+		// Reconstruct game view in point of Dracula. 
+		gv = GvNew(trail, messages);
+		locHistory = GvGetLastLocations(gv, PLAYER_DRACULA, 3, &numReturned, &canFree);
+		assert(numReturned == 3); 
+		assert(locHistory[0] == STRASBOURG);
+		assert(locHistory[1] == STRASBOURG);
+		assert(locHistory[2] == MILAN);
+		if (canFree){
+			free(locHistory);
+		}
+		GvFree(gv);
+	}	
 	return EXIT_SUCCESS;
 }
 
