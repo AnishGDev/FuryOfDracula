@@ -259,4 +259,5 @@ void addNextRailway(GameView gv, PlaceId from, int depth, int maxRailwayDepth, i
 // TODO
 bool linearScan(PlaceId *list, PlaceId itemToFind, int len);
 void reconstructGameState(GameView gv);
+PlaceId lastKnownDraculaLocation(GameView gv, int *round);
 #endif // !defined (FOD__GAME_VIEW_H_)
