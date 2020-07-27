@@ -47,6 +47,20 @@ int main(void)
 			(Message[5]) {}
 		));
 
+		HvFree(HvNew(
+			"GST.... SAO.... HZU.... MBB.... DC?.V..",
+			(Message[5]) {
+				"hello"
+			}
+		));
+
+		HvFree(HvNew(
+			"GST.... SAO.... HZU.... MBB.... DC?.V..",
+			(Message[5]) {
+				"hello", "world", "foo", "bar", "baz"
+			}
+		));
+
 		printf("passed\n");
 	}
 
@@ -668,7 +682,6 @@ int main(void)
 			(Message[20]) {}
 		);
 
-		printf("\nHvGetPlayerLocation(hv, HvGetPlayer(hv))): %d\n", HvGetPlayerLocation(hv, HvGetPlayer(hv)));
 		locs = HvWhereCanIGoByType(hv, true, false, false, &num);
 		assert(num == 5);
 		sortPlaces(locs, num);
