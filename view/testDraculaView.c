@@ -164,9 +164,6 @@ int main(void)
 		
 		int numLocs = -1;
 		PlaceId *locs = DvWhereCanIGo(dv, &numLocs);
-		for (int i = 0; i < numLocs; i++) {
-			printf("Loc: %s\n", placeIdToName(locs[i]));
-		}
 		assert(numLocs == 4);
 		sortPlaces(locs, numLocs);
 		assert(locs[0] == BELGRADE);
@@ -387,9 +384,12 @@ int main(void)
 
 		int numLocs = -1;
 		PlaceId *locs = DvWhereCanIGo(dv, &numLocs);
-		printf("num is %d\n", numLocs);
 		assert(numLocs == 8);
 		sortPlaces(locs, numLocs);
+		printf("num is %d\n", numLocs);
+		for (int i = 0; i < numLocs; i++) {
+			printf("Loc: %s\n", placeIdToName(locs[i]));
+		}
 		assert(locs[0] == MILAN);
 		assert(locs[1] == MUNICH); // HIDE
 		assert(locs[2] == NUREMBURG);
