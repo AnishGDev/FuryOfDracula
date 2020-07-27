@@ -116,7 +116,6 @@ int main(void)
 		DvFree(dv);
 	}
 
-
 	{///////////////////////////////////////////////////////////////////
 	
 		printf("Test for Dracula's valid moves 1\n");
@@ -386,10 +385,7 @@ int main(void)
 		PlaceId *locs = DvWhereCanIGo(dv, &numLocs);
 		assert(numLocs == 8);
 		sortPlaces(locs, numLocs);
-		printf("num is %d\n", numLocs);
-		for (int i = 0; i < numLocs; i++) {
-			printf("Loc: %s\n", placeIdToName(locs[i]));
-		}
+
 		assert(locs[0] == MILAN);
 		assert(locs[1] == MUNICH); // HIDE
 		assert(locs[2] == NUREMBURG);
@@ -646,6 +642,71 @@ int main(void)
 
 		printf("Test passed!\n");
 		free(dv);
+	}
+
+	{//Testing WhereCanIGo
+		printf("Testing WhereCanIGo2\n");
+
+		char *trail = 
+			"GKL.... SGE.... HGE.... MGE.... DMU.V.. "
+			"GKL.... SGE.... HGE.... MGE.... DHIT... "
+			"GKL.... SGE.... HGE.... MGE....";
+
+		Message messages[9] = {};
+		DraculaView dv = DvNew(trail, messages);
+
+		assert(DvGetPlayerLocation(dv, PLAYER_DRACULA) == MUNICH);
+
+		int numLocs = -1;
+		PlaceId *locs = DvWhereCanIGo(dv, &numLocs);
+		assert(numLocs == 8);
+		sortPlaces(locs, numLocs);
+
+		assert(locs[0] == MILAN);
+		assert(locs[1] == MUNICH);
+		assert(locs[2] == NUREMBURG);
+		assert(locs[3] == STRASBOURG);
+		assert(locs[4] == VENICE);
+		assert(locs[5] == VIENNA);
+		assert(locs[6] == ZAGREB);
+		assert(locs[7] == ZURICH);
+
+		printf("Test passed!\n");
+		DvFree(dv);
+	}
+
+		{//Testing WhereCanIGo
+		printf("Testing WhereCanIGo3\n");
+
+		char *trail = 
+			"GKL.... SGE.... HGE.... MGE.... DMU.V.. "
+			"GKL.... SGE.... HGE.... MGE.... DHIT... "
+			"GKL.... SGE.... HGE.... MGE.... DD1T... "
+			"GKL.... SGE.... HGE.... MGE....";
+
+		Message messages[9] = {};
+		DraculaView dv = DvNew(trail, messages);
+
+		assert(DvGetPlayerLocation(dv, PLAYER_DRACULA) == MUNICH);
+
+		int numLocs = -1;
+		PlaceId *locs = DvWhereCanIGo(dv, &numLocs);
+		assert(numLocs == 7);
+		sortPlaces(locs, numLocs);
+		assert(locs[0] == MILAN);
+		assert(locs[1] == NUREMBURG);
+		assert(locs[2] == STRASBOURG);
+		assert(locs[3] == VENICE);
+		assert(locs[4] == VIENNA);
+		assert(locs[5] == ZAGREB);
+		assert(locs[6] == ZURICH);
+
+		printf("Test passed!\n");
+		DvFree(dv);
+	}
+
+	{//Testing Get Moves Hiding at sea
+
 	}
 	return EXIT_SUCCESS;
 }

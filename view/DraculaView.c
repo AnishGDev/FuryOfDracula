@@ -157,6 +157,8 @@ PlaceId *DvWhereCanTheyGoByType(DraculaView dv, Player player,
 		PlaceId *places = GvGetReachableByType(dv->gv, player, DvGetRound(dv),
 											DvGetPlayerLocation(dv, player),
 											road, rail, boat, numReturnedLocs);
+		
+		
 		//Account for trail Restrictions
 		bool doubleBackInTrail = DoubleInLast5(dv);
 
@@ -443,7 +445,7 @@ static PlaceId *RemoveDoubleBack (PlaceId *locations, PlaceId *trailMoves, int n
 		}
 	}
 	*numReturnedLocs -= numShift;
-	locations = realloc(locations, sizeof(PlaceId) * (*numReturnedLocs - numShift));
+	locations = realloc(locations, sizeof(PlaceId) * (*numReturnedLocs));
 
 	return locations;
 }
