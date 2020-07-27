@@ -107,8 +107,9 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves)
 
 	if (!doubleBackInTrail) {	//Add Double backs as moves
 		moves = ReplaceWithDoubleBack(moves, trailMoves, numHistMoves, numReturnedMoves);
-	} 
-	
+	} else {
+		RemoveDoubleBack(moves, trailMoves, numHistMoves, numReturnedMoves);
+	}
 
 	bool hiddenInTrail = hiddenInLast5(dv);
 

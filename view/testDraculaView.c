@@ -350,8 +350,8 @@ int main(void)
 		DvFree(dv);
 	}
 
-	{//Testing GetPlayerLocation for DoubleBack and Hide
-		printf("Testing GetPlayerLocation for DoubleBack and Hide\n");
+	{//Testing GetPlayerLocation and DvGetValidMoves for DoubleBack and Hide
+		printf("Testing GetPlayerLocation for DoubleBack and Hide and DvGetValidMoves for no DOUBLEBACK and HIDE\n");
 
 		char *trail = 
 			"GKL.... SGE.... HGE.... MGE.... DCD.V.. "
@@ -364,6 +364,13 @@ int main(void)
 
 		assert(DvGetPlayerLocation(dv, PLAYER_DRACULA) == CASTLE_DRACULA);
 		assert(DvGetHealth(dv, PLAYER_DRACULA) == GAME_START_BLOOD_POINTS + 3*LIFE_GAIN_CASTLE_DRACULA);
+
+		int numMoves = -1;
+		PlaceId *moves = DvGetValidMoves(dv, &numMoves);
+		assert(numMoves == 2);
+		sortPlaces(moves, numMoves);
+		assert(moves[0] == GALATZ);
+		assert(moves[1] == KLAUSENBURG);
 
 		printf("Test passed!\n");
 		DvFree(dv);
@@ -760,6 +767,115 @@ int main(void)
 		assert(moves[8] == NORTH_SEA);
 
 		printf("Test passed!\n");
+		DvFree(dv);
+	}
+	
+	{//Testing Hospital of St Joseph and St Mary
+		printf("Testing Hospital of St Joseph and St Mary Conditions\n");
+
+		char *trail = 
+			"GKL.... SGE.... HGE.... MGE.... DSZ.V.. "
+			"GKL.... SGE.... HGE.... MGE....";
+		
+		Message messages[9] = {};
+
+		DraculaView dv = DvNew(trail, messages);
+
+		assert(DvGetPlayerLocation(dv, PLAYER_DRACULA) == SZEGED);
+		int numLocs = -1;
+		PlaceId *locs = DvWhereCanIGo(dv, &numLocs);
+		assert(numLocs == 5);
+		sortPlaces(locs, numLocs);
+		assert(locs[0] == BELGRADE);
+		assert(locs[1] == BUDAPEST);
+		assert(locs[2] == KLAUSENBURG);
+		assert(locs[3] == SZEGED);
+		assert(locs[4] == ZAGREB);
+		free(locs);
+
+		int numMoves = -1;
+		PlaceId *moves = DvGetValidMoves(dv, &numMoves);
+		assert(numMoves == 6);
+		sortPlaces(moves, numLocs);
+		assert(moves[0] == BELGRADE);
+		assert(moves[1] == BUDAPEST);
+		assert(moves[2] == KLAUSENBURG);
+		assert(moves[3] == ZAGREB);
+		assert(moves[4] == DOUBLE_BACK_1);
+		assert(moves[5] == HIDE);
+		free(moves);
+
+		printf("Test passed!\n");
+		DvFree(dv);
+
+	}
+	
+	{//Testing DoubleBacks
+		printf("Testing DoubleBack\n");
+		char *trail = 
+			"GKL.... SKL.... HKL.... MKL.... DMR.V.. "
+			"GKL.... SKL.... HKL.... MKL.... DCFT... "
+			"GKL.... SKL.... HKL.... MKL.... DPAT... "
+			"GKL.... SKL.... HKL.... MKL.... DSTT... "
+			"GKL.... SKL.... HKL.... MKL.... DZUT... "
+			"GKL.... SKL.... HKL.... MKL.... DGET... "
+			"GKL.... SKL.... HKL.... MKL.... ";
+		Message messages[9] = {};
+
+		DraculaView dv = DvNew(trail, messages);
+
+		int numMoves = -1;
+		PlaceId *moves = DvGetValidMoves(dv, &numMoves);
+		assert(numMoves == 7);
+		sortPlaces(moves, numMoves);
+		assert(moves[0] == MARSEILLES);
+		assert(moves[1] == HIDE);
+		assert(moves[2] == DOUBLE_BACK_1);
+		assert(moves[3] == DOUBLE_BACK_2);
+		assert(moves[4] == DOUBLE_BACK_3);
+		assert(moves[5] == DOUBLE_BACK_4);
+		assert(moves[6] == DOUBLE_BACK_5);
+		free(moves);
+		printf("Test passed\n");
+		DvFree(dv);
+	}
+
+	{//Testing DoubleBacks
+		printf("Testing DoubleBack1\n");
+		char *trail = 
+			"GKL.... SKL.... HKL.... MKL.... DMR.V.. "
+			"GKL.... SKL.... HKL.... MKL.... DCFT... "
+			"GKL.... SKL.... HKL.... MKL.... DPAT... "
+			"GKL.... SKL.... HKL.... MKL.... DSTT... "
+			"GKL.... SKL.... HKL.... MKL.... DZUT... "
+			"GKL.... SKL.... HKL.... MKL.... DGET... "
+			"GKL.... SKL.... HKL.... MKL.... DD1T.V. "
+			"GKL.... SKL.... HKL.... MKL.... ";
+		Message messages[9] = {};
+
+		DraculaView dv = DvNew(trail, messages);
+
+		assert(DvGetPlayerLocation(dv, PLAYER_DRACULA) == GENEVA);
+		
+		int numMoves = -1;
+		PlaceId *moves = DvGetValidMoves(dv, &numMoves);
+		assert(numMoves == 3);
+		sortPlaces(moves, numMoves);
+		assert(moves[0] == CLERMONT_FERRAND);
+		assert(moves[1] == MARSEILLES);
+		assert(moves[2] == HIDE);
+		free(moves);
+
+		int numLocs = -1;
+		PlaceId *locs = DvWhereCanTheyGo(dv, PLAYER_DRACULA, &numLocs);
+		assert(numLocs == 3);
+		sortPlaces(locs, numLocs);
+		assert(locs[0] == CLERMONT_FERRAND);
+		assert(locs[1] == GENEVA);
+		assert(locs[2] == MARSEILLES);
+		free(locs);
+
+		printf("Test passed\n");
 		DvFree(dv);
 	}
 	return EXIT_SUCCESS;
