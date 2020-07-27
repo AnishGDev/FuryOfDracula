@@ -170,7 +170,7 @@ PlaceId *DvWhereCanTheyGoByType(DraculaView dv, Player player,
 
 		if (doubleBackInTrail) {	//Remove Double back locations
 			places = RemoveDoubleBack(places, trailMoves, numHistMoves, numReturnedLocs);
-
+			
 			//If Can Still Hide Add current location Back
 			bool hiddenInTrail = hiddenInLast5(dv);
 			if (!hiddenInTrail) {
@@ -180,7 +180,6 @@ PlaceId *DvWhereCanTheyGoByType(DraculaView dv, Player player,
 
 			}
 		}
-
 
 		if (canFree) free(trailMoves);
 		return places;
@@ -255,13 +254,13 @@ static PlaceId *RemoveDoubleBack (PlaceId *locations, PlaceId *trailMoves, int n
 		}
 	}
 	//Rearrange the array
+
 	int numShift = 0;
 	for (int i = 0; i < *numReturnedLocs; i++) {
 		if (locations[i] == remove) {
 			numShift++;
-			for (int j = i; j < *numReturnedLocs - 1; j++) {
-				locations[j] = locations[j+1];
-			}
+		} else {
+			locations[i-numShift] = locations[i];
 		}
 	}
 	*numReturnedLocs -= numShift;
