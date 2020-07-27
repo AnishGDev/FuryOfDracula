@@ -675,7 +675,7 @@ int main(void)
 		DvFree(dv);
 	}
 
-		{//Testing WhereCanIGo
+	{//Testing WhereCanIGo
 		printf("Testing WhereCanIGo3\n");
 
 		char *trail = 
@@ -706,7 +706,61 @@ int main(void)
 	}
 
 	{//Testing Get Moves Hiding at sea
+		printf("Testing GetValidMoves hiding at sea\n");
 
+		char *trail =
+			"GKL.... SGE.... HGE.... MGE.... DAO.... "
+			"GKL.... SGE.... HGE.... MGE....";
+
+		Message messages[9] = {};
+		DraculaView dv = DvNew(trail, messages);
+
+		assert(DvGetHealth(dv, PLAYER_DRACULA) == GAME_START_BLOOD_POINTS - LIFE_LOSS_SEA);
+
+		int numMoves = -1;
+		PlaceId *moves = DvGetValidMoves(dv, &numMoves);
+		sortPlaces(moves, numMoves);
+		assert(numMoves == 9);
+		assert(moves[0] == BAY_OF_BISCAY);
+		assert(moves[1] == CADIZ);
+		assert(moves[2] == ENGLISH_CHANNEL);
+		assert(moves[3] == GALWAY);
+		assert(moves[4] == IRISH_SEA);
+		assert(moves[5] == LISBON);
+		assert(moves[6] == MEDITERRANEAN_SEA);
+		assert(moves[7] == NORTH_SEA);
+		assert(moves[8] == DOUBLE_BACK_1);
+
+		printf("Test passed!\n");
+		DvFree(dv);
+	}
+	
+	{//Testing DvWhereCanIGoByType at sea
+		printf("Testing DvWhereCanIGoByType at sea\n");
+
+		char *trail =
+			"GKL.... SGE.... HGE.... MGE.... DAO.... "
+			"GKL.... SGE.... HGE.... MGE....";
+
+		Message messages[9] = {};
+		DraculaView dv = DvNew(trail, messages);
+
+		int numMoves = -1;
+		PlaceId *moves = DvWhereCanIGoByType(dv, false, true, &numMoves);
+		sortPlaces(moves, numMoves);
+		assert(numMoves == 9);
+		assert(moves[0] == ATLANTIC_OCEAN);
+		assert(moves[1] == BAY_OF_BISCAY);
+		assert(moves[2] == CADIZ);
+		assert(moves[3] == ENGLISH_CHANNEL);
+		assert(moves[4] == GALWAY);
+		assert(moves[5] == IRISH_SEA);
+		assert(moves[6] == LISBON);
+		assert(moves[7] == MEDITERRANEAN_SEA);
+		assert(moves[8] == NORTH_SEA);
+
+		printf("Test passed!\n");
+		DvFree(dv);
 	}
 	return EXIT_SUCCESS;
 }
