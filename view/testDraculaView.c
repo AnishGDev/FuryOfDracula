@@ -595,5 +595,57 @@ int main(void)
 		printf("Test passed!\n");
 		DvFree(dv);
 	}
+
+	{//Testing Start of the game
+		printf("Start of the game\n");
+
+		char *trail =
+			"";
+
+		Message messages[9] = {};
+		DraculaView dv = DvNew(trail, messages);
+
+		assert(DvGetPlayerLocation(dv, PLAYER_LORD_GODALMING) == NOWHERE);
+		assert(DvGetPlayerLocation(dv, PLAYER_DR_SEWARD) == NOWHERE);
+		assert(DvGetPlayerLocation(dv, PLAYER_VAN_HELSING) == NOWHERE);
+		assert(DvGetPlayerLocation(dv, PLAYER_MINA_HARKER) == NOWHERE);
+		assert(DvGetPlayerLocation(dv, PLAYER_DRACULA) == NOWHERE);
+
+		int numLocs = -1;
+		PlaceId *locs = DvGetValidMoves(dv, &numLocs);
+		assert(numLocs == 0);
+		assert(locs == NULL);
+		numLocs = -1;
+		locs = DvWhereCanIGo(dv, &numLocs);
+		assert(numLocs == 0);
+		numLocs = -1;
+		locs = DvWhereCanIGoByType(dv, true, false, &numLocs);
+		assert(numLocs == 0);
+		numLocs = -1;
+		locs = DvWhereCanIGoByType(dv, true, true, &numLocs);
+		assert(numLocs == 0);
+		numLocs = -1;
+		locs = DvWhereCanTheyGo(dv, PLAYER_LORD_GODALMING, &numLocs);
+		assert(numLocs == 0);
+		numLocs = -1;
+		locs = DvWhereCanTheyGo(dv, PLAYER_MINA_HARKER, &numLocs);
+		assert(numLocs == 0);
+		numLocs = -1;
+		locs = DvWhereCanTheyGo(dv, PLAYER_DR_SEWARD, &numLocs);
+		assert(numLocs == 0);
+
+		assert(DvGetRound(dv) == 0);
+		assert(DvGetVampireLocation(dv) == NOWHERE);
+		assert(DvGetScore(dv) == GAME_START_SCORE);
+
+		assert(DvGetHealth(dv, PLAYER_LORD_GODALMING) == GAME_START_HUNTER_LIFE_POINTS);
+		assert(DvGetHealth(dv, PLAYER_DR_SEWARD) == GAME_START_HUNTER_LIFE_POINTS);
+		assert(DvGetHealth(dv, PLAYER_VAN_HELSING) == GAME_START_HUNTER_LIFE_POINTS);
+		assert(DvGetHealth(dv, PLAYER_MINA_HARKER) == GAME_START_HUNTER_LIFE_POINTS);
+		assert(DvGetHealth(dv, PLAYER_DRACULA) == GAME_START_BLOOD_POINTS);
+
+		printf("Test passed!\n");
+		free(dv);
+	}
 	return EXIT_SUCCESS;
 }
