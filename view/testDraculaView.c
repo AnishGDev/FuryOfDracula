@@ -878,5 +878,156 @@ int main(void)
 		printf("Test passed\n");
 		DvFree(dv);
 	}
+	
+	{//Testing DoubleBacks
+		printf("Testing DoubleBack2\n");
+		char *trail = 
+			"GKL.... SKL.... HKL.... MKL.... DMR.V.. "
+			"GKL.... SKL.... HKL.... MKL.... DCFT... "
+			"GKL.... SKL.... HKL.... MKL.... DPAT... "
+			"GKL.... SKL.... HKL.... MKL.... DSTT... "
+			"GKL.... SKL.... HKL.... MKL.... DZUT... "
+			"GKL.... SKL.... HKL.... MKL.... DGET... "
+			"GKL.... SKL.... HKL.... MKL.... DD2T.V. "
+			"GKL.... SKL.... HKL.... MKL.... ";
+		Message messages[9] = {};
+
+		DraculaView dv = DvNew(trail, messages);
+
+		assert(DvGetPlayerLocation(dv, PLAYER_DRACULA) == ZURICH);
+		
+		int numMoves = -1;
+		PlaceId *moves = DvGetValidMoves(dv, &numMoves);
+		assert(numMoves == 4);
+		sortPlaces(moves, numMoves);
+		assert(moves[0] == MARSEILLES);
+		assert(moves[1] == MILAN);
+		assert(moves[2] == MUNICH);
+		assert(moves[3] == HIDE);
+		free(moves);
+
+		int numLocs = -1;
+		PlaceId *locs = DvWhereCanTheyGo(dv, PLAYER_DRACULA, &numLocs);
+		assert(numLocs == 4);
+		sortPlaces(locs, numLocs);
+		assert(locs[0] == MARSEILLES);
+		assert(locs[1] == MILAN);
+		assert(locs[2] == MUNICH);
+		assert(locs[3] == ZURICH);
+		free(locs);
+
+		printf("Test passed\n");
+		DvFree(dv);
+	}
+	
+	{//Testing DoubleBacks
+		printf("Testing DoubleBack3\n");
+		char *trail = 
+			"GKL.... SKL.... HKL.... MKL.... DMR.V.. "
+			"GKL.... SKL.... HKL.... MKL.... DCFT... "
+			"GKL.... SKL.... HKL.... MKL.... DPAT... "
+			"GKL.... SKL.... HKL.... MKL.... DSTT... "
+			"GKL.... SKL.... HKL.... MKL.... DZUT... "
+			"GKL.... SKL.... HKL.... MKL.... DGET... "
+			"GKL.... SKL.... HKL.... MKL.... DD3T.V. "
+			"GKL.... SKL.... HKL.... MKL.... ";
+		Message messages[9] = {};
+
+		DraculaView dv = DvNew(trail, messages);
+
+		assert(DvGetPlayerLocation(dv, PLAYER_DRACULA) == STRASBOURG);
+		
+		int numMoves = -1;
+		PlaceId *moves = DvGetValidMoves(dv, &numMoves);
+		assert(numMoves == 6);
+		sortPlaces(moves, numMoves);
+		assert(moves[0] == BRUSSELS);
+		assert(moves[1] == COLOGNE);
+		assert(moves[2] == FRANKFURT);
+		assert(moves[3] == MUNICH);
+		assert(moves[4] == NUREMBURG);
+		assert(moves[5] == HIDE);
+		free(moves);
+
+		int numLocs = -1;
+		PlaceId *locs = DvWhereCanTheyGo(dv, PLAYER_DRACULA, &numLocs);
+		assert(numLocs == 6);
+		sortPlaces(locs, numLocs);
+		assert(locs[0] == BRUSSELS);
+		assert(locs[1] == COLOGNE);
+		assert(locs[2] == FRANKFURT);
+		assert(locs[3] == MUNICH);
+		assert(locs[4] == NUREMBURG);
+		assert(locs[5] == STRASBOURG);
+		free(locs);
+
+		printf("Test passed\n");
+		DvFree(dv);
+	}
+	
+	{//Testing DoubleBacks
+		printf("Testing DoubleBack4\n");
+		char *trail = 
+			"GKL.... SKL.... HKL.... MKL.... DMR.V.. "
+			"GKL.... SKL.... HKL.... MKL.... DCFT... "
+			"GKL.... SKL.... HKL.... MKL.... DPAT... "
+			"GKL.... SKL.... HKL.... MKL.... DSTT... "
+			"GKL.... SKL.... HKL.... MKL.... DZUT... "
+			"GKL.... SKL.... HKL.... MKL.... DGET... "
+			"GKL.... SKL.... HKL.... MKL.... DD4T.V. "
+			"GKL.... SKL.... HKL.... MKL.... ";
+		Message messages[9] = {};
+
+		DraculaView dv = DvNew(trail, messages);
+
+		assert(DvGetPlayerLocation(dv, PLAYER_DRACULA) == PARIS);
+		
+		int numMoves = -1;
+		PlaceId *moves = DvGetValidMoves(dv, &numMoves);
+		assert(numMoves == 5);
+		sortPlaces(moves, numMoves);
+		assert(moves[0] == BRUSSELS);
+		assert(moves[1] == CLERMONT_FERRAND);
+		assert(moves[2] == LE_HAVRE);
+		assert(moves[3] == NANTES);
+		assert(moves[4] == HIDE);
+		free(moves);
+
+		printf("Test passed\n");
+		DvFree(dv);
+	}
+	
+	{//Testing DoubleBacks
+		printf("Testing DoubleBack5\n");
+		char *trail = 
+			"GKL.... SKL.... HKL.... MKL.... DMR.V.. "
+			"GKL.... SKL.... HKL.... MKL.... DCFT... "
+			"GKL.... SKL.... HKL.... MKL.... DPAT... "
+			"GKL.... SKL.... HKL.... MKL.... DSTT... "
+			"GKL.... SKL.... HKL.... MKL.... DZUT... "
+			"GKL.... SKL.... HKL.... MKL.... DGET... "
+			"GKL.... SKL.... HKL.... MKL.... DD5T.V. "
+			"GKL.... SKL.... HKL.... MKL.... ";
+		Message messages[9] = {};
+
+		DraculaView dv = DvNew(trail, messages);
+
+		assert(DvGetPlayerLocation(dv, PLAYER_DRACULA) == CLERMONT_FERRAND);
+		
+		int numMoves = -1;
+		PlaceId *moves = DvGetValidMoves(dv, &numMoves);
+		assert(numMoves == 5);
+		sortPlaces(moves, numMoves);
+		assert(moves[0] == BORDEAUX);
+		assert(moves[1] == MARSEILLES);
+		assert(moves[2] == NANTES);
+		assert(moves[3] == TOULOUSE);
+		assert(moves[4] == HIDE);
+		free(moves);
+
+		printf("Test passed\n");
+		DvFree(dv);
+	}
+	
 	return EXIT_SUCCESS;
 }
