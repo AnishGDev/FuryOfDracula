@@ -1032,5 +1032,86 @@ int main(void)
 		DvFree(dv);
 	}
 	
+	{//Testing Dracula Running out of moves
+		printf("Testing No Moves\n");
+		char *trail = 
+			"GKL.... SKL.... HKL.... MKL.... DCG.V.. "
+			"GKL.... SKL.... HKL.... MKL.... DTS.... "
+			"GKL.... SKL.... HKL.... MKL.... DMS.... "
+			"GKL.... SKL.... HKL.... MKL.... DD3T... "
+			"GKL.... SKL.... HKL.... MKL.... DHIT... "
+			"GKL.... SKL.... HKL.... MKL.... ";
+		Message messages[9] = {};
+
+		DraculaView dv = DvNew(trail, messages);
+
+		assert(DvGetPlayerLocation(dv, PLAYER_DRACULA) == CAGLIARI);
+		
+		int numMoves = -1;
+		PlaceId *moves = DvGetValidMoves(dv, &numMoves);
+
+		assert(numMoves == 0);
+		sortPlaces(moves, numMoves);
+		assert(moves == NULL);
+		free(moves);
+
+		printf("Test passed\n");
+		DvFree(dv);
+	}
+
+	{//Testing Dracula Running out of moves
+		printf("Testing No Moves\n");
+		char *trail = 
+			"GKL.... SKL.... HKL.... MKL.... DNS.... "
+			"GKL.... SKL.... HKL.... MKL.... DEDT... "
+			"GKL.... SKL.... HKL.... MKL.... DMNT... "
+			"GKL.... SKL.... HKL.... MKL.... DD2T... "
+			"GKL.... SKL.... HKL.... MKL.... DHIT... "
+			"GKL.... SKL.... HKL.... MKL.... ";
+		Message messages[9] = {};
+
+		DraculaView dv = DvNew(trail, messages);
+
+		assert(DvGetPlayerLocation(dv, PLAYER_DRACULA) == EDINBURGH);
+		
+		int numMoves = -1;
+		PlaceId *moves = DvGetValidMoves(dv, &numMoves);
+
+		assert(numMoves == 0);
+		sortPlaces(moves, numMoves);
+		assert(moves == NULL);
+		free(moves);
+
+		printf("Test passed\n");
+		DvFree(dv);
+	}
+
+	{//Testing Dracula Running out of moves
+		printf("Testing No Moves2\n");
+		char *trail = 
+			"GKL.... SKL.... HKL.... MKL.... DIR.... "
+			"GKL.... SKL.... HKL.... MKL.... DDUT... "
+			"GKL.... SKL.... HKL.... MKL.... DGWT... "
+			"GKL.... SKL.... HKL.... MKL.... DD2T... "
+			"GKL.... SKL.... HKL.... MKL.... DHIT... "
+			"GKL.... SKL.... HKL.... MKL.... ";
+		Message messages[9] = {};
+
+		DraculaView dv = DvNew(trail, messages);
+
+		assert(DvGetPlayerLocation(dv, PLAYER_DRACULA) == DUBLIN);
+		
+		int numMoves = -1;
+		PlaceId *moves = DvGetValidMoves(dv, &numMoves);
+
+		assert(numMoves == 0);
+		sortPlaces(moves, numMoves);
+		assert(moves == NULL);
+		free(moves);
+
+		printf("Test passed\n");
+		DvFree(dv);
+	}
+
 	return EXIT_SUCCESS;
 }
