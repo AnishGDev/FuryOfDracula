@@ -177,7 +177,7 @@ int main(void)
 
 	printf("/////////////END OF Given Tests//////\n");
 
-	{//Testing for Dracula With No Moves
+	{//Testing for Dracula With 1 Move
 		printf("Custom Test Could be wrong-Nikhil\n");
 		printf("Test for Dracula With No Moves\n");
 
@@ -188,7 +188,7 @@ int main(void)
 			"GST.... SST.... HST.... MST.... DGWT... "
 			"GST.... SST.... HST.... MST.... DHIT... "
 			"GST.... SST.... HST.... MST.... DD5T... "	//Pretty sure its D4
-			"GST.... SST.... HST.... MST....";
+			"GST.... SST.... HST.... MST.... ";
 
 
 		Message messages[24] = {};
@@ -210,8 +210,9 @@ int main(void)
 		
 		int numMoves = -1;
 		PlaceId *moves = DvGetValidMoves(dv, &numMoves);
-		assert(numMoves == 0);
-		assert(moves == NULL);
+
+		assert(numMoves == 1);
+		assert(moves[0] == DUBLIN);
 		free(moves);
 
 		printf("Test passed!\n");
@@ -1016,13 +1017,15 @@ int main(void)
 		
 		int numMoves = -1;
 		PlaceId *moves = DvGetValidMoves(dv, &numMoves);
-		assert(numMoves == 5);
+
+		assert(numMoves == 6);
 		sortPlaces(moves, numMoves);
 		assert(moves[0] == BORDEAUX);
-		assert(moves[1] == MARSEILLES);
-		assert(moves[2] == NANTES);
-		assert(moves[3] == TOULOUSE);
-		assert(moves[4] == HIDE);
+		assert(moves[1] == CLERMONT_FERRAND);
+		assert(moves[2] == MARSEILLES);
+		assert(moves[3] == NANTES);
+		assert(moves[4] == TOULOUSE);
+		assert(moves[5] == HIDE);
 		free(moves);
 
 		printf("Test passed\n");
