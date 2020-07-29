@@ -20,8 +20,8 @@
 #include "Map.h"
 // add your own #includes here
 
-static bool hiddenInLast5 (DraculaView dv);
-static bool DoubleInLast5 (DraculaView dv);
+static bool hiddenInLast5 (DraculaView dv, PlaceId *moveHist, int numHistMoves);
+static bool doubleInLast5 (DraculaView dv, PlaceId *moveHist, int numHistMoves);
 static PlaceId *ReplaceWithDoubleBack (PlaceId *locations, PlaceId *trailMoves, int numHistMoves, int *numReturnedLocs);
 static PlaceId *RemoveDoubleBack (PlaceId *locations, PlaceId *trailMoves, int numHistMoves, int *numReturnedLocs);
 
@@ -97,13 +97,14 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves)
 
 	PlaceId *moves = DvWhereCanIGoByType(dv, true, true, numReturnedMoves);
 
-	bool doubleBackInTrail = DoubleInLast5(dv);
 
 	int numHistMoves;
 	bool canFree = false;
 	int numMoves = 5;
 	PlaceId *trailMoves = GvGetLastMoves(dv->gv, PLAYER_DRACULA, 
 		numMoves, &numHistMoves, &canFree);
+
+	bool doubleBackInTrail = doubleInLast5(dv, trailMoves, numHistMoves);
 	
 	if (!doubleBackInTrail) {	//Add Double backs as moves
 		moves = ReplaceWithDoubleBack(moves, trailMoves, numHistMoves, numReturnedMoves);
@@ -111,7 +112,7 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves)
 		RemoveDoubleBack(moves, trailMoves, numHistMoves, numReturnedMoves);
 	}
 
-	bool hiddenInTrail = hiddenInLast5(dv);
+	bool hiddenInTrail = hiddenInLast5(dv, trailMoves, numHistMoves);
 
 	if (placeIdToType(DvGetPlayerLocation(dv, PLAYER_DRACULA)) != SEA) {	//Cant Hide at sea
 		if (!hiddenInTrail) {	//Add Hide as a move
@@ -160,7 +161,6 @@ PlaceId *DvWhereCanTheyGoByType(DraculaView dv, Player player,
 											road, rail, boat, numReturnedLocs);
 		
 		//Account for trail Restrictions
-		bool doubleBackInTrail = DoubleInLast5(dv);
 
 		int numHistMoves;
 		bool canFree = false;
@@ -168,11 +168,13 @@ PlaceId *DvWhereCanTheyGoByType(DraculaView dv, Player player,
 		PlaceId *trailMoves = GvGetLastMoves(dv->gv, PLAYER_DRACULA, 
 			numMoves, &numHistMoves, &canFree);
 
+		bool doubleBackInTrail = doubleInLast5(dv, trailMoves, numHistMoves);
+
 		if (doubleBackInTrail) {	//Remove Double back locations
 			places = RemoveDoubleBack(places, trailMoves, numHistMoves, numReturnedLocs);
 			
 			//If Can Still Hide Add current location Back
-			bool hiddenInTrail = hiddenInLast5(dv);
+			bool hiddenInTrail = hiddenInLast5(dv, trailMoves, numHistMoves);
 			if (!hiddenInTrail) {
 				PlaceId currLoc = DvGetPlayerLocation(dv, PLAYER_DRACULA);
 				bool in = false;
@@ -201,42 +203,27 @@ PlaceId *DvWhereCanTheyGoByType(DraculaView dv, Player player,
 }
 
 //Checks if dracula has used a Hide in the last 5 moves
-static bool hiddenInLast5 (DraculaView dv) {
-	bool canFree = false;
+static bool hiddenInLast5 (DraculaView dv, PlaceId *moveHist, int numHistMoves) {
 	bool found = false;
-	int numReturnedMoves;
-
-	PlaceId *moveHist = GvGetLastMoves (dv->gv, PLAYER_DRACULA, 
-		5, &numReturnedMoves, &canFree);
-
-	for (int i = 0; i < numReturnedMoves; i++) {
+	for (int i = 0; i < numHistMoves; i++) {
 		if (moveHist[i] == HIDE) {
 			found = true;
 			break;
 		}
 	}
-	if (canFree) free(moveHist);
 	return found;
 }
 
 //Checks if dracula has used a doubleback in the last 5 moves
-static bool DoubleInLast5 (DraculaView dv) {
-
-	bool canfree = false;
+static bool doubleInLast5 (DraculaView dv, PlaceId *moveHist, int numHistMoves) {
 	bool found = false;
-	int numReturnedMoves;
-	PlaceId *moveHist = GvGetLastMoves (dv->gv, PLAYER_DRACULA, 
-		5, &numReturnedMoves, &canfree);
-	
-	for (int i = 0; i < numReturnedMoves; i++) {
+	for (int i = 0; i < numHistMoves; i++) {
 		//IF move is DOUBLE_BACK_1 or 2 or 3 or 4 or 5
 		if (moveHist[i] >= DOUBLE_BACK_1 && moveHist[i] <= DOUBLE_BACK_5) {
 			found = true;
 			break;
 		}
 	}
-
-	if (canfree) free(moveHist);
 	return found;
 }
 
