@@ -719,6 +719,8 @@ int main(void)
 		GvFree(gv);
 	}	
 
+	printf("Another random test I guess.\n")
+
 	printf("ALL TESTS PASSED SUCCESSFULLY!!!\n");
 	return EXIT_SUCCESS;
 }
