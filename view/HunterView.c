@@ -60,7 +60,7 @@ void HvFree(HunterView hv) {
 		}
 	}
 
-	free(hv->gv);
+	GvFree(hv->gv);
 	free(hv);
 }
 
