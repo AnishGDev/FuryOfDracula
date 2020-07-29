@@ -210,6 +210,8 @@ PlaceId *HvGetShortestPathTo(
 						QueueJoin(rounds, round);
 					}
 				}
+
+				free(reachable);
 			}
 		}
 
