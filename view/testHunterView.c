@@ -558,6 +558,44 @@ int main(void)
 		HvFree(hv);
 
 		hv = HvNew(
+			"GST.... SAO.... HZU.... MBB.... DGE.V..",
+			(Message[5]) {}
+		);
+		assert(HvGetLastKnownDraculaLocation(hv, &round) == GENEVA);
+		assert(round == 0);
+		HvFree(hv);
+
+		hv = HvNew(
+			"GST.... SAO.... HZU.... MBB.... DGE.V.. "
+			"GST.... SAO.... HZU.... MBB.... DHIT...",
+			(Message[10]) {}
+		);
+		assert(HvGetLastKnownDraculaLocation(hv, &round) == GENEVA);
+		assert(round == 1);
+		HvFree(hv);
+
+		hv = HvNew(
+			"GST.... SAO.... HZU.... MBB.... DGE.V.. "
+			"GST.... SAO.... HZU.... MBB.... DC?T... "
+			"GST.... SAO.... HZU.... MBB.... DD2T...",
+			(Message[15]) {}
+		);
+		assert(HvGetLastKnownDraculaLocation(hv, &round) == GENEVA);
+		assert(round == 2);
+		HvFree(hv);
+
+		hv = HvNew(
+			"GST.... SAO.... HZU.... MBB.... DGE.V.. "
+			"GST.... SAO.... HZU.... MBB.... DC?T... "
+			"GST.... SAO.... HZU.... MBB.... DD2T... "
+			"GST.... SAO.... HZU.... MBB.... DD1T...",
+			(Message[20]) {}
+		);
+		assert(HvGetLastKnownDraculaLocation(hv, &round) == GENEVA);
+		assert(round == 3);
+		HvFree(hv);
+
+		hv = HvNew(
 			"GGE.... SGE.... HVI.... MGE.... DCD.V.. "
 			"GGE.... SGE.... HBD.... MGE.... DKLT... "
 			"GGE.... SGE.... HSZ.... MGE.... DC?T... "
@@ -601,6 +639,16 @@ int main(void)
 		assert(path[2] == COLOGNE);
 		free(path);
 
+		path = HvGetShortestPathTo(
+			hv, PLAYER_VAN_HELSING, HAMBURG, &length
+		);
+		assert(length == 3);
+		assert(path[0] == EDINBURGH);
+		assert(path[1] == NORTH_SEA);
+		assert(path[2] == HAMBURG);
+		free(path);
+		
+		// Should be cached
 		path = HvGetShortestPathTo(
 			hv, PLAYER_VAN_HELSING, HAMBURG, &length
 		);
@@ -776,6 +824,18 @@ int main(void)
 		int num = -1;
 
 		hv = HvNew(
+			"",
+			(Message[0]) {}
+		);
+
+		HvWhereCanTheyGoByType(
+			hv, PLAYER_LORD_GODALMING, true, true, true, &num
+		);
+		assert(num == 0);
+
+		HvFree(hv);
+
+		hv = HvNew(
 			"GGA....",
 			(Message[1]) {}
 		);
@@ -856,7 +916,9 @@ int main(void)
 			(Message[2]) {}
 		);
 
-			locs = HvWhereCanTheyGo(hv, PLAYER_LORD_GODALMING, &num);
+		locs = HvWhereCanTheyGoByType(
+			hv, PLAYER_LORD_GODALMING, true, true, true, &num
+		);
 		assert(num == 5);
 		sortPlaces(locs, num);
 		// Since there is no rail travel this round should remove 
@@ -872,6 +934,8 @@ int main(void)
 
 		printf("passed\n");
 	}
+
+	printf("All tests passed, you are awesome!\n");
 	
 	return EXIT_SUCCESS;
 }

@@ -255,9 +255,7 @@ PlaceId *GvGetReachableByType(GameView gv, Player player, Round round,
 
 ////////////////////////////////////////////////////////////////////////
 // Your own interface functions
-void addNextRailway(GameView gv, PlaceId from, int depth, int maxRailwayDepth, int * visited, int *numReturnedLocs, PlaceId * reachableLocations);
-// TODO
-bool linearScan(PlaceId *list, PlaceId itemToFind, int len);
-void reconstructGameState(GameView gv);
-PlaceId lastKnownDraculaLocation(GameView gv, int *round);
+
+PlaceId GvGetLastKnownDraculaLocation(GameView gv, int *round);
+
 #endif // !defined (FOD__GAME_VIEW_H_)
