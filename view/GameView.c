@@ -28,6 +28,9 @@
 #define NOT_VISITED -1
 #define VISITED 1
 #define ROUND_CHARACTER_LENGTH 40
+#define TURN_CHARS 8
+#define HUNTER_INFO_START 3
+#define HUNTER_INFO_END 7
 #define HISTORY_SIZE ( \
 	sizeof(enum placeId) * (pastPlaysLength / ROUND_CHARACTER_LENGTH + 1) \
 )
@@ -53,7 +56,7 @@ struct gameView {
 	PlaceId vampireLocation; 
 	PlaceId trapLocs[TRAIL_SIZE];
 	int numTraps; 
-	HunterData *hunters[NUM_PLAYERS-1];
+	HunterData *hunters[NUM_PLAYERS - 1];
 	DraculaData *dracula; 
 	Map gameMap; 
 	char *pastPlays; 
@@ -165,11 +168,11 @@ void deleteTrapAndShift(PlaceId *trapLocList, PlaceId trapToDelete, int original
 }
 
 void reconstructGameState(GameView gv) {
-	char* loc = malloc(sizeof(char) * 3);
+	char* loc = malloc(sizeof(char) * 3); // Space needed for loc
 	PlaceId currentLoc;
 
-	for (int i = 0; i < gv->pastPlaysLength; i += 8) {
-		sprintf(loc, "%c%c", gv->pastPlays[i+1], gv->pastPlays[i+2]);
+	for (int i = 0; i < gv->pastPlaysLength; i += TURN_CHARS) {
+		sprintf(loc, "%c%c", gv->pastPlays[i + 1], gv->pastPlays[i + 2]);
 		currentLoc = placeAbbrevToId(loc);
 
 		if (gv->whoseTurn == PLAYER_DRACULA) {
@@ -226,7 +229,11 @@ void reconstructGameState(GameView gv) {
 			CURR_HUNTER->currLoc = currentLoc;
 
 			// int hunterAction = 3; // TODO: #define this later
-			for (int hunterAction = 3; hunterAction < 7; hunterAction++) {
+			for (
+				int hunterAction = HUNTER_INFO_START;
+				hunterAction < HUNTER_INFO_END;
+				hunterAction++
+			) {
 				if (gv->pastPlays[i + hunterAction] == 'T') {
 					CURR_HUNTER->health -= LIFE_LOSS_TRAP_ENCOUNTER;
 					deleteTrapAndShift(gv->trapLocs, currentLoc, gv->numTraps);
