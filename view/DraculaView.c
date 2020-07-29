@@ -125,7 +125,7 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves)
 }
 
 PlaceId *returnTheoreticalState (DraculaView dv, PlaceId * dracTrail, int *numReturnedLocs) {
-	
+	return NULL;
 }
 
 PlaceId *DvWhereCanIGo(DraculaView dv, int *numReturnedLocs)

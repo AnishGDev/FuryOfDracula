@@ -11,7 +11,7 @@
 
 CC = gcc
 CFLAGS = -Wall -O0 -ggdb3 -Werror
-BINS = testGameView testHunterView testDraculaView testMap testQueue
+BINS = testGameView testHunterView testDraculaView testMap
 
 all: $(BINS)
 

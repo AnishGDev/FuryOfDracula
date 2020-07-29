@@ -57,11 +57,12 @@ int main(void)
 		assert(numLocs == 7);
 		sortPlaces(locs, numLocs);
 		assert(locs[0] == ALICANTE); 
-		
+		free(locs);
 		locs = GvGetReachable(gv, PLAYER_DRACULA, 0, ZURICH, &numLocs);
 		assert(numLocs == 6);
 		sortPlaces(locs, numLocs);
 		assert(locs[0] == GENEVA);
+		free(locs);
 		GvFree(gv);
 	}
 
