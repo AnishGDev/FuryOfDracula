@@ -260,6 +260,8 @@ void reconstructGameState(GameView gv) {
 			gv->whoseTurn = PLAYER_LORD_GODALMING;
 		}
 	}
+
+	free(loc);
 }
 
 void GvFree(GameView gv) {
