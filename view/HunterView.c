@@ -56,10 +56,6 @@ HunterView HvNew(char *pastPlays, Message messages[]) {
 void HvFree(HunterView hv) {
 	for (int i = 0; i < NUM_REAL_PLACES; i++) {
 		if (hv->pathCache[i].array != NULL) {
-			for (int j =0; j < hv->pathCache[i].length; j++){
-				printf("%s ", placeIdToName(hv->pathCache[i].array[j]));
-			}
-			printf("\n===\n");
 			free(hv->pathCache[i].array);
 		}
 	}
