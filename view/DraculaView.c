@@ -102,9 +102,9 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves)
 	int numHistMoves;
 	bool canFree = false;
 	int numMoves = 5;
-	PlaceId *trailMoves = GvGetLastLocations(dv->gv, PLAYER_DRACULA, 
+	PlaceId *trailMoves = GvGetLastMoves(dv->gv, PLAYER_DRACULA, 
 		numMoves, &numHistMoves, &canFree);
-
+	
 	if (!doubleBackInTrail) {	//Add Double backs as moves
 		moves = ReplaceWithDoubleBack(moves, trailMoves, numHistMoves, numReturnedMoves);
 	} else {
@@ -159,14 +159,13 @@ PlaceId *DvWhereCanTheyGoByType(DraculaView dv, Player player,
 											DvGetPlayerLocation(dv, player),
 											road, rail, boat, numReturnedLocs);
 		
-		
 		//Account for trail Restrictions
 		bool doubleBackInTrail = DoubleInLast5(dv);
 
 		int numHistMoves;
 		bool canFree = false;
 		int numMoves = 5;
-		PlaceId *trailMoves = GvGetLastLocations(dv->gv, PLAYER_DRACULA, 
+		PlaceId *trailMoves = GvGetLastMoves(dv->gv, PLAYER_DRACULA, 
 			numMoves, &numHistMoves, &canFree);
 
 		if (doubleBackInTrail) {	//Remove Double back locations
@@ -175,9 +174,19 @@ PlaceId *DvWhereCanTheyGoByType(DraculaView dv, Player player,
 			//If Can Still Hide Add current location Back
 			bool hiddenInTrail = hiddenInLast5(dv);
 			if (!hiddenInTrail) {
-				*numReturnedLocs += 1;
-				places = realloc(places, sizeof(PlaceId) * (*numReturnedLocs));
-				places[*numReturnedLocs-1] = DvGetPlayerLocation(dv, PLAYER_DRACULA);
+				PlaceId currLoc = DvGetPlayerLocation(dv, PLAYER_DRACULA);
+				bool in = false;
+				for (int i = 0; i < *numReturnedLocs; i++) {
+					if (places[i] == currLoc) {
+						in = true;
+						break;
+					}
+				}
+				if (!in) {
+					*numReturnedLocs += 1;
+					places = realloc(places, sizeof(PlaceId) * (*numReturnedLocs));
+					places[*numReturnedLocs-1] = currLoc;
+				}
 
 			}
 		}
