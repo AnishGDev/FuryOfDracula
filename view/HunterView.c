@@ -56,11 +56,14 @@ HunterView HvNew(char *pastPlays, Message messages[]) {
 void HvFree(HunterView hv) {
 	for (int i = 0; i < NUM_REAL_PLACES; i++) {
 		if (hv->pathCache[i].array != NULL) {
+			for (int j =0; j < hv->pathCache[i].length; j++){
+				printf("%s ", placeIdToName(hv->pathCache[i].array[j]));
+			}
+			printf("\n===\n");
 			free(hv->pathCache[i].array);
 		}
 	}
-
-	free(hv->gv);
+	GvFree(hv->gv);
 	free(hv);
 }
 
@@ -137,16 +140,17 @@ PlaceId *HvGetShortestPathTo(
 	HunterView hv, Player hunter, PlaceId dest, int *pathLength
 ) {
 	// Check cache first
-	if (placeIsReal(dest)) {
-		if (hv->pathCache[dest].array != NULL) {
-			*pathLength = hv->pathCache[dest].length;
-			return hv->pathCache[dest].array;
-		}
-	}
-
+	//PlaceId *path = NULL;
 	PlaceId *path = NULL;
 	*pathLength = 0;
-	
+	if (placeIsReal(dest)) {
+		if (hv->pathCache[dest].array != NULL) {
+			PlaceId * path = malloc(PATH_SIZE);
+			memcpy(path, hv->pathCache[dest].array, PATH_SIZE);
+			*pathLength = hv->pathCache[dest].length;
+			return path;
+		}
+	}
 	PlaceId src = GvGetPlayerLocation(hv->gv, hunter);
 
 	if (src != NOWHERE) {

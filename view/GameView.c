@@ -257,8 +257,9 @@ void reconstructGameState(GameView gv) {
 
 void GvFree(GameView gv) {
 	free(DRAC_LHIST);
+	free(DRAC_MHIST);
 	free(gv->dracula); 
-
+	
 	for (int i = 0; i < NUM_PLAYERS-1; i++) {
 		free(gv->hunters[i]->moveHistory);
 		free(gv->hunters[i]);
