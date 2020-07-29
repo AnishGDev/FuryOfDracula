@@ -172,29 +172,32 @@ PlaceId *DvWhereCanTheyGoByType(
 		bool canFree = false;
 		int numMoves = 5;
 
-		PlaceId *trailMoves = GvGetLastMoves(dv->gv, PLAYER_DRACULA, 
-			numMoves, &numHistMoves, &canFree);
+		PlaceId *trailMoves = GvGetLastMoves(
+			dv->gv, PLAYER_DRACULA, numMoves, &numHistMoves, &canFree
+		);
 
 		bool doubleBackInTrail = doubleInLast5(dv, trailMoves, numHistMoves);
 
-		if (doubleBackInTrail) {	//Remove Double back locations
+		if (doubleBackInTrail) { // Remove Double back locations
 			places = RemoveDoubleBack(places, trailMoves, numHistMoves, numReturnedLocs);
 			
-			//If Can Still Hide Add current location Back
+			// If still can hide, add current location Back
 			bool hiddenInTrail = hiddenInLast5(dv, trailMoves, numHistMoves);
 			if (!hiddenInTrail) {
 				PlaceId currLoc = DvGetPlayerLocation(dv, PLAYER_DRACULA);
 				bool in = false;
+
 				for (int i = 0; i < *numReturnedLocs; i++) {
 					if (places[i] == currLoc) {
 						in = true;
 						break;
 					}
 				}
+
 				if (!in) {
 					*numReturnedLocs += 1;
 					places = realloc(places, sizeof(PlaceId) * (*numReturnedLocs));
-					places[*numReturnedLocs-1] = currLoc;
+					places[*numReturnedLocs - 1] = currLoc;
 				}
 			}
 		}
@@ -211,21 +214,24 @@ PlaceId *DvWhereCanTheyGoByType(
 	}
 }
 
-//Checks if dracula has used a Hide in the last 5 moves
+// Checks if dracula has used a Hide in the last 5 moves
 static bool hiddenInLast5 (DraculaView dv, PlaceId *moveHist, int numHistMoves) {
 	bool found = false;
+
 	for (int i = 0; i < numHistMoves; i++) {
 		if (moveHist[i] == HIDE) {
 			found = true;
 			break;
 		}
 	}
+
 	return found;
 }
 
 //Checks if dracula has used a doubleback in the last 5 moves
 static bool doubleInLast5 (DraculaView dv, PlaceId *moveHist, int numHistMoves) {
 	bool found = false;
+
 	for (int i = 0; i < numHistMoves; i++) {
 		//IF move is DOUBLE_BACK_1 or 2 or 3 or 4 or 5
 		if (moveHist[i] >= DOUBLE_BACK_1 && moveHist[i] <= DOUBLE_BACK_5) {
@@ -233,6 +239,7 @@ static bool doubleInLast5 (DraculaView dv, PlaceId *moveHist, int numHistMoves) 
 			break;
 		}
 	}
+
 	return found;
 }
 
