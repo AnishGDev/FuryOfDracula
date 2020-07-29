@@ -647,6 +647,16 @@ int main(void)
 		assert(path[1] == NORTH_SEA);
 		assert(path[2] == HAMBURG);
 		free(path);
+		
+		// Should be cached
+		path = HvGetShortestPathTo(
+			hv, PLAYER_VAN_HELSING, HAMBURG, &length
+		);
+		assert(length == 3);
+		assert(path[0] == EDINBURGH);
+		assert(path[1] == NORTH_SEA);
+		assert(path[2] == HAMBURG);
+		free(path);
 
 		path = HvGetShortestPathTo(
 			hv, PLAYER_MINA_HARKER, CONSTANTA, &length
@@ -814,6 +824,18 @@ int main(void)
 		int num = -1;
 
 		hv = HvNew(
+			"",
+			(Message[0]) {}
+		);
+
+		HvWhereCanTheyGoByType(
+			hv, PLAYER_LORD_GODALMING, true, true, true, &num
+		);
+		assert(num == 0);
+
+		HvFree(hv);
+
+		hv = HvNew(
 			"GGA....",
 			(Message[1]) {}
 		);
@@ -894,7 +916,9 @@ int main(void)
 			(Message[2]) {}
 		);
 
-			locs = HvWhereCanTheyGo(hv, PLAYER_LORD_GODALMING, &num);
+		locs = HvWhereCanTheyGoByType(
+			hv, PLAYER_LORD_GODALMING, true, true, true, &num
+		);
 		assert(num == 5);
 		sortPlaces(locs, num);
 		// Since there is no rail travel this round should remove 
@@ -910,6 +934,8 @@ int main(void)
 
 		printf("passed\n");
 	}
+
+	printf("All tests passed, you are awesome!\n");
 	
 	return EXIT_SUCCESS;
 }
