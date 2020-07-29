@@ -117,7 +117,7 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves) {
 			moves[*numReturnedMoves-1] = HIDE;
 		}
 	}
-
+	if (canFree) free(trailMoves);
 	return moves;
 }
 
@@ -293,6 +293,7 @@ static PlaceId *RemoveDoubleBack(
 	}
 
 	*numReturnedLocs -= numShift;
+	
 	locations = realloc(locations, sizeof(PlaceId) * (*numReturnedLocs));
 
 	return locations;
