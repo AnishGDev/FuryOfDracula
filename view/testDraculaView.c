@@ -129,9 +129,6 @@ int main(void)
 		
 		int numMoves = -1;
 		PlaceId *moves = DvGetValidMoves(dv, &numMoves);
-		for (int i = 0; i < numMoves; i++) {
-			printf("Mov: %s\n", placeIdToName(moves[i]));
-		}
 		assert(numMoves == 4);
 		sortPlaces(moves, numMoves);
 		for (int i = 0; i < numMoves; i++) {
