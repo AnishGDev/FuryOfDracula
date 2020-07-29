@@ -113,6 +113,7 @@ void reverse(int *array, int n) {
 	}
 }
 
+// BFS algorithm to find shortest path
 PlaceId *HvGetShortestPathTo(
 	HunterView hv, Player hunter, PlaceId dest, int *pathLength
 ) {
@@ -124,13 +125,14 @@ PlaceId *HvGetShortestPathTo(
 	if (src != NOWHERE) {
 		Round currentRound = GvGetRound(hv->gv);
 
-		// synchronised queues, needed due to the lack of type
+		// Synchronised queues, needed due to the lack of type
 		// parameterisation in C
 		Queue seen = newQueue();
 		Queue rounds = newQueue();
 		QueueJoin(seen, src);
 		QueueJoin(rounds, currentRound);
 
+		// Array storing links between nodes in shortest path
 		PlaceId links[NUM_REAL_PLACES];
 		for (int i = 0; i < NUM_REAL_PLACES; i++) {
 			links[i] = NOWHERE;
@@ -145,19 +147,22 @@ PlaceId *HvGetShortestPathTo(
 
 				path = malloc(NUM_REAL_PLACES * sizeof(enum placeId));
 
+				// Reconstruct the path in dest to src order
 				int i = 0;
 				for (PlaceId place = dest; place != src; place = links[place]) {
 					path[i] = place;
 					i++;
 				}
 
-				// reverse the path to become src to dest order
+				// Reverse the path to become src to dest order
 				reverse(path, i);
 
 				*pathLength = i;
 
 				break;
 			} else {
+				// Not found yet
+
 				Round round = QueueLeave(rounds);
 
 				int n = 0;
@@ -165,8 +170,10 @@ PlaceId *HvGetShortestPathTo(
 					hv->gv, hunter, round, place, &n
 				);
 
+				// Incremented round which will be added to queue
 				round++;
 
+				// Add all reachable from current node to queue
 				for (int i = 0; i < n; i++) {
 					PlaceId connected = reachable[i];
 
@@ -229,6 +236,8 @@ PlaceId *HvWhereCanTheyGoByType(
 		return NULL;
 	}
 
+	// If the requested player id Dracula, but he hasn't been revealed
+	// don't return any info
 	if (player == PLAYER_DRACULA) {
 		Round round;
 		if (HvGetLastKnownDraculaLocation(hv, &round) == NOWHERE) {
@@ -243,6 +252,8 @@ PlaceId *HvWhereCanTheyGoByType(
 	PlaceId *history = GvGetMoveHistory(hv->gv, player, &n, &canFree);
 	Round round = GvGetRound(hv->gv);
 
+	// If player already had their turn this round, give info
+	// for next round
 	if (GvGetPlayer(hv->gv) > player) {
 		round = (round + 1) % NUM_PLAYERS;
 	}

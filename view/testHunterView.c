@@ -814,6 +814,18 @@ int main(void)
 		int num = -1;
 
 		hv = HvNew(
+			"",
+			(Message[0]) {}
+		);
+
+		HvWhereCanTheyGoByType(
+			hv, PLAYER_LORD_GODALMING, true, true, true, &num
+		);
+		assert(num == 0);
+
+		HvFree(hv);
+
+		hv = HvNew(
 			"GGA....",
 			(Message[1]) {}
 		);
@@ -894,7 +906,9 @@ int main(void)
 			(Message[2]) {}
 		);
 
-			locs = HvWhereCanTheyGo(hv, PLAYER_LORD_GODALMING, &num);
+		locs = HvWhereCanTheyGoByType(
+			hv, PLAYER_LORD_GODALMING, true, true, true, &num
+		);
 		assert(num == 5);
 		sortPlaces(locs, num);
 		// Since there is no rail travel this round should remove 
