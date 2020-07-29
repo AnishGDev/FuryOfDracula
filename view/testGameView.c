@@ -64,7 +64,6 @@ int main(void)
 		assert(locs[0] == GENEVA);
 		free(locs);
 		GvFree(gv);
-		free(locs);
 	}
 
 	{///////////////////////////////////////////////////////////////////
