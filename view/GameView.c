@@ -5,7 +5,7 @@
 // 2014-07-01	v1.0	Team Dracula <cs2521@cse.unsw.edu.au>
 // 2017-12-01	v1.1	Team Dracula <cs2521@cse.unsw.edu.au>
 // 2018-12-31	v2.0	Team Dracula <cs2521@cse.unsw.edu.au>
-// 2020-07-10   v3.0    Team Dracula <cs2521@cse.unsw.edu.au>
+// 2020-07-10   v3.0	Team Dracula <cs2521@cse.unsw.edu.au>
 //
 ////////////////////////////////////////////////////////////////////////
 
@@ -136,12 +136,12 @@ GameView GvNew(char *pastPlays, Message messages[]) {
 }
 
 void appendTrapLoc(GameView gv, PlaceId loc) {
-    for (int i = TRAIL_SIZE - 1; i > 0; i--) {
-        gv->trapLocs[i] = gv->trapLocs[i-1];
-    }
+	for (int i = TRAIL_SIZE - 1; i > 0; i--) {
+		gv->trapLocs[i] = gv->trapLocs[i-1];
+	}
 
-    gv->trapLocs[0] = loc;
-    gv->numTraps++;
+	gv->trapLocs[0] = loc;
+	gv->numTraps++;
 }
 
 int findTrap(PlaceId *trapLocList, PlaceId trapToDelete, int originalLength) {
@@ -388,7 +388,7 @@ PlaceId *GvGetLocationHistory(
 
 PlaceId *GvGetLastLocations(
 	GameView gv, Player player, int numLocs,
-    int *numReturnedLocs, bool *canFree
+	int *numReturnedLocs, bool *canFree
 ) {
 	int startFrom = 0; 
 
@@ -448,7 +448,7 @@ void addNextRailway(
 
 PlaceId *GvGetReachable(
 	GameView gv, Player player, Round round,
-    PlaceId from, int *numReturnedLocs
+	PlaceId from, int *numReturnedLocs
 ) {
 	return GvGetReachableByType(
 		gv, player, round, from,

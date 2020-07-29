@@ -75,11 +75,11 @@ int main(void)
 
 		{
 			printf("\tChecking Galatz road connections "
-			       "(Lord Godalming, Round 1)\n");
+				   "(Lord Godalming, Round 1)\n");
 			int numLocs = -1;
 			PlaceId *locs = GvGetReachableByType(gv, PLAYER_LORD_GODALMING,
-			                                     1, GALATZ, true, false,
-			                                     false, &numLocs);
+												 1, GALATZ, true, false,
+												 false, &numLocs);
 
 			assert(numLocs == 5);
 			sortPlaces(locs, numLocs);
@@ -93,12 +93,12 @@ int main(void)
 
 		{
 			printf("\tChecking Ionian Sea boat connections "
-			       "(Lord Godalming, Round 1)\n");
+				   "(Lord Godalming, Round 1)\n");
 			
 			int numLocs = -1;
 			PlaceId *locs = GvGetReachableByType(gv, PLAYER_LORD_GODALMING,
-			                                     1, IONIAN_SEA, false, false,
-			                                     true, &numLocs);
+												 1, IONIAN_SEA, false, false,
+												 true, &numLocs);
 			
 			printf("Num locs is %d\n", numLocs);
 			assert(numLocs == 7);
@@ -115,11 +115,11 @@ int main(void)
 
 		{
 			printf("\tChecking Paris rail connections "
-			       "(Lord Godalming, Round 2)\n");
+				   "(Lord Godalming, Round 2)\n");
 			int numLocs = -1;
 			PlaceId *locs = GvGetReachableByType(gv, PLAYER_LORD_GODALMING,
-			                                     2, PARIS, false, true,
-			                                     false, &numLocs);
+												 2, PARIS, false, true,
+												 false, &numLocs);
 			
 			assert(numLocs == 7);
 			sortPlaces(locs, numLocs);
@@ -137,8 +137,8 @@ int main(void)
 			printf("\tChecking Athens rail connections (none)\n");
 			int numLocs = -1;
 			PlaceId *locs = GvGetReachableByType(gv, PLAYER_LORD_GODALMING,
-			                                     1, ATHENS, false, true,
-			                                     false, &numLocs);
+												 1, ATHENS, false, true,
+												 false, &numLocs);
 			
 			assert(numLocs == 1);
 			assert(locs[0] == ATHENS);
@@ -251,7 +251,7 @@ int main(void)
 	{///////////////////////////////////////////////////////////////////
 	
 		printf("Test for Dracula doubling back at sea, "
-		       "and losing blood points (Hunter View)\n");
+			   "and losing blood points (Hunter View)\n");
 
 		char *trail =
 			"GGE.... SGE.... HGE.... MGE.... DS?.... "
@@ -335,8 +335,8 @@ int main(void)
 		GameView gv = GvNew(trail, messages);
 		
 		assert(GvGetScore(gv) == GAME_START_SCORE
-		                         - 4 * SCORE_LOSS_DRACULA_TURN
-		                         - SCORE_LOSS_HUNTER_HOSPITAL);
+								 - 4 * SCORE_LOSS_DRACULA_TURN
+								 - SCORE_LOSS_HUNTER_HOSPITAL);
 		assert(GvGetHealth(gv, PLAYER_LORD_GODALMING) == 0);
 		assert(GvGetPlayerLocation(gv, PLAYER_LORD_GODALMING) == HOSPITAL_PLACE);
 		assert(GvGetPlayerLocation(gv, PLAYER_DRACULA) == STRASBOURG);
@@ -436,8 +436,8 @@ int main(void)
 		GameView gv = GvNew(trail, messages);
 		
 		assert(GvGetScore(gv) == GAME_START_SCORE
-		                         - 7 * SCORE_LOSS_DRACULA_TURN
-		                         - SCORE_LOSS_VAMPIRE_MATURES);
+								 - 7 * SCORE_LOSS_DRACULA_TURN
+								 - SCORE_LOSS_VAMPIRE_MATURES);
 		assert(GvGetPlayerLocation(gv, PLAYER_DRACULA) == CITY_UNKNOWN);
 		assert(GvGetVampireLocation(gv) == NOWHERE);
 		
@@ -470,7 +470,7 @@ int main(void)
 		{
 			int numMoves = 0; bool canFree = false;
 			PlaceId *moves = GvGetMoveHistory(gv, PLAYER_LORD_GODALMING,
-			                                  &numMoves, &canFree);
+											  &numMoves, &canFree);
 			assert(numMoves == 7);
 			assert(moves[0] == LISBON);
 			assert(moves[1] == CADIZ);
@@ -486,7 +486,7 @@ int main(void)
 		{
 			int numMoves = 0; bool canFree = false;
 			PlaceId *moves = GvGetMoveHistory(gv, PLAYER_DRACULA,
-			                                  &numMoves, &canFree);
+											  &numMoves, &canFree);
 			assert(numMoves == 6);
 			assert(moves[0] == STRASBOURG);
 			assert(moves[1] == CITY_UNKNOWN);
@@ -500,7 +500,7 @@ int main(void)
 		{
 			int numLocs = 0; bool canFree = false;
 			PlaceId *locs = GvGetLocationHistory(gv, PLAYER_DRACULA,
-			                                     &numLocs, &canFree);
+												 &numLocs, &canFree);
 			assert(numLocs == 6);
 			assert(locs[0] == STRASBOURG);
 			assert(locs[1] == CITY_UNKNOWN);
@@ -525,11 +525,11 @@ int main(void)
 
 		{
 			printf("\tChecking Galatz road connections "
-			       "(Lord Godalming, Round 1)\n");
+				   "(Lord Godalming, Round 1)\n");
 			int numLocs = -1;
 			PlaceId *locs = GvGetReachableByType(gv, PLAYER_LORD_GODALMING,
-			                                     1, GALATZ, true, false,
-			                                     false, &numLocs);
+												 1, GALATZ, true, false,
+												 false, &numLocs);
 
 			assert(numLocs == 5);
 			sortPlaces(locs, numLocs);
@@ -543,12 +543,12 @@ int main(void)
 
 		{
 			printf("\tChecking Ionian Sea boat connections "
-			       "(Lord Godalming, Round 1)\n");
+				   "(Lord Godalming, Round 1)\n");
 			
 			int numLocs = -1;
 			PlaceId *locs = GvGetReachableByType(gv, PLAYER_LORD_GODALMING,
-			                                     1, IONIAN_SEA, false, false,
-			                                     true, &numLocs);
+												 1, IONIAN_SEA, false, false,
+												 true, &numLocs);
 			
 			assert(numLocs == 7);
 			sortPlaces(locs, numLocs);
@@ -564,11 +564,11 @@ int main(void)
 
 		{
 			printf("\tChecking Paris rail connections "
-			       "(Lord Godalming, Round 2)\n");
+				   "(Lord Godalming, Round 2)\n");
 			int numLocs = -1;
 			PlaceId *locs = GvGetReachableByType(gv, PLAYER_LORD_GODALMING,
-			                                     2, PARIS, false, true,
-			                                     false, &numLocs);
+												 2, PARIS, false, true,
+												 false, &numLocs);
 			
 			assert(numLocs == 7);
 			sortPlaces(locs, numLocs);
@@ -586,8 +586,8 @@ int main(void)
 			printf("\tChecking Athens rail connections (none)\n");
 			int numLocs = -1;
 			PlaceId *locs = GvGetReachableByType(gv, PLAYER_LORD_GODALMING,
-			                                     1, ATHENS, false, true,
-			                                     false, &numLocs);
+												 1, ATHENS, false, true,
+												 false, &numLocs);
 			
 			assert(numLocs == 1);
 			assert(locs[0] == ATHENS);

@@ -22,10 +22,10 @@
 static bool hiddenInLast5(DraculaView dv, PlaceId *moveHist, int numHistMoves);
 static bool doubleInLast5(DraculaView dv, PlaceId *moveHist, int numHistMoves);
 static PlaceId *ReplaceWithDoubleBack(
-  PlaceId *locations, PlaceId *trailMoves, int numHistMoves, int *numReturnedLocs
+	PlaceId *locations, PlaceId *trailMoves, int numHistMoves, int *numReturnedLocs
 );
 static PlaceId *RemoveDoubleBack(
-  PlaceId *locations, PlaceId *trailMoves, int numHistMoves, int *numReturnedLocs
+	PlaceId *locations, PlaceId *trailMoves, int numHistMoves, int *numReturnedLocs
 );
 
 struct draculaView {
@@ -97,8 +97,8 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves) {
 	int numMoves = 5;
 
 	PlaceId *trailMoves = GvGetLastMoves(
-    dv->gv, PLAYER_DRACULA, numMoves, &numHistMoves, &canFree
-  );
+		dv->gv, PLAYER_DRACULA, numMoves, &numHistMoves, &canFree
+	);
 
 	bool doubleBackInTrail = doubleInLast5(dv, trailMoves, numHistMoves);
 	
@@ -149,8 +149,8 @@ PlaceId *DvWhereCanTheyGo(
 
 PlaceId *DvWhereCanTheyGoByType(
 	DraculaView dv, Player player,
-    bool road, bool rail, bool boat,
-    int *numReturnedLocs
+	bool road, bool rail, bool boat,
+	int *numReturnedLocs
 ) {
 	// Check if player has made a move
 	if (GvGetPlayerLocation(dv->gv, player) == NOWHERE) {
@@ -167,7 +167,7 @@ PlaceId *DvWhereCanTheyGoByType(
 		);
 		
 		// Account for trail Restrictions
-    
+	
 		int numHistMoves;
 		bool canFree = false;
 		int numMoves = 5;
