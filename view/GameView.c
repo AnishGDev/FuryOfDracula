@@ -60,6 +60,12 @@ struct gameView {
 	int pastPlaysLength; 
 };
 
+void addNextRailway(
+	GameView gv, PlaceId from, int depth, int maxRailwayDepth,
+	int *visited, int *numReturnedLocs, PlaceId *reachableLocations
+);
+void reconstructGameState(GameView gv);
+
 ////////////////////////////////////////////////////////////////////////
 // Constructor/Destructor
 
@@ -412,9 +418,8 @@ PlaceId *GvGetLastLocations(
 // Not 100% satisfied with this code style.
 
 void addNextRailway(
-	GameView gv, PlaceId from, int depth, 
-	int maxRailwayDepth, int * visited, int *numReturnedLocs, 
-	PlaceId * reachableLocations
+	GameView gv, PlaceId from, int depth, int maxRailwayDepth,
+	int * visited, int *numReturnedLocs, PlaceId * reachableLocations
 ) {
 	// If we have visited the node, return. Otherwise set this node to visited. 
 	if (visited[from] == VISITED) {
