@@ -57,12 +57,14 @@ int main(void)
 		assert(numLocs == 7);
 		sortPlaces(locs, numLocs);
 		assert(locs[0] == ALICANTE); 
-		
+		free(locs);
+
 		locs = GvGetReachable(gv, PLAYER_DRACULA, 0, ZURICH, &numLocs);
 		assert(numLocs == 6);
 		sortPlaces(locs, numLocs);
 		assert(locs[0] == GENEVA);
 		GvFree(gv);
+		free(locs);
 	}
 
 	{///////////////////////////////////////////////////////////////////
@@ -718,6 +720,8 @@ int main(void)
 		}
 		GvFree(gv);
 	}	
+
+	printf("Another random test I guess.\n");
 
 	printf("ALL TESTS PASSED SUCCESSFULLY!!!\n");
 	return EXIT_SUCCESS;
