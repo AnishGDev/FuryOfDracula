@@ -76,11 +76,14 @@ PlaceId HvGetVampireLocation(HunterView hv) {
 // Utility Functions
 
 PlaceId HvGetLastKnownDraculaLocation(HunterView hv, Round *round) {
-	PlaceId result = lastKnownDraculaLocation(hv->gv, round);
-	if (result == CITY_UNKNOWN) {
-		return NOWHERE; 
-	}
-	/*
+	// PlaceId result = GvGetLastKnownDraculaLocation(hv->gv, round);
+	// if (result == CITY_UNKNOWN) {
+	// 	return NOWHERE; 
+	// }
+	// return result;
+
+	PlaceId result = NOWHERE;
+	
 	int n = 0;
 	bool canFree = false;
 	PlaceId *history = GvGetLocationHistory(
@@ -97,8 +100,7 @@ PlaceId HvGetLastKnownDraculaLocation(HunterView hv, Round *round) {
 	}
 
 	if (canFree) free(history);
-	*/
-	//return result;
+	
 	return result; 
 }
 
