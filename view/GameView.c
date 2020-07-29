@@ -362,7 +362,7 @@ PlaceId *GvGetLastMoves(
 		*numReturnedMoves = numMoves; 
 	}
 
-	PlaceId *ret = malloc(sizeof(enum placeId) * numMoves);
+	PlaceId *ret;// = malloc(sizeof(enum placeId) * numMoves);
 	*canFree = false;
 
 	if (player == PLAYER_DRACULA) {
@@ -411,7 +411,7 @@ PlaceId *GvGetLastLocations(
 		*numReturnedLocs = numLocs; 
 	}
 
-	PlaceId * ret = malloc(sizeof(enum placeId) * numLocs);
+	PlaceId * ret// = malloc(sizeof(enum placeId) * numLocs);
 	*canFree = false;
 
 	if (player == PLAYER_DRACULA) {
