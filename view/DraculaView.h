@@ -177,7 +177,8 @@ PlaceId *DvWhereCanTheyGoByType(DraculaView dv, Player player,
 
 ////////////////////////////////////////////////////////////////////////
 // Your own interface functions
-
+void setTheoreticalState(DraculaView dv, PlaceId * trailToSet);
+PlaceId * returnCurrentTrail(DraculaView dv, int *numReturnedLocs, bool * canFree);
 // TODO
 
 #endif // !defined(FOD__DRACULA_VIEW_H_)

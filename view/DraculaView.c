@@ -27,9 +27,17 @@ static PlaceId *ReplaceWithDoubleBack(
 static PlaceId *RemoveDoubleBack(
 	PlaceId *locations, PlaceId *trailMoves, int numHistMoves, int *numReturnedLocs
 );
+// Cache trail info to reduce speed for repeated calls. 
+typedef struct _trailInfo {
+	PlaceId * trail;
+	int trailLen;
+	bool isRealTrail; 
+	bool canFree;
+} Trail; 
 
 struct draculaView {
 	GameView gv;
+	Trail trailInfo; 
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -42,8 +50,10 @@ DraculaView DvNew(char *pastPlays, Message messages[]) {
 		fprintf(stderr, "Couldn't allocate DraculaView\n");
 		exit(EXIT_FAILURE);
 	}
-
 	new->gv = GvNew(pastPlays,messages);
+	new->trailInfo.trail = GvGetLastMoves(new->gv, PLAYER_DRACULA, 
+							TRAIL_SIZE-1, &(new->trailInfo.trailLen), &(new->trailInfo.canFree));
+	//new->isRealTrail = true;
 	return new;
 }
 
@@ -94,12 +104,13 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves) {
 
 	int numHistMoves;
 	bool canFree = false;
-	int numMoves = 5;
-
+	//int numMoves = 5;
+	PlaceId * trailMoves = returnCurrentTrail(dv, &numHistMoves, &canFree);
+	/*
 	PlaceId *trailMoves = GvGetLastMoves(
 		dv->gv, PLAYER_DRACULA, numMoves, &numHistMoves, &canFree
 	);
-
+	*/
 	bool doubleBackInTrail = doubleInLast5(dv, trailMoves, numHistMoves);
 	
 	if (!doubleBackInTrail) {	// Add Double backs as moves
@@ -121,9 +132,21 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves) {
 	return moves;
 }
 
-PlaceId *returnTheoreticalState (DraculaView dv, PlaceId * dracTrail, int *numReturnedLocs) {
-	return NULL;
+void setTheoreticalState(DraculaView dv, PlaceId * trailToSet) {
+	// Set internal representation to what the Dracula AI wants to evaluate future states. 
+	dv->trailInfo.trail = trailToSet;
 }
+
+void resetTheoreticalState(DraculaView dv) {
+	dv->trailInfo.trail = GvGetLastMoves(dv->gv, PLAYER_DRACULA, 
+							TRAIL_SIZE-1, &(dv->trailInfo.trailLen), &(dv->trailInfo.canFree));
+}
+
+PlaceId * returnCurrentTrail(DraculaView dv, int *numReturnedLocs, bool * canFree) {
+	*numReturnedLocs = dv->trailInfo.trailLen;
+	*canFree = dv->trailInfo.canFree; 
+	return dv->trailInfo.trail;
+} 
 
 PlaceId *DvWhereCanIGo(DraculaView dv, int *numReturnedLocs)
 {
@@ -164,23 +187,21 @@ PlaceId *DvWhereCanTheyGoByType(
 	}
 
 	if (player == PLAYER_DRACULA) {
-		PlaceId *places = GvGetReachableByType(
-			dv->gv, player, DvGetRound(dv),
-			DvGetPlayerLocation(dv, player),
-			road, rail, boat,
-			numReturnedLocs
-		);
+		PlaceId *places = GvGetReachableByType(dv->gv, player, DvGetRound(dv),
+												DvGetPlayerLocation(dv, player),road, 
+												rail, boat, numReturnedLocs);
 		
 		// Account for trail Restrictions
 	
 		int numHistMoves;
 		bool canFree = false;
-		int numMoves = 5;
-
+		//int numMoves = 5;
+		PlaceId * trailMoves = returnCurrentTrail(dv, &numHistMoves, &canFree);
+		/*
 		PlaceId *trailMoves = GvGetLastMoves(
 			dv->gv, PLAYER_DRACULA, numMoves, &numHistMoves, &canFree
 		);
-
+		*/
 		bool doubleBackInTrail = doubleInLast5(dv, trailMoves, numHistMoves);
 
 		if (doubleBackInTrail) { // Remove Double back locations
