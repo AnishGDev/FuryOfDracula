@@ -47,6 +47,20 @@ int main(void)
 			(Message[5]) {}
 		));
 
+		HvFree(HvNew(
+			"GST.... SAO.... HZU.... MBB.... DC?.V..",
+			(Message[5]) {
+				"hello"
+			}
+		));
+
+		HvFree(HvNew(
+			"GST.... SAO.... HZU.... MBB.... DC?.V..",
+			(Message[5]) {
+				"hello", "world", "foo", "bar", "baz"
+			}
+		));
+
 		printf("passed\n");
 	}
 
@@ -544,6 +558,44 @@ int main(void)
 		HvFree(hv);
 
 		hv = HvNew(
+			"GST.... SAO.... HZU.... MBB.... DGE.V..",
+			(Message[5]) {}
+		);
+		assert(HvGetLastKnownDraculaLocation(hv, &round) == GENEVA);
+		assert(round == 0);
+		HvFree(hv);
+
+		hv = HvNew(
+			"GST.... SAO.... HZU.... MBB.... DGE.V.. "
+			"GST.... SAO.... HZU.... MBB.... DHIT...",
+			(Message[10]) {}
+		);
+		assert(HvGetLastKnownDraculaLocation(hv, &round) == GENEVA);
+		assert(round == 1);
+		HvFree(hv);
+
+		hv = HvNew(
+			"GST.... SAO.... HZU.... MBB.... DGE.V.. "
+			"GST.... SAO.... HZU.... MBB.... DC?T... "
+			"GST.... SAO.... HZU.... MBB.... DD2T...",
+			(Message[15]) {}
+		);
+		assert(HvGetLastKnownDraculaLocation(hv, &round) == GENEVA);
+		assert(round == 2);
+		HvFree(hv);
+
+		hv = HvNew(
+			"GST.... SAO.... HZU.... MBB.... DGE.V.. "
+			"GST.... SAO.... HZU.... MBB.... DC?T... "
+			"GST.... SAO.... HZU.... MBB.... DD2T... "
+			"GST.... SAO.... HZU.... MBB.... DD1T...",
+			(Message[20]) {}
+		);
+		assert(HvGetLastKnownDraculaLocation(hv, &round) == GENEVA);
+		assert(round == 3);
+		HvFree(hv);
+
+		hv = HvNew(
 			"GGE.... SGE.... HVI.... MGE.... DCD.V.. "
 			"GGE.... SGE.... HBD.... MGE.... DKLT... "
 			"GGE.... SGE.... HSZ.... MGE.... DC?T... "
@@ -668,7 +720,6 @@ int main(void)
 			(Message[20]) {}
 		);
 
-		printf("\nHvGetPlayerLocation(hv, HvGetPlayer(hv))): %d\n", HvGetPlayerLocation(hv, HvGetPlayer(hv)));
 		locs = HvWhereCanIGoByType(hv, true, false, false, &num);
 		assert(num == 5);
 		sortPlaces(locs, num);

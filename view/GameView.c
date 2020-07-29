@@ -511,7 +511,7 @@ PlaceId *GvGetReachableByType(GameView gv, Player player, Round round,
 }
 
 // If a hunter calls this it will return CITY_UNKNOWN.
-PlaceId lastKnownDraculaLocation(GameView gv, int *round) {
+PlaceId GvGetLastKnownDraculaLocation(GameView gv, int *round) {
 	if (DRAC_LHIST[gv->dracula->lastRevealed] != NOWHERE) {
 		*round = gv->dracula->lastRevealed;
 	}
