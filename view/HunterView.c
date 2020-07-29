@@ -13,6 +13,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "Game.h"
 #include "GameView.h"
@@ -21,8 +22,16 @@
 #include "Places.h"
 #include "Queue.h"
 
+#define PATH_SIZE NUM_REAL_PLACES * sizeof(enum placeId)
+
+typedef struct _Path {
+	PlaceId *array;
+	int length;
+} Path;
+
 struct hunterView {
 	GameView gv;
+	Path pathCache[NUM_REAL_PLACES];
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -37,10 +46,20 @@ HunterView HvNew(char *pastPlays, Message messages[]) {
 
 	new->gv = GvNew(pastPlays, messages);
 
+	for (int i = 0; i < NUM_REAL_PLACES; i++) {
+		new->pathCache[i].array = NULL; // No path
+	}
+
 	return new;
 }
 
 void HvFree(HunterView hv) {
+	for (int i = 0; i < NUM_REAL_PLACES; i++) {
+		if (hv->pathCache[i].array != NULL) {
+			free(hv->pathCache[i].array);
+		}
+	}
+
 	free(hv->gv);
 	free(hv);
 }
@@ -113,10 +132,18 @@ void reverse(int *array, int n) {
 	}
 }
 
-// BFS algorithm to find shortest path
+// Memoised BFS algorithm to find shortest path
 PlaceId *HvGetShortestPathTo(
 	HunterView hv, Player hunter, PlaceId dest, int *pathLength
 ) {
+	// Check cache first
+	if (placeIsReal(dest)) {
+		if (hv->pathCache[dest].array != NULL) {
+			*pathLength = hv->pathCache[dest].length;
+			return hv->pathCache[dest].array;
+		}
+	}
+
 	PlaceId *path = NULL;
 	*pathLength = 0;
 	
@@ -145,7 +172,7 @@ PlaceId *HvGetShortestPathTo(
 			if (place == dest) {
 				// Found!
 
-				path = malloc(NUM_REAL_PLACES * sizeof(enum placeId));
+				path = malloc(PATH_SIZE);
 
 				// Reconstruct the path in dest to src order
 				int i = 0;
@@ -188,6 +215,13 @@ PlaceId *HvGetShortestPathTo(
 
 		dropQueue(seen);
 		dropQueue(rounds);
+	}
+
+	// Add to cache
+	if (placeIsReal(dest)) {
+		hv->pathCache[dest].array = malloc(PATH_SIZE);
+		memcpy(hv->pathCache[dest].array, path, PATH_SIZE);
+		hv->pathCache[dest].length = *pathLength;
 	}
 
 	return path;

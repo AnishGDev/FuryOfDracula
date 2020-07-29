@@ -646,6 +646,14 @@ int main(void)
 		assert(path[0] == EDINBURGH);
 		assert(path[1] == NORTH_SEA);
 		assert(path[2] == HAMBURG);
+		// Should be cached
+		path = HvGetShortestPathTo(
+			hv, PLAYER_VAN_HELSING, HAMBURG, &length
+		);
+		assert(length == 3);
+		assert(path[0] == EDINBURGH);
+		assert(path[1] == NORTH_SEA);
+		assert(path[2] == HAMBURG);
 		free(path);
 
 		path = HvGetShortestPathTo(
