@@ -25,8 +25,6 @@ static bool DoubleInLast5 (DraculaView dv);
 static PlaceId *ReplaceWithDoubleBack (PlaceId *locations, PlaceId *trailMoves, int numHistMoves, int *numReturnedLocs);
 static PlaceId *RemoveDoubleBack (PlaceId *locations, PlaceId *trailMoves, int numHistMoves, int *numReturnedLocs);
 
-// TODO: ADD YOUR OWN STRUCTS HERE
-
 struct draculaView {
 	GameView gv;
 };

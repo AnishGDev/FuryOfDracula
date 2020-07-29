@@ -910,6 +910,8 @@ int main(void)
 
 		printf("passed\n");
 	}
+
+	printf("All tests passed, you are awesome!\n");
 	
 	return EXIT_SUCCESS;
 }
