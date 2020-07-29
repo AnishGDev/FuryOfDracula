@@ -332,7 +332,7 @@ PlaceId *GvGetTrapLocations(GameView gv, int *numTraps) {
 PlaceId *GvGetMoveHistory(
 	GameView gv, Player player, int *numReturnedMoves, bool *canFree
 ) {
-	PlaceId* ret ;//= malloc(sizeof(enum placeId));
+	PlaceId* ret;
 
 	if (player != PLAYER_DRACULA) {
 		ret = gv->hunters[player]->moveHistory;
@@ -362,7 +362,7 @@ PlaceId *GvGetLastMoves(
 		*numReturnedMoves = numMoves; 
 	}
 
-	PlaceId *ret;// = malloc(sizeof(enum placeId) * numMoves);
+	PlaceId *ret;
 	*canFree = false;
 
 	if (player == PLAYER_DRACULA) {
@@ -378,7 +378,7 @@ PlaceId *GvGetLocationHistory(
 	GameView gv, Player player,
 	int *numReturnedLocs, bool *canFree
 ) {
-	PlaceId* ret;// = malloc(sizeof(enum placeId));
+	PlaceId* ret;
 
 	if (player != PLAYER_DRACULA) {
 		ret = gv->hunters[player]->moveHistory;
@@ -411,7 +411,7 @@ PlaceId *GvGetLastLocations(
 		*numReturnedLocs = numLocs; 
 	}
 
-	PlaceId * ret// = malloc(sizeof(enum placeId) * numLocs);
+	PlaceId * ret;
 	*canFree = false;
 
 	if (player == PLAYER_DRACULA) {
