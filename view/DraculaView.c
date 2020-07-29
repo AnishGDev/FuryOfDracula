@@ -123,6 +123,10 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves)
 	return moves;
 }
 
+PlaceId *returnTheoreticalState (DraculaView dv, PlaceId * dracTrail, int *numReturnedLocs) {
+	
+}
+
 PlaceId *DvWhereCanIGo(DraculaView dv, int *numReturnedLocs)
 {
 	return DvWhereCanIGoByType(dv, true, true, numReturnedLocs);
