@@ -27,9 +27,6 @@ testDraculaView.o: testDraculaView.c DraculaView.h GameView.h Map.h Places.h Gam
 testMap: testMap.o Map.o Places.o
 testMap.o: testMap.c Map.h Places.h
 
-testQueue: testQueue.o Queue.o
-testQueue.o: testQueue.c Queue.h
-
 Queue.o: Queue.c Queue.h
 Places.o: Places.c Places.h Game.h
 Map.o: Map.c Map.h Places.h Game.h

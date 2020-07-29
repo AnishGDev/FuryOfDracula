@@ -5,7 +5,7 @@
 // 2014-07-01	v1.0	Team Dracula <cs2521@cse.unsw.edu.au>
 // 2017-12-01	v1.1	Team Dracula <cs2521@cse.unsw.edu.au>
 // 2018-12-31	v2.0	Team Dracula <cs2521@cse.unsw.edu.au>
-// 2020-07-10   v3.0    Team Dracula <cs2521@cse.unsw.edu.au>
+// 2020-07-10	v3.0	Team Dracula <cs2521@cse.unsw.edu.au>
 //
 ////////////////////////////////////////////////////////////////////////
 
@@ -13,6 +13,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "Game.h"
 #include "GameView.h"
@@ -21,8 +22,16 @@
 #include "Places.h"
 #include "Queue.h"
 
+#define PATH_SIZE NUM_REAL_PLACES * sizeof(enum placeId)
+
+typedef struct _Path {
+	PlaceId *array;
+	int length;
+} Path;
+
 struct hunterView {
 	GameView gv;
+	Path pathCache[NUM_REAL_PLACES];
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -37,11 +46,20 @@ HunterView HvNew(char *pastPlays, Message messages[]) {
 
 	new->gv = GvNew(pastPlays, messages);
 
+	for (int i = 0; i < NUM_REAL_PLACES; i++) {
+		new->pathCache[i].array = NULL; // No path
+	}
+
 	return new;
 }
 
 void HvFree(HunterView hv) {
-	free(hv->gv);
+	for (int i = 0; i < NUM_REAL_PLACES; i++) {
+		if (hv->pathCache[i].array != NULL) {
+			free(hv->pathCache[i].array);
+		}
+	}
+	GvFree(hv->gv);
 	free(hv);
 }
 
@@ -104,8 +122,6 @@ PlaceId HvGetLastKnownDraculaLocation(HunterView hv, Round *round) {
 	return result; 
 }
 
-char *debugPlaces[] = {"ADRIATIC_SEA", "ALICANTE", "AMSTERDAM", "ATHENS", "ATLANTIC_OCEAN", "BARCELONA", "BARI", "BAY_OF_BISCAY", "BELGRADE", "BERLIN", "BLACK_SEA", "BORDEAUX", "BRUSSELS", "BUCHAREST", "BUDAPEST", "CADIZ", "CAGLIARI", "CASTLE_DRACULA", "CLERMONT_FERRAND", "COLOGNE", "CONSTANTA", "DUBLIN", "EDINBURGH", "ENGLISH_CHANNEL", "FLORENCE", "FRANKFURT", "GALATZ", "GALWAY", "GENEVA", "GENOA", "GRANADA", "HAMBURG", "IONIAN_SEA", "IRISH_SEA", "KLAUSENBURG", "LE_HAVRE", "LEIPZIG", "LISBON", "LIVERPOOL", "LONDON", "MADRID", "MANCHESTER", "MARSEILLES", "MEDITERRANEAN_SEA", "MILAN", "MUNICH", "NANTES", "NAPLES", "NORTH_SEA", "NUREMBURG", "PARIS", "PLYMOUTH", "PRAGUE", "ROME", "SALONICA", "SANTANDER", "SARAGOSSA", "SARAJEVO", "SOFIA", "ST_JOSEPH_AND_ST_MARY", "STRASBOURG", "SWANSEA", "SZEGED", "TOULOUSE", "TYRRHENIAN_SEA", "VALONA", "VARNA", "VENICE", "VIENNA", "ZAGREB", "ZURICH"};
-
 // Written by Luke Fisk-Lennon for COMP2521 Lab 7
 void reverse(int *array, int n) {
 	for (int i = 0; i < n / 2; i++) {
@@ -115,24 +131,35 @@ void reverse(int *array, int n) {
 	}
 }
 
+// Memoised BFS algorithm to find shortest path
 PlaceId *HvGetShortestPathTo(
 	HunterView hv, Player hunter, PlaceId dest, int *pathLength
 ) {
+	// Check cache first
+	//PlaceId *path = NULL;
 	PlaceId *path = NULL;
 	*pathLength = 0;
-	
+	if (placeIsReal(dest)) {
+		if (hv->pathCache[dest].array != NULL) {
+			PlaceId * path = malloc(PATH_SIZE);
+			memcpy(path, hv->pathCache[dest].array, PATH_SIZE);
+			*pathLength = hv->pathCache[dest].length;
+			return path;
+		}
+	}
 	PlaceId src = GvGetPlayerLocation(hv->gv, hunter);
 
 	if (src != NOWHERE) {
 		Round currentRound = GvGetRound(hv->gv);
 
-		// synchronised queues, needed due to the lack of type
+		// Synchronised queues, needed due to the lack of type
 		// parameterisation in C
 		Queue seen = newQueue();
 		Queue rounds = newQueue();
 		QueueJoin(seen, src);
 		QueueJoin(rounds, currentRound);
 
+		// Array storing links between nodes in shortest path
 		PlaceId links[NUM_REAL_PLACES];
 		for (int i = 0; i < NUM_REAL_PLACES; i++) {
 			links[i] = NOWHERE;
@@ -145,21 +172,24 @@ PlaceId *HvGetShortestPathTo(
 			if (place == dest) {
 				// Found!
 
-				path = malloc(NUM_REAL_PLACES * sizeof(enum placeId));
+				path = malloc(PATH_SIZE);
 
+				// Reconstruct the path in dest to src order
 				int i = 0;
 				for (PlaceId place = dest; place != src; place = links[place]) {
 					path[i] = place;
 					i++;
 				}
 
-				// reverse the path to become src to dest order
+				// Reverse the path to become src to dest order
 				reverse(path, i);
 
 				*pathLength = i;
 
 				break;
 			} else {
+				// Not found yet
+
 				Round round = QueueLeave(rounds);
 
 				int n = 0;
@@ -167,8 +197,10 @@ PlaceId *HvGetShortestPathTo(
 					hv->gv, hunter, round, place, &n
 				);
 
+				// Incremented round which will be added to queue
 				round++;
 
+				// Add all reachable from current node to queue
 				for (int i = 0; i < n; i++) {
 					PlaceId connected = reachable[i];
 
@@ -178,11 +210,20 @@ PlaceId *HvGetShortestPathTo(
 						QueueJoin(rounds, round);
 					}
 				}
+
+				free(reachable);
 			}
 		}
 
 		dropQueue(seen);
 		dropQueue(rounds);
+	}
+
+	// Add to cache
+	if (placeIsReal(dest)) {
+		hv->pathCache[dest].array = malloc(PATH_SIZE);
+		memcpy(hv->pathCache[dest].array, path, PATH_SIZE);
+		hv->pathCache[dest].length = *pathLength;
 	}
 
 	return path;
@@ -231,6 +272,8 @@ PlaceId *HvWhereCanTheyGoByType(
 		return NULL;
 	}
 
+	// If the requested player id Dracula, but he hasn't been revealed
+	// don't return any info
 	if (player == PLAYER_DRACULA) {
 		Round round;
 		if (HvGetLastKnownDraculaLocation(hv, &round) == NOWHERE) {
@@ -245,6 +288,8 @@ PlaceId *HvWhereCanTheyGoByType(
 	PlaceId *history = GvGetMoveHistory(hv->gv, player, &n, &canFree);
 	Round round = GvGetRound(hv->gv);
 
+	// If player already had their turn this round, give info
+	// for next round
 	if (GvGetPlayer(hv->gv) > player) {
 		round = (round + 1) % NUM_PLAYERS;
 	}
