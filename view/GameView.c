@@ -212,6 +212,7 @@ void reconstructGameState(GameView gv) {
 
 			gv->score--;
 			gv->roundNum++;
+			
 		} else {
 			if (CURR_HUNTER->health <= 0) {
 				CURR_HUNTER->health = GAME_START_HUNTER_LIFE_POINTS;
@@ -228,7 +229,6 @@ void reconstructGameState(GameView gv) {
 			CURR_HUNTER->moveHistory[gv->roundNum] = currentLoc;
 			CURR_HUNTER->currLoc = currentLoc;
 
-			// int hunterAction = 3; // TODO: #define this later
 			for (
 				int hunterAction = HUNTER_INFO_START;
 				hunterAction < HUNTER_INFO_END;
