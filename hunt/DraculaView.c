@@ -184,6 +184,7 @@ int calculateHunterDistFromDrac(DraculaView dv,Player player, Round round, Place
 			}
 		}
 	}
+	/*
 	printf("%s<-", placeIdToName(dest));
 	PlaceId curr = visited[dest];
 	while(curr != from) {
@@ -192,6 +193,7 @@ int calculateHunterDistFromDrac(DraculaView dv,Player player, Round round, Place
 	}
 	printf("%s", placeIdToName(curr));
 	printf("\n");
+	*/
 	return distance[dest]; // Something went wrong. 
 }
 

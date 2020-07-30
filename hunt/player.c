@@ -61,7 +61,15 @@ typedef DraculaView View;
 # define ViewFree DvFree
 
 //# define xPastPlays "GZA.... SED.... HZU.... MZU...."
-# define xPastPlays "GMN.... SPL.... HAM.... MPA.... DZU.V.. GLV.... SLO.... HNS.... MST...."
+//# define xPastPlays "GGW.... SPL.... HCA.... MCG.... DST.V.. GDU.... SLO.... HLS.... MTS...."
+//# define xPastPlays "GMN.... SPL.... HAM.... MPA.... DZU.V.. GLV.... SLO.... HNS.... MST...."
+// Very far away near CD. 
+//#define xPastPlays "GMN.... SPL.... HAM.... MPA.... DGA.V.. GLV.... SLO.... HNS.... MST...."
+// Got caught in first round
+//#define xPastPlays "GED.... SGE.... HZU.... MCA.... DCF.V.. GMN.... SCFVD.. HGE.... MLS...."
+// Another far away near CD.
+//#define  xPastPlays "GSW.... SLS.... HMR.... MHA.... DSJ.V.. GLO.... SAL.... HCO.... MBR...."
+#define xPastPlays "GSW.... SLS.... HMR.... MHA.... DSJ.V.. GLO.... SAL.... HCO.... MBR.... DBET... GED.... SBO.... HLI.... MPR.... DKLT... GLV.... SNA.... HNU.... MBD.... DCDT... GIR.... SPA.... HPR.... MKLT..."
 # define xMsgs { "", "", "", "" }
 
 #else
