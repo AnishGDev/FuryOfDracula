@@ -14,6 +14,7 @@
 #include "Game.h"
 #include <limits.h>
 #include <assert.h> // for testing purposes. Remove later.
+#include <stdio.h> // Remove later.
 // structure to store a snapshot of a game state. 
 #define MAX_DEPTH 3 // might increase depending on how long it takes to evaluate.
 #define INFINITY 1e9
@@ -39,12 +40,13 @@ static inline int min(int a, int b) {
 }
 
 int minimax(DraculaView dv, State currState, int currDepth, bool isMaximising);
-
+PlaceId minimaxHelper(DraculaView dv, State *rootState, int currDepth, bool isMaximising);
 void decideDraculaMove(DraculaView dv)
 {
 	// TODO: Replace this with something better!
 	// Set up initial root state
 	int currScore = DvGetScore(dv);
+	//currScore+=1;
 	if (currScore == GAME_START_SCORE) {
 		// Only first round. 
 		registerBestPlay("CD", "Mwahahahaha");
@@ -62,6 +64,8 @@ void decideDraculaMove(DraculaView dv)
 		int numReturned = 0;
 		bool canFree = false; 
 		s->trail = returnCurrentTrail(dv, &numReturned, &canFree); 
+		//printf("lol %d\n",minimaxHelper(dv, s, 0, true));
+		printf("%s\n",placeIdToName(minimaxHelper(dv, s, 0, true)));
 		registerBestPlay("CD", "Mwahahahaha");
 	}
 }
@@ -101,9 +105,10 @@ PlaceId minimaxHelper(DraculaView dv, State *rootState, int currDepth, bool isMa
 	// And evaluate the max. 
 	int len = -1; 
 	PlaceId *possiblePositions = DvWhereCanIGo(dv, &len);
+	printf("len is %d\n", len);
 	//State * s = evaluatePositionState(possiblePositions, PLAYER_DRACULA, rootState, len);
 	int maxScore = INT_MIN; // Very smoll number. 
-	PlaceId retValue; 
+	PlaceId retValue = 0; 
 	for (int i =0; i < len; i++) {
 		State s = *rootState;
 		
@@ -111,6 +116,7 @@ PlaceId minimaxHelper(DraculaView dv, State *rootState, int currDepth, bool isMa
 		evalDistFromPlayers(dv, possiblePositions[i], &s); 
 		//maxScore = max(maxScore, minimax(dv, s, currDepth+1, !isMaximising)); // switch isMaximising.
 		int score = minimax(dv, s, currDepth+1, !isMaximising); // switch isMaximising.
+		printf("Loc: %s\n with a score of %d\n", placeIdToName(possiblePositions[i]), score);
 		if (score > maxScore) {
 			maxScore = score;
 			retValue = possiblePositions[i]; 
