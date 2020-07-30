@@ -723,6 +723,20 @@ int main(void)
 	printf("Another random test I guess.\n");
 
 	printf("ALL TESTS PASSED SUCCESSFULLY!!!\n");
+
+	{
+		char *trail = "GGW.... SPL.... HCA.... MCG.... DST.V.. GDU.... SLO.... HLS.... MTS....";
+		Message messages[] = {};
+		GameView gv = GvNew(trail, messages);
+		int numLocs = -1;
+		PlaceId *locs = GvGetReachableByType(gv, PLAYER_MINA_HARKER,
+												 3, ROME, true, true,
+												 true, &numLocs);
+		sortPlaces(locs, numLocs);
+		for(int i = 0; i < numLocs; i++) {
+			printf("%s\n", placeIdToName(locs[i]));
+		}
+	}
 	return EXIT_SUCCESS;
 }
 
