@@ -161,6 +161,7 @@ int main(void)
 		int numLocs = -1;
 		PlaceId *locs = DvWhereCanIGo(dv, &numLocs);
 		assert(numLocs == 4);
+		for (int i = 0; i < numLocs; i++) printf("L: %d\n", (locs[i]));
 		sortPlaces(locs, numLocs);
 		assert(locs[0] == BELGRADE);
 		assert(locs[1] == CONSTANTA);
@@ -293,6 +294,7 @@ int main(void)
 		assert(traps[0] == KLAUSENBURG);
 		assert(traps[1] == KLAUSENBURG);
 		assert(traps[2] == KLAUSENBURG);
+		free(traps);
 
 		printf("Test passed!\n");
 		DvFree(dv);
@@ -369,6 +371,7 @@ int main(void)
 		sortPlaces(moves, numMoves);
 		assert(moves[0] == GALATZ);
 		assert(moves[1] == KLAUSENBURG);
+		free(moves);
 
 		printf("Test passed!\n");
 		DvFree(dv);
@@ -399,7 +402,7 @@ int main(void)
 		assert(locs[5] == VIENNA);
 		assert(locs[6] == ZAGREB);
 		assert(locs[7] == ZURICH);
-
+		free(locs);
 		printf("Test passed!\n");
 		DvFree(dv);
 	}
@@ -449,6 +452,7 @@ int main(void)
 		assert(locs[4] == GALATZ);
 		assert(locs[5] == KLAUSENBURG);
 		assert(locs[6] == SZEGED);
+		free(locs);
 
 		numLocs = -1;
 		locs = DvWhereCanTheyGo(dv, PLAYER_DR_SEWARD, &numLocs);
@@ -532,6 +536,7 @@ int main(void)
 		locs = DvWhereCanTheyGoByType(dv, PLAYER_LORD_GODALMING, false, false, true, &numLocs);
 		assert(numLocs == 1);
 		assert(locs[0] == KLAUSENBURG);
+		free(locs);
 		
 		numLocs = -1;
 		locs = DvWhereCanTheyGoByType(dv, PLAYER_LORD_GODALMING, false, true, true, &numLocs);
@@ -571,6 +576,7 @@ int main(void)
 		sortPlaces(locs, numLocs);
 		assert(locs[0] == ENGLISH_CHANNEL);
 		assert(locs[1] == LONDON);
+		free(locs);
 
 		numLocs = -1;
 		locs = DvWhereCanTheyGoByType(dv, PLAYER_VAN_HELSING, false, true, false, &numLocs);
@@ -675,7 +681,7 @@ int main(void)
 		assert(locs[5] == VIENNA);
 		assert(locs[6] == ZAGREB);
 		assert(locs[7] == ZURICH);
-
+		free(locs);
 		printf("Test passed!\n");
 		DvFree(dv);
 	}
@@ -705,6 +711,7 @@ int main(void)
 		assert(locs[4] == VIENNA);
 		assert(locs[5] == ZAGREB);
 		assert(locs[6] == ZURICH);
+		free(locs);
 
 		printf("Test passed!\n");
 		DvFree(dv);
@@ -735,7 +742,7 @@ int main(void)
 		assert(moves[6] == MEDITERRANEAN_SEA);
 		assert(moves[7] == NORTH_SEA);
 		assert(moves[8] == DOUBLE_BACK_1);
-
+		free(moves);
 		printf("Test passed!\n");
 		DvFree(dv);
 	}
@@ -763,7 +770,7 @@ int main(void)
 		assert(moves[6] == LISBON);
 		assert(moves[7] == MEDITERRANEAN_SEA);
 		assert(moves[8] == NORTH_SEA);
-
+		free(moves);
 		printf("Test passed!\n");
 		DvFree(dv);
 	}

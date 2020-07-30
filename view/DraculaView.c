@@ -43,7 +43,7 @@ DraculaView DvNew(char *pastPlays, Message messages[]) {
 		exit(EXIT_FAILURE);
 	}
 
-	new->gv = GvNew(pastPlays,messages);
+	new->gv = GvNew(pastPlays, messages);
 	return new;
 }
 
@@ -84,7 +84,7 @@ PlaceId *DvGetTrapLocations(DraculaView dv, int *numTraps) {
 
 PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves) {
 	// Check if dracula has made a move
-	if (GvGetPlayerLocation(dv->gv, PLAYER_DRACULA) == NOWHERE) {
+	if (DvGetPlayerLocation(dv, PLAYER_DRACULA) == NOWHERE) {
 		*numReturnedMoves = 0;
 		return NULL;
 	}
@@ -119,6 +119,7 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves) {
 	}
 	if (canFree) free(trailMoves);
 	if (*numReturnedMoves == 0) {
+		free(moves);
 		return NULL;
 	}
 	return moves;
@@ -292,9 +293,8 @@ static PlaceId *RemoveDoubleBack(
 
 	*numReturnedLocs -= numShift;
 	if (numReturnedLocs == 0) {
+		free(locations);
 		locations = NULL;
-	} else {
-		locations = realloc(locations, sizeof(PlaceId) * (*numReturnedLocs));
 	}
 
 	return locations;
