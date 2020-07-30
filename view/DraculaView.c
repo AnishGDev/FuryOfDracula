@@ -36,14 +36,14 @@ struct draculaView {
 // Constructor/Destructor
 
 DraculaView DvNew(char *pastPlays, Message messages[]) {
-	DraculaView new = malloc(sizeof(DraculaView));
+	DraculaView new = malloc(sizeof(struct draculaView));
 
 	if (new == NULL) {
 		fprintf(stderr, "Couldn't allocate DraculaView\n");
 		exit(EXIT_FAILURE);
 	}
 
-	new->gv = GvNew(pastPlays,messages);
+	new->gv = GvNew(pastPlays, messages);
 	return new;
 }
 
@@ -84,7 +84,7 @@ PlaceId *DvGetTrapLocations(DraculaView dv, int *numTraps) {
 
 PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves) {
 	// Check if dracula has made a move
-	if (GvGetPlayerLocation(dv->gv, PLAYER_DRACULA) == NOWHERE) {
+	if (DvGetPlayerLocation(dv, PLAYER_DRACULA) == NOWHERE) {
 		*numReturnedMoves = 0;
 		return NULL;
 	}
@@ -105,7 +105,7 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves) {
 	if (!doubleBackInTrail) {	// Add Double backs as moves
 		moves = ReplaceWithDoubleBack(moves, trailMoves, numHistMoves, numReturnedMoves);
 	} else {
-		RemoveDoubleBack(moves, trailMoves, numHistMoves, numReturnedMoves);
+		moves = RemoveDoubleBack(moves, trailMoves, numHistMoves, numReturnedMoves);
 	}
 
 	bool hiddenInTrail = hiddenInLast5(dv, trailMoves, numHistMoves);
@@ -118,6 +118,10 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves) {
 		}
 	}
 	if (canFree) free(trailMoves);
+	if (*numReturnedMoves == 0) {
+		free(moves);
+		return NULL;
+	}
 	return moves;
 }
 
@@ -288,8 +292,10 @@ static PlaceId *RemoveDoubleBack(
 	}
 
 	*numReturnedLocs -= numShift;
-	
-	locations = realloc(locations, sizeof(PlaceId) * (*numReturnedLocs));
+	if (numReturnedLocs == 0) {
+		free(locations);
+		locations = NULL;
+	}
 
 	return locations;
 }
