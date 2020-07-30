@@ -68,6 +68,9 @@ void addNextRailway(
 	int *visited, int *numReturnedLocs, PlaceId *reachableLocations
 );
 void reconstructGameState(GameView gv);
+void appendTrapLoc(GameView gv, PlaceId loc);
+int findTrap(PlaceId *trapLocList, PlaceId trapToDelete, int originalLength);
+void deleteTrapAndShift(PlaceId *trapLocList, PlaceId trapToDelete, int originalLength);
 
 ////////////////////////////////////////////////////////////////////////
 // Constructor/Destructor
@@ -136,132 +139,6 @@ GameView GvNew(char *pastPlays, Message messages[]) {
 	reconstructGameState(gv);
 
 	return gv;
-}
-
-void appendTrapLoc(GameView gv, PlaceId loc) {
-	for (int i = TRAIL_SIZE - 1; i > 0; i--) {
-		gv->trapLocs[i] = gv->trapLocs[i-1];
-	}
-
-	gv->trapLocs[0] = loc;
-	gv->numTraps++;
-}
-
-int findTrap(PlaceId *trapLocList, PlaceId trapToDelete, int originalLength) {
-	for (int i = 0; i < originalLength; i++) {
-		if (trapLocList[i] == trapToDelete) {
-			return i; 
-		}
-	}
-
-	return -1; 
-}
-
-void deleteTrapAndShift(PlaceId *trapLocList, PlaceId trapToDelete, int originalLength) {
-	int index = findTrap(trapLocList, trapToDelete, originalLength);
-	if (index == -1) return;
-
-	trapLocList[index] = NOWHERE;
-	for (int i = index; i < originalLength - 1; i++) {
-		trapLocList[i] = trapLocList[i + 1]; // Shift
-	}
-}
-
-void reconstructGameState(GameView gv) {
-	char* loc = malloc(sizeof(char) * 3); // Space needed for loc
-	PlaceId currentLoc;
-
-	for (int i = 0; i < gv->pastPlaysLength; i += TURN_CHARS) {
-		sprintf(loc, "%c%c", gv->pastPlays[i + 1], gv->pastPlays[i + 2]);
-		currentLoc = placeAbbrevToId(loc);
-
-		if (gv->whoseTurn == PLAYER_DRACULA) {
-			// Might have to loop until its not hide/double back
-			if (currentLoc == TELEPORT) {
-				DRAC_LHIST[gv->roundNum] = CASTLE_DRACULA;
-			} else if (currentLoc >= HIDE && currentLoc <= DOUBLE_BACK_5) {
-				int offset = currentLoc - DOUBLE_BACK_1 + 1; // DOUBLE_BACK_n => n
-				if (currentLoc == HIDE) offset++; // same as DOUBLE_BACK_1
-
-				DRAC_LHIST[gv->roundNum] = gv->dracula->currLoc = DRAC_LHIST[gv->roundNum - offset];
-			} else {
-				DRAC_LHIST[gv->roundNum] = currentLoc;
-				gv->dracula->currLoc = currentLoc;
-
-				if (currentLoc != CITY_UNKNOWN && currentLoc != NOWHERE) {
-					gv->dracula->lastRevealed = gv->roundNum;
-				}
-			}
-
-			DRAC_MHIST[gv->roundNum] = currentLoc;
-
-			if (DRAC_LHIST[gv->roundNum] == CASTLE_DRACULA) {
-				gv->dracula->health += LIFE_GAIN_CASTLE_DRACULA;
-			}
-
-			if (placeIdToType(DRAC_LHIST[gv->roundNum]) == SEA) {
-				gv->dracula->health -= LIFE_LOSS_SEA;
-			}
-
-			if (gv->pastPlays[i + 3] == 'T') appendTrapLoc(gv, gv->dracula->currLoc);
-			if (gv->pastPlays[i + 4] == 'V') gv->vampireLocation = currentLoc;
-			if (gv->pastPlays[i + 5] == 'V') {
-				 gv->score -= SCORE_LOSS_VAMPIRE_MATURES;
-				 gv->vampireLocation = NOWHERE;
-			}
-
-			gv->score--;
-			gv->roundNum++;
-			
-		} else {
-			if (CURR_HUNTER->health <= 0) {
-				CURR_HUNTER->health = GAME_START_HUNTER_LIFE_POINTS;
-			}
-
-			if (currentLoc == CURR_HUNTER->currLoc) {
-				CURR_HUNTER->health += LIFE_GAIN_REST;
-			}
-
-			if (CURR_HUNTER->health > GAME_START_HUNTER_LIFE_POINTS) {
-				CURR_HUNTER->health = GAME_START_HUNTER_LIFE_POINTS;
-			}
-
-			CURR_HUNTER->moveHistory[gv->roundNum] = currentLoc;
-			CURR_HUNTER->currLoc = currentLoc;
-
-			for (
-				int hunterAction = HUNTER_INFO_START;
-				hunterAction < HUNTER_INFO_END;
-				hunterAction++
-			) {
-				if (gv->pastPlays[i + hunterAction] == 'T') {
-					CURR_HUNTER->health -= LIFE_LOSS_TRAP_ENCOUNTER;
-					deleteTrapAndShift(gv->trapLocs, currentLoc, gv->numTraps);
-					gv->numTraps--;
-				} else if (gv->pastPlays[i + hunterAction] == 'V') {
-					gv->vampireLocation = NOWHERE;
-				} else if (gv->pastPlays[i + hunterAction] == 'D') {
-					CURR_HUNTER->health -= LIFE_LOSS_DRACULA_ENCOUNTER;
-					gv->dracula->health -= LIFE_LOSS_HUNTER_ENCOUNTER;
-				}
-			}
-
-			if (CURR_HUNTER->health <= 0) {
-				gv->score -= SCORE_LOSS_HUNTER_HOSPITAL;
-				CURR_HUNTER->health = 0;
-				CURR_HUNTER->currLoc = HOSPITAL_PLACE;
-			}
-		}
-
-		gv->whoseTurn++;
-		gv->whoseTurn %= NUM_PLAYERS;
-
-		if (gv->whoseTurn > PLAYER_DRACULA) {
-			gv->whoseTurn = PLAYER_LORD_GODALMING;
-		}
-	}
-
-	free(loc);
 }
 
 void GvFree(GameView gv) {
@@ -534,5 +411,131 @@ PlaceId GvGetLastKnownDraculaLocation(GameView gv, int *round) {
 
 ////////////////////////////////////////////////////////////////////////
 // Your own interface functions
+
+void reconstructGameState(GameView gv) {
+	char* loc = malloc(sizeof(char) * 3); // Space needed for loc
+	PlaceId currentLoc;
+
+	for (int i = 0; i < gv->pastPlaysLength; i += TURN_CHARS) {
+		sprintf(loc, "%c%c", gv->pastPlays[i + 1], gv->pastPlays[i + 2]);
+		currentLoc = placeAbbrevToId(loc);
+
+		if (gv->whoseTurn == PLAYER_DRACULA) {
+			// Might have to loop until its not hide/double back
+			if (currentLoc == TELEPORT) {
+				DRAC_LHIST[gv->roundNum] = CASTLE_DRACULA;
+			} else if (currentLoc >= HIDE && currentLoc <= DOUBLE_BACK_5) {
+				int offset = currentLoc - DOUBLE_BACK_1 + 1; // DOUBLE_BACK_n => n
+				if (currentLoc == HIDE) offset++; // same as DOUBLE_BACK_1
+
+				DRAC_LHIST[gv->roundNum] = gv->dracula->currLoc = DRAC_LHIST[gv->roundNum - offset];
+			} else {
+				DRAC_LHIST[gv->roundNum] = currentLoc;
+				gv->dracula->currLoc = currentLoc;
+
+				if (currentLoc != CITY_UNKNOWN && currentLoc != NOWHERE) {
+					gv->dracula->lastRevealed = gv->roundNum;
+				}
+			}
+
+			DRAC_MHIST[gv->roundNum] = currentLoc;
+
+			if (DRAC_LHIST[gv->roundNum] == CASTLE_DRACULA) {
+				gv->dracula->health += LIFE_GAIN_CASTLE_DRACULA;
+			}
+
+			if (placeIdToType(DRAC_LHIST[gv->roundNum]) == SEA) {
+				gv->dracula->health -= LIFE_LOSS_SEA;
+			}
+
+			if (gv->pastPlays[i + 3] == 'T') appendTrapLoc(gv, gv->dracula->currLoc);
+			if (gv->pastPlays[i + 4] == 'V') gv->vampireLocation = currentLoc;
+			if (gv->pastPlays[i + 5] == 'V') {
+				 gv->score -= SCORE_LOSS_VAMPIRE_MATURES;
+				 gv->vampireLocation = NOWHERE;
+			}
+
+			gv->score--;
+			gv->roundNum++;
+			
+		} else {
+			if (CURR_HUNTER->health <= 0) {
+				CURR_HUNTER->health = GAME_START_HUNTER_LIFE_POINTS;
+			}
+
+			if (currentLoc == CURR_HUNTER->currLoc) {
+				CURR_HUNTER->health += LIFE_GAIN_REST;
+			}
+
+			if (CURR_HUNTER->health > GAME_START_HUNTER_LIFE_POINTS) {
+				CURR_HUNTER->health = GAME_START_HUNTER_LIFE_POINTS;
+			}
+
+			CURR_HUNTER->moveHistory[gv->roundNum] = currentLoc;
+			CURR_HUNTER->currLoc = currentLoc;
+
+			for (
+				int hunterAction = HUNTER_INFO_START;
+				hunterAction < HUNTER_INFO_END;
+				hunterAction++
+			) {
+				if (gv->pastPlays[i + hunterAction] == 'T') {
+					CURR_HUNTER->health -= LIFE_LOSS_TRAP_ENCOUNTER;
+					deleteTrapAndShift(gv->trapLocs, currentLoc, gv->numTraps);
+					gv->numTraps--;
+				} else if (gv->pastPlays[i + hunterAction] == 'V') {
+					gv->vampireLocation = NOWHERE;
+				} else if (gv->pastPlays[i + hunterAction] == 'D') {
+					CURR_HUNTER->health -= LIFE_LOSS_DRACULA_ENCOUNTER;
+					gv->dracula->health -= LIFE_LOSS_HUNTER_ENCOUNTER;
+				}
+			}
+
+			if (CURR_HUNTER->health <= 0) {
+				gv->score -= SCORE_LOSS_HUNTER_HOSPITAL;
+				CURR_HUNTER->health = 0;
+				CURR_HUNTER->currLoc = HOSPITAL_PLACE;
+			}
+		}
+
+		gv->whoseTurn++;
+		gv->whoseTurn %= NUM_PLAYERS;
+
+		if (gv->whoseTurn > PLAYER_DRACULA) {
+			gv->whoseTurn = PLAYER_LORD_GODALMING;
+		}
+	}
+
+	free(loc);
+}
+
+void appendTrapLoc(GameView gv, PlaceId loc) {
+	for (int i = TRAIL_SIZE - 1; i > 0; i--) {
+		gv->trapLocs[i] = gv->trapLocs[i-1];
+	}
+
+	gv->trapLocs[0] = loc;
+	gv->numTraps++;
+}
+
+int findTrap(PlaceId *trapLocList, PlaceId trapToDelete, int originalLength) {
+	for (int i = 0; i < originalLength; i++) {
+		if (trapLocList[i] == trapToDelete) {
+			return i; 
+		}
+	}
+
+	return -1; 
+}
+
+void deleteTrapAndShift(PlaceId *trapLocList, PlaceId trapToDelete, int originalLength) {
+	int index = findTrap(trapLocList, trapToDelete, originalLength);
+	if (index == -1) return;
+
+	trapLocList[index] = NOWHERE;
+	for (int i = index; i < originalLength - 1; i++) {
+		trapLocList[i] = trapLocList[i + 1]; // Shift
+	}
+}
 
 // TODO

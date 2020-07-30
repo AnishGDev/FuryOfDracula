@@ -744,6 +744,7 @@ int main(void)
 		assert(numLocs == 6);
 		printf("\t\tChecking whether the locHistory is actually correct.\n");
 		assert(locHistory[0] == STRASBOURG);
+		assert(locHistory[1] == STRASBOURG);
 		assert(locHistory[5] == STRASBOURG);
 
 		GvFree(gv);
