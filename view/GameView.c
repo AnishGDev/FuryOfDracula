@@ -76,6 +76,7 @@ void deleteTrapAndShift(PlaceId *trapLocList, PlaceId trapToDelete, int original
 ////////////////////////////////////////////////////////////////////////
 // Constructor/Destructor
 
+// Creates and returns a new Hunter
 static HunterData *createNewHunter(int pastPlaysLength) {
 	HunterData *h = malloc(sizeof(struct _hunterData)); 
 
@@ -91,6 +92,7 @@ static HunterData *createNewHunter(int pastPlaysLength) {
 	return h;
 }
 
+// Creates and returns a new Dracula
 static DraculaData *createNewDracula(int pastPlaysLength) {
 	DraculaData *d = malloc(sizeof(struct _draculaData));
 
@@ -101,7 +103,7 @@ static DraculaData *createNewDracula(int pastPlaysLength) {
 
 	d->health = GAME_START_BLOOD_POINTS;
 	d->currLoc = NOWHERE;
-	d->lastRevealed = 0; // TODO: #define it later
+	d->lastRevealed = 0; 
 	d->moveHistory = malloc(HISTORY_SIZE);
 	d->locHistory = malloc(HISTORY_SIZE);
 	d->locHistory[0] = NOWHERE;
@@ -109,6 +111,7 @@ static DraculaData *createNewDracula(int pastPlaysLength) {
 	return d; 
 }
 
+// Creates GameView and calls reconstructGameState()
 GameView GvNew(char *pastPlays, Message messages[]) {
 	GameView gv = malloc(sizeof(struct gameView));
 
@@ -141,6 +144,7 @@ GameView GvNew(char *pastPlays, Message messages[]) {
 	return gv;
 }
 
+// Frees GameView memory
 void GvFree(GameView gv) {
 	free(DRAC_LHIST);
 	free(DRAC_MHIST);
@@ -155,6 +159,7 @@ void GvFree(GameView gv) {
 	free(gv);
 }
 
+// Walks through the game, turn by turn, round by round and updates all values
 void reconstructGameState(GameView gv) {
 	char loc[LOC_SIZE_STR];
 	PlaceId currentLoc;
@@ -164,7 +169,6 @@ void reconstructGameState(GameView gv) {
 		currentLoc = placeAbbrevToId(loc);
 
 		if (gv->whoseTurn == PLAYER_DRACULA) {
-			// Might have to loop until its not hide/double back
 			if (currentLoc == TELEPORT) {
 				DRAC_LHIST[gv->roundNum] = CASTLE_DRACULA;
 			} else if (currentLoc >= HIDE && currentLoc <= DOUBLE_BACK_5) {
@@ -243,16 +247,13 @@ void reconstructGameState(GameView gv) {
 
 		gv->whoseTurn++;
 		gv->whoseTurn %= NUM_PLAYERS;
-
-		if (gv->whoseTurn > PLAYER_DRACULA) {
-			gv->whoseTurn = PLAYER_LORD_GODALMING;
-		}
 	}
 }
 
 ////////////////////////////////////////////////////////////////////////
 // Game State Information
 
+// Appends a new Trap Location to gv->trapLocs
 void appendTrapLoc(GameView gv, PlaceId loc) {
 	for (int i = TRAIL_SIZE - 1; i > 0; i--) {
 		gv->trapLocs[i] = gv->trapLocs[i-1];
@@ -262,6 +263,7 @@ void appendTrapLoc(GameView gv, PlaceId loc) {
 	gv->numTraps++;
 }
 
+// Finds the location of a trap in a particular city
 int findTrap(PlaceId *trapLocList, PlaceId trapToDelete, int originalLength) {
 	for (int i = 0; i < originalLength; i++) {
 		if (trapLocList[i] == trapToDelete) {
@@ -272,6 +274,7 @@ int findTrap(PlaceId *trapLocList, PlaceId trapToDelete, int originalLength) {
 	return -1; 
 }
 
+// Deletes a trap, and shifts resulting NOWHERE to end of gv->trapLocs
 void deleteTrapAndShift(PlaceId *trapLocList, PlaceId trapToDelete, int originalLength) {
 	int index = findTrap(trapLocList, trapToDelete, originalLength);
 	if (index == -1) return;
@@ -282,18 +285,22 @@ void deleteTrapAndShift(PlaceId *trapLocList, PlaceId trapToDelete, int original
 	}
 }
 
+// Gets the round number
 Round GvGetRound(GameView gv) {
 	return gv->roundNum; 
 }
 
+// Gets the current player
 Player GvGetPlayer(GameView gv) {
 	return gv->whoseTurn;
 }
 
+// Gets the current score
 int GvGetScore(GameView gv) {
 	return gv->score;
 }
 
+// Gets the current health of any player
 int GvGetHealth(GameView gv, Player player) {
 	if (player == PLAYER_DRACULA) {
 		return gv->dracula->health; // The player is a hunter
@@ -302,6 +309,7 @@ int GvGetHealth(GameView gv, Player player) {
 	}
 }
 
+// Gets the current location of any player
 PlaceId GvGetPlayerLocation(GameView gv, Player player) {
 	if (player == PLAYER_DRACULA) {
 		return gv->dracula->currLoc;
@@ -312,10 +320,12 @@ PlaceId GvGetPlayerLocation(GameView gv, Player player) {
 	return NOWHERE;
 }
 
+// Gets location of vampire
 PlaceId GvGetVampireLocation(GameView gv) {
 	return gv->vampireLocation; 
 }
 
+// Gets array of Trap locations
 PlaceId *GvGetTrapLocations(GameView gv, int *numTraps) {
 	int size = sizeof(enum placeId) * gv->numTraps;
 
@@ -330,6 +340,7 @@ PlaceId *GvGetTrapLocations(GameView gv, int *numTraps) {
 ////////////////////////////////////////////////////////////////////////
 // Game History
 
+// Gets a player's MoveHistory
 PlaceId *GvGetMoveHistory(
 	GameView gv, Player player, int *numReturnedMoves, bool *canFree
 ) {
@@ -349,6 +360,8 @@ PlaceId *GvGetMoveHistory(
 	return ret;
 }
 
+// Returns a player's last N moves.
+// Returns entire moveHistory array if N is greater than size of list
 PlaceId *GvGetLastMoves(
 	GameView gv, Player player, int numMoves,
 	int *numReturnedMoves, bool *canFree
@@ -375,6 +388,9 @@ PlaceId *GvGetLastMoves(
 	return ret; 
 }
 
+// Gets a player's location history
+// For hunter's this is the same as moveHistory
+// For Dracula, moves such as HI and D3 have to correspond to actual locations
 PlaceId *GvGetLocationHistory(
 	GameView gv, Player player,
 	int *numReturnedLocs, bool *canFree
@@ -395,7 +411,8 @@ PlaceId *GvGetLocationHistory(
 	return ret;
 }
 
-
+// Gets a player's last N locations
+// Returns entire Move/LocHistory array if N is greater than size of array
 PlaceId *GvGetLastLocations(
 	GameView gv, Player player, int numLocs,
 	int *numReturnedLocs, bool *canFree
@@ -426,7 +443,7 @@ PlaceId *GvGetLastLocations(
 
 ////////////////////////////////////////////////////////////////////////
 // Making a Move
-// Not 100% satisfied with this code style.
+
 
 void addNextRailway(
 	GameView gv, PlaceId from, int depth, int maxRailwayDepth,
@@ -456,6 +473,7 @@ void addNextRailway(
 	}
 }
 
+// Gets a array of places than are reachable by a player
 PlaceId *GvGetReachable(
 	GameView gv, Player player, Round round,
 	PlaceId from, int *numReturnedLocs
@@ -467,6 +485,9 @@ PlaceId *GvGetReachable(
 	);
 }
 
+// Returns an array of places a player can visit, with only approved transportation types
+// Takes into accounts restrictions in methods of transport between Hunters and Dracs
+// When all types are true, this forms implementation of GvGetReachable
 PlaceId *GvGetReachableByType(
 	GameView gv, Player player, Round round, PlaceId from,
 	bool road, bool rail, bool boat, int *numReturnedLocs
@@ -532,8 +553,3 @@ PlaceId GvGetLastKnownDraculaLocation(GameView gv, int *round) {
 
 	return DRAC_LHIST[gv->dracula->lastRevealed];
 }
-
-////////////////////////////////////////////////////////////////////////
-// Your own interface functions
-
-// TODO
