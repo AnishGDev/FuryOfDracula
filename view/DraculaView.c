@@ -13,7 +13,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <string.h>
 #include "DraculaView.h"
 #include "Game.h"
 #include "GameView.h"
@@ -28,36 +28,54 @@ static PlaceId *RemoveDoubleBack(
 	PlaceId *locations, PlaceId *trailMoves, int numHistMoves, int *numReturnedLocs
 );
 // Cache trail info to reduce speed for repeated calls. 
-typedef struct _trailInfo {
+struct _trailInfo {
 	PlaceId * trail;
 	int trailLen;
 	bool isRealTrail; 
 	bool canFree;
-} Trail; 
+};
 
+// The basic idea is to mirror the gameView struct but allow the AI
+// to modify it so it can store future versions of this game and evaluate them.
+// This ensures that the main gameView itself is not modified so we can get original information 
+// from it
 struct draculaView {
 	GameView gv;
-	Trail trailInfo; 
+	Trail trailInfo;
+	// Internal representation which can be modified to get a theoretical state.
+	// This allows dracula AI to modify states and explore options without modifying actual state.
+	PlaceId whereIsPlayer[NUM_PLAYERS]; // idk why but whereIsPlayer[i] is not working.
+	Round round; // internal storage of round.
 };
 
 ////////////////////////////////////////////////////////////////////////
 // Constructor/Destructor
 
 DraculaView DvNew(char *pastPlays, Message messages[]) {
-	DraculaView new = malloc(sizeof(DraculaView));
+	DraculaView new = malloc(sizeof(struct draculaView));
 
 	if (new == NULL) {
 		fprintf(stderr, "Couldn't allocate DraculaView\n");
 		exit(EXIT_FAILURE);
 	}
 	new->gv = GvNew(pastPlays,messages);
-	new->trailInfo.trail = GvGetLastMoves(new->gv, PLAYER_DRACULA, 
-							TRAIL_SIZE-1, &(new->trailInfo.trailLen), &(new->trailInfo.canFree));
+	new->trailInfo = malloc(sizeof(struct _trailInfo));
+	new->trailInfo->trail = GvGetLastMoves(new->gv, PLAYER_DRACULA, 
+							TRAIL_SIZE-1, &(new->trailInfo->trailLen), &(new->trailInfo->canFree));
+							
+	//new->whereIsPlayer = malloc(sizeof(enum placeId) * NUM_PLAYERS); 
+	for (int i =0; i < NUM_PLAYERS; i++) {
+		new->whereIsPlayer[i] = GvGetPlayerLocation(new->gv, i);
+	}
+	new->round = GvGetRound(new->gv);
 	//new->isRealTrail = true;
 	return new;
 }
 
 void DvFree(DraculaView dv) {
+	// getLocation functions handles the freeing for trail. The struct simply stores it. 
+	//free(dv->trailInfo);
+	//free(dv->whereIsPlayer);
 	GvFree(dv->gv);
 	free(dv);
 }
@@ -116,7 +134,7 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves) {
 	if (!doubleBackInTrail) {	// Add Double backs as moves
 		moves = ReplaceWithDoubleBack(moves, trailMoves, numHistMoves, numReturnedMoves);
 	} else {
-		RemoveDoubleBack(moves, trailMoves, numHistMoves, numReturnedMoves);
+		moves = RemoveDoubleBack(moves, trailMoves, numHistMoves, numReturnedMoves);
 	}
 
 	bool hiddenInTrail = hiddenInLast5(dv, trailMoves, numHistMoves);
@@ -132,21 +150,32 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves) {
 	return moves;
 }
 
-void setTheoreticalState(DraculaView dv, PlaceId * trailToSet) {
+
+int calculateDistance(DraculaView dv, PlaceId from, PlaceId to) {
+	return 0;
+}
+
+void setTheoreticalState(DraculaView dv, PlaceId * trailToSet, Round round, PlaceId whereIsPlayer[]) {
 	// Set internal representation to what the Dracula AI wants to evaluate future states. 
-	dv->trailInfo.trail = trailToSet;
+	dv->round = round;
+	memcpy(dv->whereIsPlayer, whereIsPlayer, sizeof(PlaceId) * NUM_PLAYERS);
+	memcpy(dv->trailInfo->trail, trailToSet, sizeof(PlaceId) * TRAIL_SIZE);
+	//dv->trailInfo->trail = trailToSet;
 }
 
 void resetTheoreticalState(DraculaView dv) {
-	dv->trailInfo.trail = GvGetLastMoves(dv->gv, PLAYER_DRACULA, 
-							TRAIL_SIZE-1, &(dv->trailInfo.trailLen), &(dv->trailInfo.canFree));
+	dv->trailInfo->trail = GvGetLastMoves(dv->gv, PLAYER_DRACULA, 
+							TRAIL_SIZE-1, &(dv->trailInfo->trailLen), &(dv->trailInfo->canFree));
 }
 
 PlaceId * returnCurrentTrail(DraculaView dv, int *numReturnedLocs, bool * canFree) {
-	*numReturnedLocs = dv->trailInfo.trailLen;
-	*canFree = dv->trailInfo.canFree; 
-	return dv->trailInfo.trail;
+	// Return cached trail locations. Can be used to change represent future states by AI. 
+	*numReturnedLocs = dv->trailInfo->trailLen;
+	*canFree = dv->trailInfo->canFree; 
+	return dv->trailInfo->trail;
 } 
+
+
 
 PlaceId *DvWhereCanIGo(DraculaView dv, int *numReturnedLocs)
 {
@@ -175,6 +204,10 @@ PlaceId *DvWhereCanTheyGo(
 	}
 }
 
+// Subset of Gv such that we can modify individual player locations
+// This allows us to set "future states" of the game and evaluate them in the AI. 
+
+
 PlaceId *DvWhereCanTheyGoByType(
 	DraculaView dv, Player player,
 	bool road, bool rail, bool boat,
@@ -187,10 +220,12 @@ PlaceId *DvWhereCanTheyGoByType(
 	}
 
 	if (player == PLAYER_DRACULA) {
+		PlaceId *places = GvGetReachableByType(dv->gv, player, dv->round, dv->whereIsPlayer[PLAYER_DRACULA], road, rail, boat, numReturnedLocs);
+		/*
 		PlaceId *places = GvGetReachableByType(dv->gv, player, DvGetRound(dv),
 												DvGetPlayerLocation(dv, player),road, 
 												rail, boat, numReturnedLocs);
-		
+		*/
 		// Account for trail Restrictions
 	
 		int numHistMoves;
@@ -232,8 +267,8 @@ PlaceId *DvWhereCanTheyGoByType(
 		return places;
 	} else {
 		return GvGetReachableByType(
-			dv->gv, player, DvGetRound(dv),
-			DvGetPlayerLocation(dv, player),
+			dv->gv, player, dv->round,
+			dv->whereIsPlayer[player],
 			road, rail, boat,
 			numReturnedLocs
 		);

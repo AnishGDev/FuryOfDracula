@@ -88,7 +88,7 @@ static HunterData *createNewHunter(int pastPlaysLength) {
 	return h;
 }
 
-static DraculaData *createNewDracula(int pastPlaysLength) {
+static DraculaData *createNewDracula(int pastPlaysLength) { // remove pastPlaysLength
 	DraculaData *d = malloc(sizeof(struct _draculaData));
 
 	if (d == NULL) {
