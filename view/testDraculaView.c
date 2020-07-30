@@ -695,7 +695,7 @@ int main(void)
 			"GKL.... SGE.... HGE.... MGE.... DD1T... "
 			"GKL.... SGE.... HGE.... MGE....";
 
-		Message messages[9] = {};
+		Message messages[0] = {};
 		DraculaView dv = DvNew(trail, messages);
 
 		assert(DvGetPlayerLocation(dv, PLAYER_DRACULA) == MUNICH);
