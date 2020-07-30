@@ -722,15 +722,32 @@ int main(void)
 	}	
 	{////////////////// Rishabh's Tests ///////////////
 		printf("Testing whether correct location is recovered.\n");
-		trail = "GLS.... SGE.... HGE.... MGE.... DST.V.. "
-				"GCA.... SGE.... HGE.... MGE.... DHIT... "
-				"GGR.... SGE.... HGE.... MGE.... DFRT... "
-				"GAL.... SGE.... HGE.... MGE.... DLIT... "
-				"GSR.... SGE.... HGE.... MGE.... DD3T... "
-				"GSN.... SGE.... HGE.... MGE.... DZUT... "
-				"GMA.... SSTTTV. HGE.... MGE....";
-		
+		char* trail = "GLS.... SGE.... HGE.... MGE.... DST.V.. "
+					"GCA.... SGE.... HGE.... MGE.... DHIT... "
+					"GGR.... SGE.... HGE.... MGE.... DFRT... "
+					"GAL.... SGE.... HGE.... MGE.... DLIT... "
+					"GSR.... SGE.... HGE.... MGE.... DCOT... "
+					"GSN.... SGE.... HGE.... MGE.... DD4T... "
+					"GMA.... SSTTTV. HGE.... MGE....";
+		Message messages[32] = {}; 
 
+		GameView gv = GvNew(trail, messages);
+		int numLocs = -1;
+		PlaceId *locHistory;
+		bool canFree;
+
+		printf("\tTesting Dracula's current location.\n");
+		locHistory = GvGetLocationHistory(gv, PLAYER_DRACULA, &numLocs, &canFree);
+		printf("\t\tChecking whether it actually returns a Location History.\n");
+		assert(locHistory != NULL);
+		printf("\t\tChecking for whether number of returned locations is correct.\n");
+		assert(numLocs == 4);
+		printf("\t\tChecking whether the locHistory is actually correct.\n");
+		assert(locHistory[0] == STRASBOURG);
+		assert(locHistory[3] == STRASBOURG);
+
+		GvFree(gv);
+		printf("PASSED!!\n");
 
 	}
 	printf("ALL TESTS PASSED SUCCESSFULLY!!!\n");
