@@ -28,6 +28,8 @@ static PlaceId *RemoveDoubleBack(
 	PlaceId *locations, PlaceId *trailMoves, int numHistMoves, int *numReturnedLocs
 );
 // Cache trail info to reduce speed for repeated calls. 
+#define VISITED 1
+#define NOT_VISITED -1
 struct _trailInfo {
 	PlaceId * trail;
 	int trailLen;
@@ -112,7 +114,7 @@ PlaceId *DvGetTrapLocations(DraculaView dv, int *numTraps) {
 
 PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves) {
 	// Check if dracula has made a move
-	if (GvGetPlayerLocation(dv->gv, PLAYER_DRACULA) == NOWHERE) {
+	if (DvGetPlayerLocation(dv, PLAYER_DRACULA) == NOWHERE) {
 		*numReturnedMoves = 0;
 		return NULL;
 	}
@@ -147,12 +149,50 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves) {
 		}
 	}
 	if (canFree) free(trailMoves);
+	if (*numReturnedMoves == 0) {
+		free(moves);
+		return NULL;
+	}
 	return moves;
 }
 
 
-int calculateDistance(DraculaView dv, PlaceId from, PlaceId to) {
-	return 0;
+int calculateHunterDistFromDrac(DraculaView dv,Player player, Round round, PlaceId from, PlaceId dest) {
+	Queue q = newQueue();
+	QueueJoin(q, from);
+	//int ret_distance = 0;
+	PlaceId visited[NUM_REAL_PLACES]; 
+	int distance[NUM_REAL_PLACES] = {0};
+	for (int i = 0; i < NUM_REAL_PLACES; i++) {
+		visited[i] = -1; 
+		//distance[i] = -1;
+	}
+	visited[from] = from; 
+	while(!QueueIsEmpty(q)) {
+		Item popped = QueueLeave(q);
+		if(popped == dest) {
+			break; 
+		}
+		//printf("Curent is %s\n", placeIdToName(popped));
+		int length = -1; 
+		PlaceId * possibleLocs = GvGetReachable(dv->gv, player, round, popped, &length);
+		for (int i = 0; i < length; i++) {
+			if(visited[possibleLocs[i]] == NOT_VISITED) {
+				distance[possibleLocs[i]] = distance[popped] + 1; 
+				visited[possibleLocs[i]] = popped;
+				QueueJoin(q, possibleLocs[i]);
+			}
+		}
+	}
+	printf("%s<-", placeIdToName(dest));
+	PlaceId curr = visited[dest];
+	while(curr != from) {
+		printf("%s<-", placeIdToName(curr));
+		curr = visited[curr];
+	}
+	printf("%s", placeIdToName(curr));
+	printf("\n");
+	return distance[dest]; // Something went wrong. 
 }
 
 void setTheoreticalState(DraculaView dv, PlaceId * trailToSet, Round round, PlaceId whereIsPlayer[]) {
@@ -349,8 +389,10 @@ static PlaceId *RemoveDoubleBack(
 	}
 
 	*numReturnedLocs -= numShift;
-	
-	locations = realloc(locations, sizeof(PlaceId) * (*numReturnedLocs));
+	if (numReturnedLocs == 0) {
+		free(locations);
+		locations = NULL;
+	}
 
 	return locations;
 }

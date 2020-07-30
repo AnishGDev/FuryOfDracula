@@ -517,6 +517,7 @@ PlaceId GvGetLastKnownDraculaLocation(GameView gv, int *round) {
 	}
 	return DRAC_LHIST[gv->dracula->lastRevealed];
 }
+
 ////////////////////////////////////////////////////////////////////////
 // Your own interface functions
 
