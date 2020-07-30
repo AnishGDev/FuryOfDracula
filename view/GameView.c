@@ -29,6 +29,7 @@
 #define VISITED 1
 #define ROUND_CHARACTER_LENGTH 40
 #define TURN_CHARS 8
+#define LOC_SIZE_STR 3
 #define HUNTER_INFO_START 3
 #define HUNTER_INFO_END 7
 #define HISTORY_SIZE ( \
@@ -85,7 +86,6 @@ static HunterData *createNewHunter(int pastPlaysLength) {
 
 	h->health = GAME_START_HUNTER_LIFE_POINTS;
 	h->currLoc = NOWHERE; 
-	// TODO: optimize by finding max possible instead of just assigning pastPlaysLength
 	h->moveHistory = malloc(HISTORY_SIZE); 
 
 	return h;
@@ -156,7 +156,7 @@ void GvFree(GameView gv) {
 }
 
 void reconstructGameState(GameView gv) {
-	char* loc = malloc(sizeof(char) * 3); // Space needed for loc
+	char loc[LOC_SIZE_STR];
 	PlaceId currentLoc;
 
 	for (int i = 0; i < gv->pastPlaysLength; i += TURN_CHARS) {
@@ -248,8 +248,6 @@ void reconstructGameState(GameView gv) {
 			gv->whoseTurn = PLAYER_LORD_GODALMING;
 		}
 	}
-
-	free(loc);
 }
 
 ////////////////////////////////////////////////////////////////////////
