@@ -1117,5 +1117,26 @@ int main(void)
 		DvFree(dv);
 	}
 
+	{
+		printf("Testing calculateHunterDistFromDrac\n");
+		char *trail = 
+					"GMN.... SPL.... HAM.... MPA.... DZU.V.. "
+					"GLV.... SLO.... HNS.... MST....";
+		Message messages[9] = {};
+		DraculaView dv = DvNew(trail, messages); 
+		Round nextRound = 2; 
+		int len = calculateHunterDistFromDrac(dv,PLAYER_LORD_GODALMING, nextRound, LIVERPOOL, ZURICH);
+		printf("Length is %d\n", len);
+		assert(len == 5);
+		len = calculateHunterDistFromDrac(dv,PLAYER_DR_SEWARD , nextRound, LONDON, ZURICH);
+		printf("Length is %d\n", len);
+		assert(len == 4);
+		len = calculateHunterDistFromDrac(dv,PLAYER_VAN_HELSING , nextRound, NORTH_SEA, ZURICH);
+		printf("Length is %d\n", len);
+		assert(len == 4);
+		len = calculateHunterDistFromDrac(dv,PLAYER_MINA_HARKER, nextRound, STRASBOURG, ZURICH);
+		printf("Length is %d\n", len);
+		assert(len == 1);
+	}
 	return EXIT_SUCCESS;
 }
