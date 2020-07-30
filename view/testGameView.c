@@ -741,10 +741,10 @@ int main(void)
 		printf("\t\tChecking whether it actually returns a Location History.\n");
 		assert(locHistory != NULL);
 		printf("\t\tChecking for whether number of returned locations is correct.\n");
-		assert(numLocs == 4);
+		assert(numLocs == 6);
 		printf("\t\tChecking whether the locHistory is actually correct.\n");
 		assert(locHistory[0] == STRASBOURG);
-		assert(locHistory[3] == STRASBOURG);
+		assert(locHistory[5] == STRASBOURG);
 
 		GvFree(gv);
 		printf("PASSED!!\n");
