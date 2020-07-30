@@ -721,16 +721,16 @@ int main(void)
 		GvFree(gv);
 	}	
 	{////////////////// Rishabh's Tests ///////////////
-		printf("Another random test I guess.\n");
+		printf("Testing whether correct location is recovered.\n");
 		trail = "GLS.... SGE.... HGE.... MGE.... DST.V.. "
-				"GCA.... SGE.... HGE.... MGE.... DZUT... "
-				"GGR.... SGE.... HGE.... MGE.... DMUT... "
-				"GAL.... SGE.... HGE.... MGE.... DD3T... "
-				"GSR.... SGE.... HGE.... MGE.... DHIT... "
-				"GSN.... SGE.... HGE.... MGE.... DMIT... "
+				"GCA.... SGE.... HGE.... MGE.... DHIT... "
+				"GGR.... SGE.... HGE.... MGE.... DFRT... "
+				"GAL.... SGE.... HGE.... MGE.... DLIT... "
+				"GSR.... SGE.... HGE.... MGE.... DD3T... "
+				"GSN.... SGE.... HGE.... MGE.... DZUT... "
 				"GMA.... SSTTTV. HGE.... MGE....";
 		
-		
+
 
 	}
 	printf("ALL TESTS PASSED SUCCESSFULLY!!!\n");
