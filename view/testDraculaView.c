@@ -1082,7 +1082,7 @@ int main(void)
 		printf("Test passed\n");
 		DvFree(dv);
 	}
-
+	
 	{//Testing Dracula Running out of moves
 		printf("Testing No Moves2\n");
 		char *trail = 
