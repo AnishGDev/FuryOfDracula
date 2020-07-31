@@ -70,8 +70,8 @@ void addNextRailway(
 );
 void reconstructGameState(GameView gv);
 void addTrapAndShift(GameView gv, PlaceId loc);
-int findTrap(PlaceId *trapLocList, PlaceId trapToDelete, int originalLength);
-void deleteTrapAndShift(PlaceId *trapLocList, PlaceId trapToDelete, int originalLength);
+int findTrap(GameView gv, PlaceId trapToDelete);
+void deleteTrapAndShift(GameView gv, PlaceId trapToDelete);
 
 ////////////////////////////////////////////////////////////////////////
 // Constructor/Destructor
@@ -195,12 +195,14 @@ void reconstructGameState(GameView gv) {
 				gv->dracula->health -= LIFE_LOSS_SEA;
 			}
 
-			if (gv->pastPlays[i + 3] == 'T') addTrapAndShift(gv, gv->dracula->currLoc);
-			if (gv->pastPlays[i + 4] == 'V') gv->vampireLocation = currentLoc;
 			if (gv->pastPlays[i + 5] == 'V') {
 				 gv->score -= SCORE_LOSS_VAMPIRE_MATURES;
 				 gv->vampireLocation = NOWHERE;
+			} else if (gv->pastPlays[i + 5] == 'M') {
+				gv->trapLocs[--gv->numTraps] = NOWHERE;
 			}
+			if (gv->pastPlays[i + 3] == 'T') addTrapAndShift(gv, gv->dracula->currLoc);
+			if (gv->pastPlays[i + 4] == 'V') gv->vampireLocation = currentLoc;
 
 			gv->score--;
 			gv->roundNum++;
@@ -278,11 +280,11 @@ void deleteTrapAndShift(GameView gv, PlaceId trapToDelete) {
 	int index = findTrap(gv, trapToDelete);
 	if (index == -1) return;
 
-	gv->trapLocs[index] = NOWHERE;
 	for (int i = index; i < gv->numTraps - 1; i++) {
 		gv->trapLocs[i] = gv->trapLocs[i + 1]; // Shift
 	}
 
+	gv->trapLocs[gv->numTraps - 1] = NOWHERE;
 	gv->numTraps--;
 }
 
