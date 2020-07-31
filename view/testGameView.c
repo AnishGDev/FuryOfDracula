@@ -751,7 +751,7 @@ int main(void)
 		printf("Test Passed!\n");
 
 	}
-	printf("Trap Tests!\n");
+	printf("CUSTOM TEST: Trap Tests!\n");
 	{
 		printf("\tTesting more than 6 traps.\n");
 		char* trail = "GLS.... SGE.... HGE.... MGE.... DST.V.. "
@@ -795,7 +795,25 @@ int main(void)
 		printf("\t\tChecking location of traps is correct.\n");
 		assert(trapLocs[0] == COLOGNE);
 		assert(trapLocs[2] == FRANKFURT);
+		GvFree(gv);
 
+		printf("\tTesting trap malfunctioning when a hunter recently eliminated traps.\n");
+		trail = "GLS.... SGE.... HGE.... MGE.... DST.V.. "
+				"GCA.... SGE.... HGE.... MGE.... DHIT... "
+				"GGR.... SGE.... HGE.... MGE.... DFRT... "
+				"GAL.... SGE.... HGE.... MGE.... DLIT... "
+				"GSR.... SSTT... HLIT... MGE.... DCOT.M. ";
+		
+		gv = GvNew(trail, messages);
+		numTraps = -1;
+
+		trapLocs = GvGetTrapLocations(gv, &numTraps);
+		printf("\t\tChecking number of traps is correct.\n");
+		assert(numTraps == 1);
+		printf("\t\tChecking trap locations are correct.\n");
+		assert(trapLocs[0] == COLOGNE);
+
+		GvFree(gv);
 	}
 	printf("ALL TESTS PASSED SUCCESSFULLY!!!\n");
 	return EXIT_SUCCESS;
