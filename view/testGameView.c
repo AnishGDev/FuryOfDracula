@@ -775,6 +775,8 @@ int main(void)
 		assert(trapLocs[0] == LE_HAVRE);
 		assert(trapLocs[5] == FRANKFURT);
 
+		GvFree(gv);
+		free(trapLocs);
 	}
 	{
 		printf("\tTesting Trap Malfunctioning.\n");
@@ -796,6 +798,7 @@ int main(void)
 		assert(trapLocs[0] == COLOGNE);
 		assert(trapLocs[2] == FRANKFURT);
 		GvFree(gv);
+		free(trapLocs);
 
 		printf("\tTesting trap malfunctioning when a hunter recently eliminated traps.\n");
 		trail = "GLS.... SGE.... HGE.... MGE.... DST.V.. "
@@ -814,6 +817,7 @@ int main(void)
 		assert(trapLocs[0] == COLOGNE);
 
 		GvFree(gv);
+		free(trapLocs);
 	}
 	printf("ALL TESTS PASSED SUCCESSFULLY!!!\n");
 	return EXIT_SUCCESS;
