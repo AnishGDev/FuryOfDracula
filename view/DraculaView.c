@@ -19,6 +19,9 @@
 #include "GameView.h"
 #include "Map.h"
 
+#define REMOVED -3 
+
+// Long parameters have been split up for more readability.
 static bool hiddenInLast5(DraculaView dv, PlaceId *moveHist, int numHistMoves);
 static bool doubleInLast5(DraculaView dv, PlaceId *moveHist, int numHistMoves);
 static PlaceId *ReplaceWithDoubleBack(
@@ -91,10 +94,9 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves) {
 
 	PlaceId *moves = DvWhereCanIGoByType(dv, true, true, numReturnedMoves);
 
-
 	int numHistMoves;
 	bool canFree = false;
-	int numMoves = 5;
+	int numMoves = TRAIL_SIZE-1;
 
 	PlaceId *trailMoves = GvGetLastMoves(
 		dv->gv, PLAYER_DRACULA, numMoves, &numHistMoves, &canFree
@@ -170,11 +172,10 @@ PlaceId *DvWhereCanTheyGoByType(
 			numReturnedLocs
 		);
 		
-		// Account for trail Restrictions
-	
+		// Account for trail Restrictions. 
 		int numHistMoves;
 		bool canFree = false;
-		int numMoves = 5;
+		int numMoves = TRAIL_SIZE-1;
 
 		PlaceId *trailMoves = GvGetLastMoves(
 			dv->gv, PLAYER_DRACULA, numMoves, &numHistMoves, &canFree
@@ -184,7 +185,7 @@ PlaceId *DvWhereCanTheyGoByType(
 
 		if (doubleBackInTrail) { // Remove Double back locations
 			places = RemoveDoubleBack(places, trailMoves, numHistMoves, numReturnedLocs);
-			
+
 			// If still can hide, add current location Back
 			bool hiddenInTrail = hiddenInLast5(dv, trailMoves, numHistMoves);
 			if (!hiddenInTrail) {
@@ -217,6 +218,15 @@ PlaceId *DvWhereCanTheyGoByType(
 		);
 	}
 }
+
+
+////////////////////////////////////////////////////////////////////////
+// CUSTOM FUNCTIONS. 
+
+/* These functons take in a trailMoves/moveHist parameter so that 
+/  when the dracula AI can choose to modify ITS OWN view of the trail, (so if it decides to 
+   considers future states of the game) the getReachable functions take this into account and 
+   return proper results. */
 
 // Checks if dracula has used a Hide in the last 5 moves
 static bool hiddenInLast5 (DraculaView dv, PlaceId *moveHist, int numHistMoves) {
@@ -265,42 +275,38 @@ static PlaceId *ReplaceWithDoubleBack(
 	return locations;
 }
 
+// Removes double back locations in the set of possible locations. 
 static PlaceId *RemoveDoubleBack(
 	PlaceId *locations, PlaceId *trailMoves, int numHistMoves, int *numReturnedLocs
 ) {
-	PlaceId remove = -3;
 
 	// Go through places and see if they occur in Dracula's trail, if they do, remove them
 	for (int i = 0; i < numHistMoves; i++) {
 		for (int j = 0; j < *numReturnedLocs; j++) {
 			if (trailMoves[i] == locations[j]) {
-				// Move to somewere 5 moves ago - how many moves before it was
-				locations[j] = remove;
+				// Move to somewhere 5 moves ago - how many moves before it was
+				locations[j] = REMOVED;
 			}
 		}
 	}
 
 	// Rearrange the array
-
+	// numShift is the amount of elements removed so far (and how much we have to shift array by)
 	int numShift = 0;
 	for (int i = 0; i < *numReturnedLocs; i++) {
-		if (locations[i] == remove) {
+		if (locations[i] == REMOVED) {
+			// Increase numShift (the amount of removed elements so far)
 			numShift++;
 		} else {
 			locations[i-numShift] = locations[i];
 		}
 	}
-
+	// Amount of elements in array = previousAmount - amountRemoved. 
 	*numReturnedLocs -= numShift;
-	if (numReturnedLocs == 0) {
+	if (*numReturnedLocs == 0) {
 		free(locations);
 		locations = NULL;
 	}
 
 	return locations;
 }
-
-////////////////////////////////////////////////////////////////////////
-// Your own interface functions
-
-// TODO
