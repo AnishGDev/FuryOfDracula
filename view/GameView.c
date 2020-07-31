@@ -69,7 +69,7 @@ void addNextRailway(
 	int *visited, int *numReturnedLocs, PlaceId *reachableLocations
 );
 void reconstructGameState(GameView gv);
-void appendTrapLoc(GameView gv, PlaceId loc);
+void addTrapAndShift(GameView gv, PlaceId loc);
 int findTrap(PlaceId *trapLocList, PlaceId trapToDelete, int originalLength);
 void deleteTrapAndShift(PlaceId *trapLocList, PlaceId trapToDelete, int originalLength);
 
@@ -195,7 +195,7 @@ void reconstructGameState(GameView gv) {
 				gv->dracula->health -= LIFE_LOSS_SEA;
 			}
 
-			if (gv->pastPlays[i + 3] == 'T') appendTrapLoc(gv, gv->dracula->currLoc);
+			if (gv->pastPlays[i + 3] == 'T') addTrapAndShift(gv, gv->dracula->currLoc);
 			if (gv->pastPlays[i + 4] == 'V') gv->vampireLocation = currentLoc;
 			if (gv->pastPlays[i + 5] == 'V') {
 				 gv->score -= SCORE_LOSS_VAMPIRE_MATURES;
@@ -228,8 +228,7 @@ void reconstructGameState(GameView gv) {
 			) {
 				if (gv->pastPlays[i + hunterAction] == 'T') {
 					CURR_HUNTER->health -= LIFE_LOSS_TRAP_ENCOUNTER;
-					deleteTrapAndShift(gv->trapLocs, currentLoc, gv->numTraps);
-					gv->numTraps--;
+					deleteTrapAndShift(gv, currentLoc);
 				} else if (gv->pastPlays[i + hunterAction] == 'V') {
 					gv->vampireLocation = NOWHERE;
 				} else if (gv->pastPlays[i + hunterAction] == 'D') {
@@ -253,20 +252,20 @@ void reconstructGameState(GameView gv) {
 ////////////////////////////////////////////////////////////////////////
 // Game State Information
 
-// Appends a new Trap Location to gv->trapLocs
-void appendTrapLoc(GameView gv, PlaceId loc) {
+// Adds a new Trap Location to gv->trapLocs
+void addTrapAndShift(GameView gv, PlaceId loc) {
 	for (int i = TRAIL_SIZE - 1; i > 0; i--) {
 		gv->trapLocs[i] = gv->trapLocs[i-1];
 	}
 
 	gv->trapLocs[0] = loc;
-	gv->numTraps++;
+	if (gv->numTraps < 6) gv->numTraps++;
 }
 
 // Finds the location of a trap in a particular city
-int findTrap(PlaceId *trapLocList, PlaceId trapToDelete, int originalLength) {
-	for (int i = 0; i < originalLength; i++) {
-		if (trapLocList[i] == trapToDelete) {
+int findTrap(GameView gv, PlaceId trapToDelete) {
+	for (int i = 0; i < gv->numTraps; i++) {
+		if (gv->trapLocs[i] == trapToDelete) {
 			return i; 
 		}
 	}
@@ -275,14 +274,16 @@ int findTrap(PlaceId *trapLocList, PlaceId trapToDelete, int originalLength) {
 }
 
 // Deletes a trap, and shifts resulting NOWHERE to end of gv->trapLocs
-void deleteTrapAndShift(PlaceId *trapLocList, PlaceId trapToDelete, int originalLength) {
-	int index = findTrap(trapLocList, trapToDelete, originalLength);
+void deleteTrapAndShift(GameView gv, PlaceId trapToDelete) {
+	int index = findTrap(gv, trapToDelete);
 	if (index == -1) return;
 
-	trapLocList[index] = NOWHERE;
-	for (int i = index; i < originalLength - 1; i++) {
-		trapLocList[i] = trapLocList[i + 1]; // Shift
+	gv->trapLocs[index] = NOWHERE;
+	for (int i = index; i < gv->numTraps - 1; i++) {
+		gv->trapLocs[i] = gv->trapLocs[i + 1]; // Shift
 	}
+
+	gv->numTraps--;
 }
 
 // Gets the round number
