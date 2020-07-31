@@ -20,7 +20,12 @@
 
 #define HUNTER_EARLY_GAME_PATHS {LORD_GODALMING_EARLY_GAME_PATH, DR_SEWARD_EARLY_GAME_PATH, VAN_HELSING_EARLY_GAME_PATH, MINA_HARKER_EARLY_GAME_PATH}
 
-typedef enum _hunterMode {
+// Returns an array of locations which dracula can reach
+PlaceId dfsBestDracLoc(HunterView hv, PlaceId lastKnownDraculaLocation, Round dracLocAge, PlaceId from);
+PlaceId *dfs(PlaceId from, int depth, int *numLocs);
+int evaluateLoc(HunterView hv, PlaceId location);
+
+typedef enum _hunterMode { 	// Tbh Idk if we really need theses
 	PATROL,
 	HUNT,
 	KILL,
@@ -48,15 +53,38 @@ void decideHunterMove(HunterView hv)
 		// Dracula is close hunt him down
 		// More aggressive Search
 	} else { 	// dracLocAge is between 3 and 11
-
-		/*	DFS on reachable Places which are reachable
-		 *	Best location guess on Dracula, is the node furthest from all the other hunters
-		 *	PlaceId *dfsPossibleDracLocations(lastKnownDraculaLocation, dracLocAge)
-		 *	Go through each location and get the shortest path length for each hunter,
-		 *	The Place with the highest score is the predicted dracula location
-		 *	Hunters make a move to that location
-		 */
+		PlaceId target = dfsBestDracLoc(hv, lastDracLoc, dracLocAge, HvGetPlayerLocation(hv, curPlayer));
+		int numRetLocs = -1;
+		PlaceId *path = HvGetShortestPathTo(hv, curPlayer, target, &numRetLocs);
+		bestMove = path[0];
 	}
 
 	registerBestPlay(placeIdToAbbrev(bestMove), message);
+}
+
+/*	DFS on reachable Places which are reachable
+*	Best location guess on Dracula, is the node furthest from all the other hunters
+*	PlaceId *dfsPossibleDracLocations(lastKnownDraculaLocation, dracLocAge)
+*	Go through each location and get the shortest path length for each hunter,
+*	The Place with the highest score is the predicted dracula location
+*	Hunters make a move to that location
+*/
+PlaceId dfsBestDracLoc(HunterView hv, PlaceId lastKnownDraculaLocation, Round dracLocAge, PlaceId from) {
+	
+	int bestScore = -1; // Scores are always Greater than 0
+	PlaceId targetLoc;
+	int numLocs = -1;
+	PlaceId *possibleLocs = dfs(lastKnownDraculaLocation, dracLocAge, &numLocs);
+	for (int i = 0; i < numLocs; i++) {
+		if (evaluateLoc(hv, possibleLocs[i]) > bestScore) targetLoc = possibleLocs[i];
+	}
+	return targetLoc;
+}
+
+PlaceId *dfs(PlaceId from, int depth, int *numLocs) {
+	return NULL;
+}
+
+int evaluateLoc(HunterView hv, PlaceId location) {
+	return 0;
 }
