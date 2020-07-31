@@ -776,7 +776,27 @@ int main(void)
 		assert(trapLocs[5] == FRANKFURT);
 
 	}
-	
+	{
+		printf("\tTesting Trap Malfunctioning.\n");
+		char* trail = "GLS.... SGE.... HGE.... MGE.... DST.V.. "
+					"GCA.... SGE.... HGE.... MGE.... DHIT... "
+					"GGR.... SGE.... HGE.... MGE.... DFRT... "
+					"GAL.... SGE.... HGE.... MGE.... DLIT... "
+					"GSR.... SGE.... HGE.... MGE.... DCOT.M. ";
+		Message messages[32] = {}; 
+
+		GameView gv = GvNew(trail, messages);
+		int numTraps = -1;
+		PlaceId *trapLocs;
+
+		trapLocs = GvGetTrapLocations(gv, &numTraps);
+		printf("\t\tChecking number of traps is correct.\n");
+		assert(numTraps == 3);
+		printf("\t\tChecking location of traps is correct.\n");
+		assert(trapLocs[0] == COLOGNE);
+		assert(trapLocs[2] == FRANKFURT);
+
+	}
 	printf("ALL TESTS PASSED SUCCESSFULLY!!!\n");
 	return EXIT_SUCCESS;
 }
