@@ -652,7 +652,7 @@ int main(void)
 		assert(DvGetHealth(dv, PLAYER_DRACULA) == GAME_START_BLOOD_POINTS);
 
 		printf("Test passed!\n");
-		free(dv);
+		DvFree(dv);
 	}
 
 	{//Testing WhereCanIGo
