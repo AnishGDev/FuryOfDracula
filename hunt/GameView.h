@@ -21,9 +21,8 @@
 #include "Game.h"
 #include "Places.h"
 // add your own #includes here
-
+#include "Queue.h"
 typedef struct gameView *GameView;
-
 ////////////////////////////////////////////////////////////////////////
 // Constructor/Destructor
 
@@ -146,6 +145,9 @@ PlaceId *GvGetTrapLocations(GameView gv, int *numTraps);
  * structure,  you may not want the caller to modify or free it.) If the
  * returned array can be modified/freed, set *canFree to true  to  avoid
  * memory leaks. Otherwise, set it to false.
+ * 
+ * Probably store moveHistory for each player, and canFree = false
+ * since we will manually free it.
  */
 PlaceId *GvGetMoveHistory(GameView gv, Player player,
                           int *numReturnedMoves, bool *canFree);
@@ -253,7 +255,9 @@ PlaceId *GvGetReachableByType(GameView gv, Player player, Round round,
 
 ////////////////////////////////////////////////////////////////////////
 // Your own interface functions
-
+void addNextRailway(GameView gv, PlaceId from, int depth, int maxRailwayDepth, int * visited, int *numReturnedLocs, PlaceId * reachableLocations);
 // TODO
-
+bool linearScan(PlaceId *list, PlaceId itemToFind, int len);
+void reconstructGameState(GameView gv);
+PlaceId GvGetLastKnownDraculaLocation(GameView gv, int *round);
 #endif // !defined (FOD__GAME_VIEW_H_)
