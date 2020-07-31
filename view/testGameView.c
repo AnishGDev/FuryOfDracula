@@ -720,9 +720,83 @@ int main(void)
 		}
 		GvFree(gv);
 	}	
+	{////////////////// Rishabh's Tests ///////////////
+		printf("Testing whether correct location is recovered.\n");
+		char* trail = "GLS.... SGE.... HGE.... MGE.... DST.V.. "
+					"GCA.... SGE.... HGE.... MGE.... DHIT... "
+					"GGR.... SGE.... HGE.... MGE.... DFRT... "
+					"GAL.... SGE.... HGE.... MGE.... DLIT... "
+					"GSR.... SGE.... HGE.... MGE.... DCOT... "
+					"GSN.... SGE.... HGE.... MGE.... DD4T... "
+					"GMA.... SSTTTV. HGE.... MGE....";
+		Message messages[32] = {}; 
 
-	printf("Another random test I guess.\n");
+		GameView gv = GvNew(trail, messages);
+		int numLocs = -1;
+		PlaceId *locHistory;
+		bool canFree;
 
+		printf("\tTesting Dracula's current location.\n");
+		locHistory = GvGetLocationHistory(gv, PLAYER_DRACULA, &numLocs, &canFree);
+		printf("\t\tChecking whether it actually returns a Location History.\n");
+		assert(locHistory != NULL);
+		printf("\t\tChecking for whether number of returned locations is correct.\n");
+		assert(numLocs == 6);
+		printf("\t\tChecking whether the locHistory is actually correct.\n");
+		assert(locHistory[0] == STRASBOURG);
+		assert(locHistory[1] == STRASBOURG);
+		assert(locHistory[5] == STRASBOURG);
+
+		GvFree(gv);
+		printf("Test Passed!\n");
+
+	}
+	printf("Trap Tests!\n");
+	{
+		printf("\tTesting more than 6 traps.\n");
+		char* trail = "GLS.... SGE.... HGE.... MGE.... DST.V.. "
+					"GCA.... SGE.... HGE.... MGE.... DHIT... "
+					"GGR.... SGE.... HGE.... MGE.... DFRT... "
+					"GAL.... SGE.... HGE.... MGE.... DLIT... "
+					"GSR.... SGE.... HGE.... MGE.... DCOT... "
+					"GSN.... SGE.... HGE.... MGE.... DBUT... "
+					"GMA.... SSTV... HGE.... MGE.... DPAT... "
+					"GSN.... SGE.... HGE.... MGE.... DLET.M. ";
+		Message messages[32] = {}; 
+
+		GameView gv = GvNew(trail, messages);
+		int numTraps = -1;
+		PlaceId *trapLocs;
+
+		trapLocs = GvGetTrapLocations(gv, &numTraps);
+		printf("\t\tChecking number of traps is correct.\n");
+		assert(numTraps == 6);
+		printf("\t\tChecking trap locations are actually correct.\n");
+		assert(trapLocs[0] == LE_HAVRE);
+		assert(trapLocs[5] == FRANKFURT);
+
+	}
+	{
+		printf("\tTesting Trap Malfunctioning.\n");
+		char* trail = "GLS.... SGE.... HGE.... MGE.... DST.V.. "
+					"GCA.... SGE.... HGE.... MGE.... DHIT... "
+					"GGR.... SGE.... HGE.... MGE.... DFRT... "
+					"GAL.... SGE.... HGE.... MGE.... DLIT... "
+					"GSR.... SGE.... HGE.... MGE.... DCOT.M. ";
+		Message messages[32] = {}; 
+
+		GameView gv = GvNew(trail, messages);
+		int numTraps = -1;
+		PlaceId *trapLocs;
+
+		trapLocs = GvGetTrapLocations(gv, &numTraps);
+		printf("\t\tChecking number of traps is correct.\n");
+		assert(numTraps == 3);
+		printf("\t\tChecking location of traps is correct.\n");
+		assert(trapLocs[0] == COLOGNE);
+		assert(trapLocs[2] == FRANKFURT);
+
+	}
 	printf("ALL TESTS PASSED SUCCESSFULLY!!!\n");
 	return EXIT_SUCCESS;
 }
