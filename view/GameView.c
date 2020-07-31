@@ -47,7 +47,6 @@ typedef struct _hunterData {
 typedef struct _draculaData {
 	int health; 
 	PlaceId currLoc; 
-	Round lastRevealed; 
 	PlaceId * moveHistory;
 	PlaceId * locHistory;
 } DraculaData; 
@@ -105,7 +104,6 @@ static DraculaData *createNewDracula(int pastPlaysLength) {
 
 	d->health = GAME_START_BLOOD_POINTS;
 	d->currLoc = NOWHERE;
-	d->lastRevealed = 0; 
 	d->moveHistory = malloc(HISTORY_SIZE);
 	d->locHistory = malloc(HISTORY_SIZE);
 	d->locHistory[0] = NOWHERE;
@@ -181,10 +179,6 @@ void reconstructGameState(GameView gv) {
 			} else {
 				DRAC_LHIST[gv->roundNum] = currentLoc;
 				gv->dracula->currLoc = currentLoc;
-
-				if (currentLoc != CITY_UNKNOWN && currentLoc != NOWHERE) {
-					gv->dracula->lastRevealed = gv->roundNum;
-				}
 			}
 
 			DRAC_MHIST[gv->roundNum] = currentLoc;
