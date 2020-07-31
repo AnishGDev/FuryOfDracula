@@ -437,7 +437,7 @@ PlaceId *GvGetLastLocations(
 }
 
 ////////////////////////////////////////////////////////////////////////
-// Making a Move
+// Getting Reachable Locations.
 
 
 void addNextRailway(
