@@ -198,9 +198,7 @@ void reconstructGameState(GameView gv) {
 			if (gv->pastPlays[i + 5] == 'V') {
 				 gv->score -= SCORE_LOSS_VAMPIRE_MATURES;
 				 gv->vampireLocation = NOWHERE;
-			} else if (gv->pastPlays[i + 5] == 'M') {
-				gv->trapLocs[--gv->numTraps] = NOWHERE;
-			}
+			} else if (gv->pastPlays[i + 5] == 'M') gv->trapLocs[--gv->numTraps] = NOWHERE;
 			if (gv->pastPlays[i + 3] == 'T') addTrapAndShift(gv, gv->dracula->currLoc);
 			if (gv->pastPlays[i + 4] == 'V') gv->vampireLocation = currentLoc;
 
