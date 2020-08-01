@@ -186,6 +186,7 @@ int calculateHunterDistFromDrac(DraculaView dv,Player player, Round round, Place
 			}
 		}
 	}
+	/*
 	printf("%s<-", placeIdToName(dest));
 	PlaceId curr = visited[dest];
 	while(curr != from) {
@@ -194,6 +195,7 @@ int calculateHunterDistFromDrac(DraculaView dv,Player player, Round round, Place
 	}
 	printf("%s", placeIdToName(curr));
 	printf("\n");
+	*/
 	return distance[dest]; // Something went wrong. 
 }
 
@@ -289,7 +291,7 @@ PlaceId *DvWhereCanTheyGoByType(
 		return places;
 	} else {
 		return GvGetReachableByType(
-			dv->gv, player, dv->round,
+			dv->gv, player, DvGetRound(dv),
 			DvGetPlayerLocation(dv, player),
 			road, rail, boat,
 			numReturnedLocs
