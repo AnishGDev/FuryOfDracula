@@ -140,7 +140,6 @@ GameView GvNew(char *pastPlays, Message messages[]) {
 	gv->dracula = createNewDracula(pastPlaysLength);
 	gv->gameMap = MapNew();
 	reconstructGameState(gv);
-
 	return gv;
 }
 
@@ -163,6 +162,34 @@ void GvExtendGameState(GameView gv, char *extension, int extLength) {
 	gv->pastPlays = extension;
 	gv->pastPlaysLength = extLength;
 	reconstructGameState(gv);
+}
+
+GameView copyGameState(GameView copyFrom, char *extension, int extLength) {
+	//copyInto->trapLocs = malloc(sizeof(enum placeId) * TRAIL_SIZE);
+	GameView copyInto = malloc(sizeof(struct gameView));
+	for (int i = 0; i < TRAIL_SIZE; i++) {
+		copyInto->trapLocs[i] = copyFrom->trapLocs[i];
+	}
+	//copyInto->trapLocs = copyFrom->trapLocs;
+	//copyInto->hunters = malloc(sizeof(struct _hunterData));
+	for (int i = 0; i < NUM_PLAYERS -1; i++) {
+		copyInto->hunters[i] = copyFrom->hunters[i];
+		copyInto->hunters[i]->moveHistory = copyFrom->hunters[i]->moveHistory;
+		//memcpy(copyInto->hunters[i]->moveHistory, copyFrom->hunters[i]->moveHistory, sizeof(enum placeId) * ((copyFrom->pastPlaysLength + extLength) / ROUND_CHARACTER_LENGTH + 1));
+	}
+	//copyInto->hunters = copyFrom->hunters;
+	//copyInto->hunters->moveHistory = malloc(sizeof(enum placeId) * ((copyFrom->pastPlaysLength + extLength) / ROUND_CHARACTER_LENGTH + 1));
+	//copyInto->hunters->moveHistory = copyFrom->hunters->moveHistory;
+	copyInto->dracula = malloc(sizeof(struct _draculaData));
+	copyInto->dracula = copyFrom->dracula; 
+	copyInto->dracula->locHistory = malloc(sizeof(enum placeId) * ((copyFrom->pastPlaysLength + extLength) / ROUND_CHARACTER_LENGTH + 1));
+	copyInto->dracula->locHistory = copyFrom->dracula->locHistory;
+	copyInto->dracula->moveHistory = malloc(sizeof(enum placeId) * ((copyFrom->pastPlaysLength + extLength) / ROUND_CHARACTER_LENGTH + 1));
+	copyInto->dracula->moveHistory = copyFrom->dracula->locHistory;
+
+	copyInto->pastPlays = extension; 
+	copyInto->pastPlaysLength = extLength; 
+	return copyInto;
 }
 
 // Walks through the game, turn by turn, round by round and updates all values
