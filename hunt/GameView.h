@@ -51,7 +51,7 @@ GameView GvNew(char *pastPlays, Message messages[]);
  */
 void GvFree(GameView gv);
 
-void GvExtendGameState(GameView gv);
+void GvExtendGameState(GameView gv, char *extension, int extLength);
 
 ////////////////////////////////////////////////////////////////////////
 // Game State Information

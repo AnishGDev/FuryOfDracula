@@ -159,7 +159,9 @@ void GvFree(GameView gv) {
 	free(gv);
 }
 
-void GvExtendGameState(GameView gv) {
+void GvExtendGameState(GameView gv, char *extension, int extLength) {
+	gv->pastPlays = extension;
+	gv->pastPlaysLength = extLength;
 	reconstructGameState(gv);
 }
 

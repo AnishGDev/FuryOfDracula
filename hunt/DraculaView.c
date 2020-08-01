@@ -85,9 +85,7 @@ void DvFree(DraculaView dv) {
 
 DraculaView extendGameState(DraculaView currView, char *extension, int extLength) {
 	DraculaView *new = *currView;
-	new->gv->pastPlays = extension;
-	new->gv->pastPlaysLength = extLength;
-	GvExtendGameState(new->gv);
+	GvExtendGameState(new->gv, extension, extLength);
 	return new;
 }
 
