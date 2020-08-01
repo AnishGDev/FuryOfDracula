@@ -9,7 +9,7 @@ CC = gcc
 CFLAGS = -Wall -Werror
 
 # do not change the following line
-BINS = dracula hunter
+BINS = dracula hunter testHunterView
 
 # add any other *.o files that your solution requires
 # (and add their dependencies below after DraculaView.o)
@@ -36,6 +36,9 @@ GameView.o:	GameView.c GameView.h Places.h Game.h
 DraculaView.o: DraculaView.c DraculaView.h GameView.h Places.h Game.h
 HunterView.o: HunterView.c GameView.h Places.h HunterView.h Game.h
 Places.o: Places.c Places.h
+
+testHunterView: testHunterView.o testUtils.o HunterView.o GameView.o Map.o Places.o Queue.o
+testHunterView.o: testHunterView.c HunterView.h GameView.h Map.h Places.h Game.h Queue.h
 
 # if you use other ADTs, add dependencies for them here
 
