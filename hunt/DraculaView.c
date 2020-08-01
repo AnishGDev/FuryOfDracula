@@ -21,6 +21,7 @@
 
 static bool hiddenInLast5(DraculaView dv, PlaceId *moveHist, int numHistMoves);
 static bool doubleInLast5(DraculaView dv, PlaceId *moveHist, int numHistMoves);
+DraculaView extendGameState(DraculaView currView, char *extension, int extLength);
 static PlaceId *ReplaceWithDoubleBack(
 	PlaceId *locations, PlaceId *trailMoves, int numHistMoves, int *numReturnedLocs
 );
@@ -80,6 +81,14 @@ void DvFree(DraculaView dv) {
 	//free(dv->whereIsPlayer);
 	GvFree(dv->gv);
 	free(dv);
+}
+
+DraculaView extendGameState(DraculaView currView, char *extension, int extLength) {
+	DraculaView *new = *currView;
+	new->gv->pastPlays = extension;
+	new->gv->pastPlaysLength = extLength;
+	GvExtendGameState(new->gv);
+	return new;
 }
 
 ////////////////////////////////////////////////////////////////////////

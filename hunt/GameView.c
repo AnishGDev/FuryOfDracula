@@ -159,6 +159,10 @@ void GvFree(GameView gv) {
 	free(gv);
 }
 
+void GvExtendGameState(GameView gv) {
+	reconstructGameState(gv);
+}
+
 // Walks through the game, turn by turn, round by round and updates all values
 void reconstructGameState(GameView gv) {
 	char loc[LOC_SIZE_STR];
