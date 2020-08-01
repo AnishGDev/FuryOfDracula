@@ -1158,6 +1158,10 @@ int main(void)
 		sortPlaces(traps, numTraps);
 		assert(traps[0] == MILAN);
 		assert(traps[1] == ZURICH);
+		assert(DvGetRound(new) == 3); 
+		DraculaView new2 = extendGameState(new, "GLV.... SLO.... HNS.... MST.... ", 40);
+		assert(DvGetRound(new2) == 4); 
+		DvFree(new2);
 		DvFree(new);
 		DvFree(dv);
 		free(traps);

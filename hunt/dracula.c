@@ -61,7 +61,7 @@ int evalFunction(DraculaView currView) {
 	int score = 0; 
 	for (int i = 0; i < NUM_PLAYERS - 1; i++) {
 		if (DvGetPlayerLocation(currView, PLAYER_DRACULA) == ADRIATIC_SEA) {
-			//printf("FROM: %s %d TO: %s\n",placeIdToName(DvGetPlayerLocation(currView, PLAYER_DRACULA)),DvGetPlayerLocation(currView, PLAYER_DRACULA), placeIdToName( DvGetPlayerLocation(currView, i)));
+			printf("FROM: %s %d TO: %s\n",placeIdToName(DvGetPlayerLocation(currView, PLAYER_DRACULA)),DvGetPlayerLocation(currView, PLAYER_DRACULA), placeIdToName( DvGetPlayerLocation(currView, i)));
 		}
 
 		score+= DISTANCE_WEIGHTING * calculateHunterDistFromDrac(currView, i, DvGetRound(currView), DvGetPlayerLocation(currView, PLAYER_DRACULA), DvGetPlayerLocation(currView, i));
@@ -205,7 +205,7 @@ int minimax(DraculaView currView, int currDepth, bool isMaximising, char * prevS
 			for (int currPosIndex =0; currPosIndex < len; currPosIndex++) {
 				// MIGHT HAVE TO CHANGE ROUND IN CALCHUNTERFROMDIST
 				int curr_min = //calculateDistance(dv, possiblePositions[currPosIndex], currState.whereIsPlayer[PLAYER_DRACULA]);
-							calculateHunterDistFromDrac(currView, player, DvGetRound(currView), possiblePositions[currPosIndex], DvGetPlayerLocation(currView, player));;
+							calculateHunterDistFromDrac(currView, player, DvGetRound(currView), possiblePositions[currPosIndex], DvGetPlayerLocation(currView, PLAYER_DRACULA));
 				if (curr_min < global_min) {
 					global_min = curr_min;
 					minScores[player] = possiblePositions[currPosIndex];
@@ -224,8 +224,7 @@ int minimax(DraculaView currView, int currDepth, bool isMaximising, char * prevS
 			}
 			*/
 		}
-		int ret = minimax(newState, currDepth+1, !isMaximising, extension);
-		DvFree(newState);
+		int ret = minimax(currView, currDepth+1, !isMaximising, extension);
 		return ret; 
 	}
 }
