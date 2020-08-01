@@ -13,92 +13,135 @@
 #include "hunter.h"
 #include "HunterView.h"
 
-#define LORD_GODALMING_EARLY_GAME_PATH {EDINBURGH, MANCHESTER, LIVERPOOL, SWANSEA, LONDON}
-#define DR_SEWARD_EARLY_GAME_PATH {TYRRHENIAN_SEA, ROME, FLORENCE, GENOA, MILAN}
-#define VAN_HELSING_EARLY_GAME_PATH {ATLANTIC_OCEAN, BAY_OF_BISCAY, SANTANDER, SARAGOSSA, TOULOUSE}
-#define MINA_HARKER_EARLY_GAME_PATH {BLACK_SEA, CONSTANTA, BUCHAREST, BELGRADE, SZEGED}
+#define EARLY_GAME_ROUNDS 5
+#define RESEARCH_THRESHOLD 12
+#define PATROL_THRESHOLD 3
+#define HUNT_THRESHOLD 0
 
-#define HUNTER_EARLY_GAME_PATHS {LORD_GODALMING_EARLY_GAME_PATH, DR_SEWARD_EARLY_GAME_PATH, VAN_HELSING_EARLY_GAME_PATH, MINA_HARKER_EARLY_GAME_PATH}
-
-// Returns an array of locations which dracula can reach
-PlaceId dfsBestDracLoc(HunterView hv, PlaceId lastKnownDraculaLocation, Round dracLocAge, PlaceId from);
-PlaceId *dfs(PlaceId from, int depth, int *numLocs);
-int evaluateLoc(HunterView hv, PlaceId location);
-
-typedef enum _hunterMode { 	// Tbh Idk if we really need theses
-	PATROL,
-	HUNT,
-	KILL,
-} HunterMode;
-
-void decideHunterMove(HunterView hv)
-{
-	// TODO: Replace this with something better!
-
-	Round curRound = HvGetRound(hv);
-	Player curPlayer = HvGetPlayer(hv);
-	PlaceId bestMove;
-	Message message;
-	Round dracLocAge = 12;
-	PlaceId lastDracLoc = HvGetLastKnownDraculaLocation(hv, &dracLocAge);
-
-	if (dracLocAge > 11) {
-		if (curPlayer < 5) {	// Early Game Hard Coded Paths
-			PlaceId hunterPaths[NUM_PLAYERS-1][5] = HUNTER_EARLY_GAME_PATHS;
-			bestMove = hunterPaths[curPlayer][curRound];
-		} else {	// Rest
-			bestMove = HvGetPlayerLocation(hv, curPlayer);
-		}
-	} else if (dracLocAge < 3) {
-		// Dracula is close hunt him down
-		// More aggressive Search
-	} else { 	// dracLocAge is between 3 and 11
-		PlaceId mostLikelyDracLoc = dfsBestDracLoc(hv, lastDracLoc, dracLocAge, HvGetPlayerLocation(hv, curPlayer));
-		int numRetLocs = -1;
-		// Here we can set a different target to have the 
-		// hunters approach from different directions
-		PlaceId *path = HvGetShortestPathTo(hv, curPlayer, mostLikelyDracLoc, &numRetLocs);
-		bestMove = path[0];
-	}
-
-	registerBestPlay(placeIdToAbbrev(bestMove), message);
+#define LORD_GODALMING_EARLY_GAME_PATH { \
+	EDINBURGH, MANCHESTER, LIVERPOOL, SWANSEA, LONDON \
 }
 
-/*	DFS on reachable Places which are reachable
-*	Best location guess on Dracula, is the node furthest from all the other hunters
-*	PlaceId *dfsPossibleDracLocations(lastKnownDraculaLocation, dracLocAge)
-*	Go through each location and get the shortest path length for each hunter,
-*	The Place with the highest score is the predicted dracula location
-*	Hunters make a move to that location
-*/
-PlaceId dfsBestDracLoc(HunterView hv, PlaceId lastKnownDraculaLocation, Round dracLocAge, PlaceId from) {
-	
-	int bestScore = -1; // Scores are always Greater than 0
-	PlaceId targetLoc;
-	int numLocs = -1;
-	PlaceId *possibleLocs = dfs(lastKnownDraculaLocation, dracLocAge, &numLocs);
-	for (int i = 0; i < numLocs; i++) {
-		if (evaluateLoc(hv, possibleLocs[i]) > bestScore) targetLoc = possibleLocs[i];
+#define DR_SEWARD_EARLY_GAME_PATH { \
+	TYRRHENIAN_SEA, ROME, FLORENCE, GENOA, MILAN \
+}
+
+#define VAN_HELSING_EARLY_GAME_PATH { \
+	ATLANTIC_OCEAN, BAY_OF_BISCAY, SANTANDER, SARAGOSSA, TOULOUSE \
+}
+
+#define MINA_HARKER_EARLY_GAME_PATH { \
+	BLACK_SEA, CONSTANTA, BUCHAREST, BELGRADE, SZEGED \
+}
+
+PlaceId earlyMode(HunterView hv, Message *message);
+PlaceId researchMode(HunterView hv, Message *message);
+PlaceId patrolMode(HunterView hv, Message *message);
+PlaceId huntMode(HunterView hv, Message *message);
+
+PlaceId bestDracLoc(HunterView hv, PlaceId from);
+PlaceId *dfs(PlaceId from, int depth, int *numLocs);
+int evaluateDracLoc(HunterView hv, PlaceId loc);
+
+// Is a global variable like this ok?
+PlaceId hunterPaths[NUM_PLAYERS - 1][EARLY_GAME_ROUNDS] = {
+	LORD_GODALMING_EARLY_GAME_PATH,
+	DR_SEWARD_EARLY_GAME_PATH,
+	VAN_HELSING_EARLY_GAME_PATH,
+	MINA_HARKER_EARLY_GAME_PATH
+};
+
+void decideHunterMove(HunterView hv) {
+	PlaceId move = NOWHERE;
+	Message message = "";
+
+	Round dracLocAge = RESEARCH_THRESHOLD;
+	HvGetLastKnownDraculaLocation(hv, &dracLocAge);
+
+	if (dracLocAge >= RESEARCH_THRESHOLD) {
+		if (HvGetRound(hv) < EARLY_GAME_ROUNDS) {
+			move = earlyMode(hv, &message);
+		} else {
+			move = researchMode(hv, &message);
+		}
+	} else if (dracLocAge >= PATROL_THRESHOLD) {
+		move = patrolMode(hv, &message);
+	} else if (dracLocAge >= HUNT_THRESHOLD) {
+		move = huntMode(hv, &message);
 	}
-	return targetLoc;
+
+	if (move == NOWHERE) { // Indicates no movement
+		move = HvGetPlayerLocation(hv, HvGetPlayer(hv));
+	}
+
+	registerBestPlay((char *) placeIdToAbbrev(move), message);
+}
+
+// Hard-coded paths used in the early-game
+PlaceId earlyMode(HunterView hv, Message *message) {
+	return hunterPaths[HvGetPlayer(hv)][HvGetRound(hv)];
+}
+
+// Research used when our info is stale
+PlaceId researchMode(HunterView hv, Message *message) {
+	// Indicates no movement
+	return NOWHERE;
+}
+
+// Spread out and cover a large area to find the trail
+PlaceId patrolMode(HunterView hv, Message *message) {
+	Player me = HvGetPlayer(hv);
+	PlaceId target = bestDracLoc(hv, HvGetPlayerLocation(hv, me));
+
+	// TODO: set different target to have the hunters approach from
+	// different directions
+	int n;
+	PlaceId *path = HvGetShortestPathTo(hv, me, target, &n);
+	
+	return path[0];
+}
+
+// Try to force an encounter, used when info is accurate
+PlaceId huntMode(HunterView hv, Message *message) {
+	return NOWHERE;
+}
+
+// Approximates the singularly most likely place where Dracula would
+// currently be
+PlaceId bestDracLoc(HunterView hv, PlaceId from) {
+	PlaceId bestLoc;
+	int bestScore = -1; // Scores always > 0
+
+	Round dracLocAge = 0;
+	PlaceId lastDracLoc = HvGetLastKnownDraculaLocation(hv, &dracLocAge);
+
+	int numLocs = -1;
+	PlaceId *possibleLocs = dfs(lastDracLoc, dracLocAge, &numLocs);
+
+	for (int i = 0; i < numLocs; i++) {
+		if (evaluateDracLoc(hv, possibleLocs[i]) > bestScore) {
+			bestLoc = possibleLocs[i];
+		}
+	}
+
+	return bestLoc;
 }
 
 PlaceId *dfs(PlaceId from, int depth, int *numLocs) {
 	return NULL;
 }
 
-// Evaluates a location based on a current game state
-// Currently just sums the distance to each hunter
-int evaluateDracLoc(HunterView hv, PlaceId location) {
-
-	PlaceId *path;
+// Evaluate a location for Dracula within a game state; currently just
+// sums the distance to each hunter
+int evaluateDracLoc(HunterView hv, PlaceId loc) {
 	int score = 0;
-	int  pathLengthToDest = -1;
 
-	for (int i = 0; i < NUM_PLAYERS-1; i++) {
-		path = HvGetShortestPathTo(hv, i, location, &pathLengthToDest);
-		if (path) path = NULL; 	// Compiler says path is unused without this
-		score += pathLengthToDest;
+	for (int i = 0; i < NUM_PLAYERS - 1; i++) {
+		int pathLength = -1;
+		HvGetShortestPathTo(hv, i, loc, &pathLength);
+
+		score += pathLength;
 	}
+
 	return score;
 }
