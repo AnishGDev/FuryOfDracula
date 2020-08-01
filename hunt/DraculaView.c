@@ -109,6 +109,7 @@ DraculaView extendGameState(DraculaView currView, char *extension, int extLength
 	DraculaView new = malloc(sizeof(struct draculaView));
 	new->gv = copyGameState(currView->gv, extension, extLength);
 	//GvExtendGameState(new->gv, extension, extLength);
+	//reconstructGameState(new->gv);
 	return new;
 }
 

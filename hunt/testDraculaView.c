@@ -1138,5 +1138,30 @@ int main(void)
 		printf("Length is %d\n", len);
 		assert(len == 1);
 	}
+
+	{
+		printf("Let us test copying game states NOW!!!!\n");
+		char *trail = 
+					"GMN.... SPL.... HAM.... MPA.... DZU.V.. "
+					"GLV.... SLO.... HNS.... MST.... DHIT...";
+		Message messages[9] = {};
+		DraculaView dv = DvNew(trail, messages);
+		int numTraps = -1;
+		PlaceId *traps = DvGetTrapLocations(dv, &numTraps);
+		
+		assert(numTraps == 1);
+		sortPlaces(traps, numTraps);
+		assert(traps[0] == ZURICH);
+		DraculaView new = extendGameState(dv, "GLV.... SLO.... HNS.... MST.... DMIT...", 40);
+		traps = DvGetTrapLocations(new, &numTraps);
+		assert(numTraps == 2);
+		sortPlaces(traps, numTraps);
+		assert(traps[0] == MILAN);
+		assert(traps[1] == ZURICH);
+		DvFree(new);
+		DvFree(dv);
+		free(traps);
+
+	}
 	return EXIT_SUCCESS;
 }
