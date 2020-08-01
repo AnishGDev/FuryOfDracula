@@ -935,6 +935,166 @@ int main(void)
 		printf("passed\n");
 	}
 
+	{///////////////////////////////////////////////////////////////////
+		printf("HvWaybackMachine: ");
+
+		HunterView hv;
+		HunterView wb;
+
+		hv = HvNew(
+			"",
+			(Message[0]) {}
+		);
+
+		wb = HvWaybackMachine(hv, 0);
+		assert(HvGetRound(wb) == 0);
+		HvFree(wb);
+
+		wb = HvWaybackMachine(hv, 1);
+		assert(HvGetRound(wb) == 0);
+		HvFree(wb);
+
+		wb = HvWaybackMachine(hv, 10);
+		assert(HvGetRound(wb) == 0);
+		HvFree(wb);
+
+		HvFree(hv);
+
+		hv = HvNew(
+			"GST....",
+			(Message[0]) {}
+		);
+
+		wb = HvWaybackMachine(hv, 0);
+		assert(HvGetRound(wb) == 0);
+		HvFree(wb);
+
+		wb = HvWaybackMachine(hv, 1);
+		assert(HvGetRound(wb) == 0);
+		HvFree(wb);
+
+		wb = HvWaybackMachine(hv, 10);
+		assert(HvGetRound(wb) == 0);
+		HvFree(wb);
+
+		HvFree(hv);
+
+		hv = HvNew(
+			"GST....",
+			(Message[0]) {}
+		);
+		wb = HvWaybackMachine(hv, 1);
+		assert(HvGetRound(wb) == 0);
+		HvFree(wb);
+		HvFree(hv);
+
+		hv = HvNew(
+			"GST....",
+			(Message[0]) {}
+		);
+		wb = HvWaybackMachine(hv, 10);
+		assert(HvGetRound(wb) == 0);
+		HvFree(wb);
+		HvFree(hv);
+
+		hv = HvNew(
+			"GST.... SAO.... HZU.... MBB....",
+			(Message[0]) {}
+		);
+
+		wb = HvWaybackMachine(hv, 0);
+		assert(HvGetRound(wb) == 0);
+		HvFree(wb);
+
+		wb = HvWaybackMachine(hv, 1);
+		assert(HvGetRound(wb) == 0);
+		HvFree(wb);
+
+		wb = HvWaybackMachine(hv, 10);
+		assert(HvGetRound(wb) == 0);
+		HvFree(wb);
+
+		HvFree(hv);
+
+		hv = HvNew(
+			"GST.... SAO.... HZU.... MBB.... DC?.V..",
+			(Message[0]) {}
+		);
+
+		wb = HvWaybackMachine(hv, 0);
+		assert(HvGetRound(wb) == 0);
+		HvFree(wb);
+
+		wb = HvWaybackMachine(hv, 1);
+		assert(HvGetRound(wb) == 1);
+		HvFree(wb);
+
+		wb = HvWaybackMachine(hv, 10);
+		assert(HvGetRound(wb) == 1);
+		HvFree(wb);
+
+		HvFree(hv);
+
+		hv = HvNew(
+			"GST.... SAO.... HZU.... MBB.... DC?.V.. "
+			"GST....",
+			(Message[0]) {}
+		);
+
+		wb = HvWaybackMachine(hv, 0);
+		assert(HvGetRound(wb) == 0);
+		HvFree(wb);
+
+		wb = HvWaybackMachine(hv, 1);
+		assert(HvGetRound(wb) == 1);
+		HvFree(wb);
+
+		wb = HvWaybackMachine(hv, 10);
+		assert(HvGetRound(wb) == 1);
+		HvFree(wb);
+
+		HvFree(hv);
+
+		hv = HvNew(
+			"GGE.... SGE.... HGE.... MGE.... DC?.V.. "
+			"GGE.... SGE.... HGE.... MGE.... DC?T... "
+			"GGE.... SGE.... HGE.... MGE.... DC?T... "
+			"GGE.... SGE.... HGE.... MGE.... DC?T... "
+			"GGE.... SGE.... HGE.... MGE.... DC?T... "
+			"GGE.... SGE.... HGE.... MGE.... DC?T... "
+			"GGE.... SGE.... HGE.... MGE....",
+			(Message[0]) {}
+		);
+
+		wb = HvWaybackMachine(hv, 0);
+		assert(HvGetRound(wb) == 0);
+		HvFree(wb);
+
+		wb = HvWaybackMachine(hv, 1);
+		assert(HvGetRound(wb) == 1);
+		HvFree(wb);
+
+		wb = HvWaybackMachine(hv, 2);
+		assert(HvGetRound(wb) == 2);
+		HvFree(wb);
+
+		wb = HvWaybackMachine(hv, 6);
+		assert(HvGetRound(wb) == 6);
+		HvFree(wb);
+
+		wb = HvWaybackMachine(hv, 7);
+		assert(HvGetRound(wb) == 6);
+		HvFree(wb);
+
+		wb = HvWaybackMachine(hv, 10);
+		assert(HvGetRound(wb) == 6);
+		HvFree(wb);
+
+		HvFree(hv);
+
+		printf("passed\n");
+	}
+
 	printf("All tests passed, you are awesome!\n");
 	
 	return EXIT_SUCCESS;

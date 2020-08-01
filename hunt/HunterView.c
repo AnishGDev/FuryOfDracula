@@ -22,6 +22,7 @@
 #include "Places.h"
 #include "Queue.h"
 
+#define ROUND_CHARS 40
 #define PATH_SIZE NUM_REAL_PLACES * sizeof(enum placeId)
 
 typedef struct _Path {
@@ -31,6 +32,7 @@ typedef struct _Path {
 
 struct hunterView {
 	GameView gv;
+	char *pastPlays;
 	Path pathCache[NUM_REAL_PLACES];
 };
 
@@ -45,6 +47,7 @@ HunterView HvNew(char *pastPlays, Message messages[]) {
 	}
 
 	new->gv = GvNew(pastPlays, messages);
+	new->pastPlays = pastPlays;
 
 	for (int i = 0; i < NUM_REAL_PLACES; i++) {
 		new->pathCache[i].array = NULL; // No path
@@ -305,4 +308,15 @@ PlaceId *HvWhereCanTheyGoByType(
 ////////////////////////////////////////////////////////////////////////
 // Your own interface functions
 
-// TODO
+HunterView HvWaybackMachine(HunterView hv, Round round) {
+	Round currentRound = GvGetRound(hv->gv);
+	if (round > currentRound) round = currentRound;
+
+	int length = round * ROUND_CHARS;
+	char *substring = malloc(length + 1); // + 1 for \0
+
+	memcpy(substring, hv->pastPlays, length);
+	substring[length] = '\0';
+
+	return HvNew(substring, NULL); // TODO: is NULL ok?
+}

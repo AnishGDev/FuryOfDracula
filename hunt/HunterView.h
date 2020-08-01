@@ -215,6 +215,6 @@ PlaceId *HvWhereCanTheyGoByType(HunterView hv, Player player,
 ////////////////////////////////////////////////////////////////////////
 // Your own interface functions
 
-// TODO
+HunterView HvWaybackMachine(HunterView hv, Round round);
 
 #endif // !defined (FOD__HUNTER_VIEW_H_)
