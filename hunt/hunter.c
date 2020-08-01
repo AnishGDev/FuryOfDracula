@@ -9,6 +9,8 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
+#include <stdio.h>
+
 #include "Game.h"
 #include "hunter.h"
 #include "HunterView.h"
@@ -36,14 +38,22 @@
 	BLACK_SEA, CONSTANTA, BUCHAREST, BELGRADE, SZEGED \
 }
 
+typedef struct _EvaluatedLoc {
+	PlaceId place;
+	int score;
+} EvaluatedLoc;
+
 PlaceId earlyMode(HunterView hv, Message *message);
 PlaceId researchMode(HunterView hv, Message *message);
 PlaceId patrolMode(HunterView hv, Message *message);
 PlaceId huntMode(HunterView hv, Message *message);
 
-PlaceId bestDracLoc(HunterView hv, PlaceId from);
-PlaceId *dfs(PlaceId from, int depth, int *numLocs);
+PlaceId bestDracLoc(HunterView hv);
+EvaluatedLoc runBestDracLoc(
+	HunterView *history, PlaceId from, Round fromRound, Round toRound
+);
 int evaluateDracLoc(HunterView hv, PlaceId loc);
+HunterView *buildHistory(HunterView hv);
 
 // Is a global variable like this ok?
 PlaceId hunterPaths[NUM_PLAYERS - 1][EARLY_GAME_ROUNDS] = {
@@ -56,21 +66,20 @@ PlaceId hunterPaths[NUM_PLAYERS - 1][EARLY_GAME_ROUNDS] = {
 void decideHunterMove(HunterView hv) {
 	PlaceId move = NOWHERE;
 	Message message = "";
+	// int dracLocAge = HvGetDraculaLocationAge(hv);
 
-	Round dracLocAge = RESEARCH_THRESHOLD;
-	HvGetLastKnownDraculaLocation(hv, &dracLocAge);
-
-	if (dracLocAge >= RESEARCH_THRESHOLD) {
-		if (HvGetRound(hv) < EARLY_GAME_ROUNDS) {
-			move = earlyMode(hv, &message);
-		} else {
-			move = researchMode(hv, &message);
-		}
-	} else if (dracLocAge >= PATROL_THRESHOLD) {
-		move = patrolMode(hv, &message);
-	} else if (dracLocAge >= HUNT_THRESHOLD) {
-		move = huntMode(hv, &message);
-	}
+	// if (dracLocAge >= RESEARCH_THRESHOLD) {
+	// 	if (HvGetRound(hv) < EARLY_GAME_ROUNDS) {
+	// 		move = earlyMode(hv, &message);
+	// 	} else {
+	// 		move = researchMode(hv, &message);
+	// 	}
+	// } else if (dracLocAge >= PATROL_THRESHOLD) {
+	// 	move = patrolMode(hv, &message);
+	// } else if (dracLocAge >= HUNT_THRESHOLD) {
+	// 	move = huntMode(hv, &message);
+	// }
+	move = huntMode(hv, &message);
 
 	if (move == NOWHERE) { // Indicates no movement
 		move = HvGetPlayerLocation(hv, HvGetPlayer(hv));
@@ -86,7 +95,7 @@ PlaceId earlyMode(HunterView hv, Message *message) {
 
 // Research used when our info is stale
 PlaceId researchMode(HunterView hv, Message *message) {
-	// Indicates no movement
+	// No movement
 	return NOWHERE;
 }
 
@@ -95,41 +104,82 @@ PlaceId patrolMode(HunterView hv, Message *message) {
 	return NOWHERE;
 }
 
+// Array of place names for debugging; TODO: remove
+char *d[] = {"ADRIATIC_SEA", "ALICANTE", "AMSTERDAM", "ATHENS", "ATLANTIC_OCEAN", "BARCELONA", "BARI", "BAY_OF_BISCAY", "BELGRADE", "BERLIN", "BLACK_SEA", "BORDEAUX", "BRUSSELS", "BUCHAREST", "BUDAPEST", "CADIZ", "CAGLIARI", "CASTLE_DRACULA", "CLERMONT_FERRAND", "COLOGNE", "CONSTANTA", "DUBLIN", "EDINBURGH", "ENGLISH_CHANNEL", "FLORENCE", "FRANKFURT", "GALATZ", "GALWAY", "GENEVA", "GENOA", "GRANADA", "HAMBURG", "IONIAN_SEA", "IRISH_SEA", "KLAUSENBURG", "LE_HAVRE", "LEIPZIG", "LISBON", "LIVERPOOL", "LONDON", "MADRID", "MANCHESTER", "MARSEILLES", "MEDITERRANEAN_SEA", "MILAN", "MUNICH", "NANTES", "NAPLES", "NORTH_SEA", "NUREMBURG", "PARIS", "PLYMOUTH", "PRAGUE", "ROME", "SALONICA", "SANTANDER", "SARAGOSSA", "SARAJEVO", "SOFIA", "ST_JOSEPH_AND_ST_MARY", "STRASBOURG", "SWANSEA", "SZEGED", "TOULOUSE", "TYRRHENIAN_SEA", "VALONA", "VARNA", "VENICE", "VIENNA", "ZAGREB", "ZURICH"};
+
 // Try to force an encounter, used when info is accurate
 PlaceId huntMode(HunterView hv, Message *message) {
-	Player me = HvGetPlayer(hv);
-	PlaceId target = bestDracLoc(hv, HvGetPlayerLocation(hv, me));
-
 	// TODO: have the hunters approach from different directions
 	int n;
-	PlaceId *path = HvGetShortestPathTo(hv, me, target, &n);
+	PlaceId *path = HvGetShortestPathTo(
+		hv, HvGetPlayer(hv), bestDracLoc(hv), &n
+	);
 	
-	return path[0];
+	if (n > 0) {
+		return path[0];
+	} else {
+		return NOWHERE; // No movement
+	}
 }
 
 // Approximates the singularly most likely place where Dracula would
 // currently be
-PlaceId bestDracLoc(HunterView hv, PlaceId from) {
-	PlaceId bestLoc;
-	int bestScore = -1; // Scores always > 0
+PlaceId bestDracLoc(HunterView hv) {
+	HunterView *history = buildHistory(hv);
 
-	Round dracLocAge = 0;
-	PlaceId lastDracLoc = HvGetLastKnownDraculaLocation(hv, &dracLocAge);
+	Round toRound = HvGetRound(hv) - 1;
+	Round fromRound = toRound; // In case something goes wrong
+	PlaceId lastDracLoc = HvGetLastKnownDraculaLocation(hv, &fromRound);
+	// printf("%d, %d from %s\n", fromRound, toRound, d[lastDracLoc]);
 
-	int numLocs = -1;
-	PlaceId *possibleLocs = dfs(lastDracLoc, dracLocAge, &numLocs);
+	PlaceId bestLoc = runBestDracLoc(
+		history, lastDracLoc, fromRound, toRound
+	).place;
 
-	for (int i = 0; i < numLocs; i++) {
-		if (evaluateDracLoc(hv, possibleLocs[i]) > bestScore) {
-			bestLoc = possibleLocs[i];
-		}
-	}
+	free(history);
+	printf("%s (%d)\n", d[bestLoc], runBestDracLoc(
+		history, lastDracLoc, fromRound, toRound
+	).score);
 
 	return bestLoc;
 }
 
-PlaceId *dfs(PlaceId from, int depth, int *numLocs) {
-	return NULL;
+EvaluatedLoc runBestDracLoc(
+	HunterView *history, PlaceId from, Round fromRound, Round toRound
+) {
+	HunterView hv = history[fromRound];
+
+	if (fromRound == toRound) {
+		// printf("%d %s\n", evaluateDracLoc(hv, from, 0), d[from]);
+		return (EvaluatedLoc) {
+			.place = from,
+			.score = evaluateDracLoc(hv, from)
+		};
+	}
+
+	fromRound++;
+
+	int n = 0;
+	PlaceId* reachable = HvWhereCanTheyGo(
+		history[fromRound], PLAYER_DRACULA, &n
+	);
+
+	EvaluatedLoc best = {
+		.place = NOWHERE,
+		.score = 0
+	};
+
+	for (int i = 0; i < n; i++) {
+		EvaluatedLoc this = runBestDracLoc(
+			history, reachable[i], fromRound, toRound
+		);
+		// printf("%s => %s\n", d[from], d[reachable[i]]);
+		if (this.score >= best.score) {
+			best = this;
+		}
+	}
+
+	return best;
 }
 
 // Evaluate a location for Dracula within a game state; currently just
@@ -138,11 +188,25 @@ int evaluateDracLoc(HunterView hv, PlaceId loc) {
 	int score = 0;
 
 	for (int i = 0; i < NUM_PLAYERS - 1; i++) {
-		int pathLength = -1;
-		HvGetShortestPathTo(hv, i, loc, &pathLength);
+		int distance = 0;
+		HvGetShortestPathTo(hv, i, loc, &distance);
 
-		score += pathLength;
+		score += distance;
 	}
 
+	printf("%s: %d\n", d[loc], score);
 	return score;
+}
+
+HunterView *buildHistory(HunterView hv) {
+	Round round = HvGetRound(hv);
+	// + 1 for the current state
+	HunterView *history = malloc(sizeof(*history) * (round + 1));
+
+	for (int i = 0; i < round; i++) {
+		history[i] = HvWaybackMachine(hv, i);
+	}
+	history[round] = hv;
+
+	return history;
 }

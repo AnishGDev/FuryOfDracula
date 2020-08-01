@@ -217,4 +217,6 @@ PlaceId *HvWhereCanTheyGoByType(HunterView hv, Player player,
 
 HunterView HvWaybackMachine(HunterView hv, Round round);
 
+int HvGetDraculaLocationAge(HunterView hv);
+
 #endif // !defined (FOD__HUNTER_VIEW_H_)

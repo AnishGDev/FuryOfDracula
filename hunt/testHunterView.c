@@ -893,6 +893,26 @@ int main(void)
 		HvFree(hv);
 
 		hv = HvNew(
+			"GSZ.... SGE.... HGE.... MGE.... DSZ.V.. "
+			"GSZ.... SGE.... HGE.... MGE.... DC?.V..",
+			(Message[10]) {}
+		);
+
+		locs = HvWhereCanTheyGoByType(
+			hv, PLAYER_DRACULA, true, false, false, &num
+		);
+		assert(num == 5);
+		sortPlaces(locs, num);
+		assert(locs[0] == BELGRADE);
+		assert(locs[1] == BUDAPEST);
+		assert(locs[2] == KLAUSENBURG);
+		assert(locs[3] == SZEGED);
+		assert(locs[4] == ZAGREB);
+		free(locs);
+
+		HvFree(hv);
+
+		hv = HvNew(
 			"GLE....",
 			(Message[1]) {}
 		);

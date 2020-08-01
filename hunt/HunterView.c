@@ -273,7 +273,8 @@ PlaceId *HvWhereCanTheyGoByType(
 	// don't return any info
 	if (player == PLAYER_DRACULA) {
 		Round round;
-		if (HvGetLastKnownDraculaLocation(hv, &round) == NOWHERE) {
+		location = HvGetLastKnownDraculaLocation(hv, &round);
+		if (location == NOWHERE) {
 			return NULL;
 		}
 	}
@@ -319,4 +320,11 @@ HunterView HvWaybackMachine(HunterView hv, Round round) {
 	substring[length] = '\0';
 
 	return HvNew(substring, NULL); // TODO: is NULL ok?
+}
+
+int HvGetDraculaLocationAge(HunterView hv) {
+	Round dracLocRound = -1;
+	Round currentRound = GvGetRound(hv->gv);
+	HvGetLastKnownDraculaLocation(hv, &dracLocRound);
+	return dracLocRound - currentRound;
 }
