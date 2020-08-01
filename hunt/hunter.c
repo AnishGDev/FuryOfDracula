@@ -90,20 +90,19 @@ PlaceId researchMode(HunterView hv, Message *message) {
 
 // Spread out and cover a large area to find the trail
 PlaceId patrolMode(HunterView hv, Message *message) {
-	Player me = HvGetPlayer(hv);
-	PlaceId target = bestDracLoc(hv, HvGetPlayerLocation(hv, me));
-
-	// TODO: set different target to have the hunters approach from
-	// different directions
-	int n;
-	PlaceId *path = HvGetShortestPathTo(hv, me, target, &n);
-	
-	return path[0];
+	return NOWHERE;
 }
 
 // Try to force an encounter, used when info is accurate
 PlaceId huntMode(HunterView hv, Message *message) {
-	return NOWHERE;
+	Player me = HvGetPlayer(hv);
+	PlaceId target = bestDracLoc(hv, HvGetPlayerLocation(hv, me));
+
+	// TODO: have the hunters approach from different directions
+	int n;
+	PlaceId *path = HvGetShortestPathTo(hv, me, target, &n);
+	
+	return path[0];
 }
 
 // Approximates the singularly most likely place where Dracula would
