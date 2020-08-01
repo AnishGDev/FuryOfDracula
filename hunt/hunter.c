@@ -13,10 +13,10 @@
 #include "hunter.h"
 #include "HunterView.h"
 
-#define LORD_GODALMING_EARLY_GAME_PATH {EDINBURGH, EDINBURGH, EDINBURGH, EDINBURGH, EDINBURGH}
-#define DR_SEWARD_EARLY_GAME_PATH {CADIZ, CADIZ, CADIZ, CADIZ, CADIZ}
-#define VAN_HELSING_EARLY_GAME_PATH {TYRRHENIAN_SEA, TYRRHENIAN_SEA, TYRRHENIAN_SEA, TYRRHENIAN_SEA}
-#define MINA_HARKER_EARLY_GAME_PATH {BLACK_SEA, BLACK_SEA, BLACK_SEA, BLACK_SEA, BLACK_SEA}
+#define LORD_GODALMING_EARLY_GAME_PATH {EDINBURGH, MANCHESTER, LIVERPOOL, SWANSEA, LONDON}
+#define DR_SEWARD_EARLY_GAME_PATH {TYRRHENIAN_SEA, ROME, FLORENCE, GENOA, MILAN}
+#define VAN_HELSING_EARLY_GAME_PATH {ATLANTIC_OCEAN, BAY_OF_BISCAY, SANTANDER, SARAGOSSA, TOULOUSE}
+#define MINA_HARKER_EARLY_GAME_PATH {BLACK_SEA, CONSTANTA, BUCHAREST, BELGRADE, SZEGED}
 
 #define HUNTER_EARLY_GAME_PATHS {LORD_GODALMING_EARLY_GAME_PATH, DR_SEWARD_EARLY_GAME_PATH, VAN_HELSING_EARLY_GAME_PATH, MINA_HARKER_EARLY_GAME_PATH}
 
@@ -53,9 +53,11 @@ void decideHunterMove(HunterView hv)
 		// Dracula is close hunt him down
 		// More aggressive Search
 	} else { 	// dracLocAge is between 3 and 11
-		PlaceId target = dfsBestDracLoc(hv, lastDracLoc, dracLocAge, HvGetPlayerLocation(hv, curPlayer));
+		PlaceId mostLikelyDracLoc = dfsBestDracLoc(hv, lastDracLoc, dracLocAge, HvGetPlayerLocation(hv, curPlayer));
 		int numRetLocs = -1;
-		PlaceId *path = HvGetShortestPathTo(hv, curPlayer, target, &numRetLocs);
+		// Here we can set a different target to have the 
+		// hunters approach from different directions
+		PlaceId *path = HvGetShortestPathTo(hv, curPlayer, mostLikelyDracLoc, &numRetLocs);
 		bestMove = path[0];
 	}
 
@@ -85,6 +87,18 @@ PlaceId *dfs(PlaceId from, int depth, int *numLocs) {
 	return NULL;
 }
 
-int evaluateLoc(HunterView hv, PlaceId location) {
-	return 0;
+// Evaluates a location based on a current game state
+// Currently just sums the distance to each hunter
+int evaluateDracLoc(HunterView hv, PlaceId location) {
+
+	PlaceId *path;
+	int score = 0;
+	int  pathLengthToDest = -1;
+
+	for (int i = 0; i < NUM_PLAYERS-1; i++) {
+		path = HvGetShortestPathTo(hv, i, location, &pathLengthToDest);
+		if (path) path = NULL; 	// Compiler says path is unused without this
+		score += pathLengthToDest;
+	}
+	return score;
 }
