@@ -22,7 +22,6 @@
 #include "Places.h"
 
 typedef struct draculaView *DraculaView;
-typedef struct _trailInfo * Trail;
 ////////////////////////////////////////////////////////////////////////
 // Constructor/Destructor
 
