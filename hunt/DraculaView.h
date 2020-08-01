@@ -180,6 +180,7 @@ PlaceId *DvWhereCanTheyGoByType(DraculaView dv, Player player,
 void setTheoreticalState(DraculaView dv, PlaceId * trailToSet, Round round, PlaceId whereIsPlayer[]);
 PlaceId * returnCurrentTrail(DraculaView dv, int *numReturnedLocs, bool * canFree);
 int calculateHunterDistFromDrac(DraculaView dv,Player player, Round round, PlaceId from, PlaceId dest);
+DraculaView extendGameState(DraculaView currView, char *extension, int extLength);
 // TODO
 
 #endif // !defined(FOD__DRACULA_VIEW_H_)
