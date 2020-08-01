@@ -21,7 +21,6 @@
 
 static bool hiddenInLast5(DraculaView dv, PlaceId *moveHist, int numHistMoves);
 static bool doubleInLast5(DraculaView dv, PlaceId *moveHist, int numHistMoves);
-DraculaView extendGameState(DraculaView currView, char *extension, int extLength);
 static PlaceId *ReplaceWithDoubleBack(
 	PlaceId *locations, PlaceId *trailMoves, int numHistMoves, int *numReturnedLocs
 );
@@ -83,12 +82,6 @@ void DvFree(DraculaView dv) {
 	free(dv);
 }
 
-DraculaView extendGameState(DraculaView currView, char *extension, int extLength) {
-	DraculaView *new = *currView;
-	GvExtendGameState(new->gv, extension, extLength);
-	return new;
-}
-
 ////////////////////////////////////////////////////////////////////////
 // Game State Information
 
@@ -119,6 +112,13 @@ PlaceId *DvGetTrapLocations(DraculaView dv, int *numTraps) {
 ////////////////////////////////////////////////////////////////////////
 // Making a Move
 
+DraculaView extendGameState(DraculaView currView, char *extension, int extLength) {
+	DraculaView new = malloc(sizeof(struct draculaView)); 
+	//new->
+	GvExtendGameState(new->gv, extension, extLength);
+	return new;
+}
+
 PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves) {
 	// Check if dracula has made a move
 	if (DvGetPlayerLocation(dv, PLAYER_DRACULA) == NOWHERE) {
@@ -132,7 +132,8 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves) {
 	int numHistMoves;
 	bool canFree = false;
 	//int numMoves = 5;
-	PlaceId * trailMoves = returnCurrentTrail(dv, &numHistMoves, &canFree);
+	PlaceId * trailMoves = GvGetLastMoves(dv->gv, PLAYER_DRACULA, 
+							TRAIL_SIZE-1, &numHistMoves, &canFree);
 	/*
 	PlaceId *trailMoves = GvGetLastMoves(
 		dv->gv, PLAYER_DRACULA, numMoves, &numHistMoves, &canFree
@@ -191,7 +192,6 @@ int calculateHunterDistFromDrac(DraculaView dv,Player player, Round round, Place
 			}
 		}
 	}
-	/*
 	printf("%s<-", placeIdToName(dest));
 	PlaceId curr = visited[dest];
 	while(curr != from) {
@@ -200,7 +200,6 @@ int calculateHunterDistFromDrac(DraculaView dv,Player player, Round round, Place
 	}
 	printf("%s", placeIdToName(curr));
 	printf("\n");
-	*/
 	return distance[dest]; // Something went wrong. 
 }
 
@@ -280,7 +279,8 @@ PlaceId *DvWhereCanTheyGoByType(
 		int numHistMoves;
 		bool canFree = false;
 		//int numMoves = 5;
-		PlaceId * trailMoves = returnCurrentTrail(dv, &numHistMoves, &canFree);
+		PlaceId * trailMoves = GvGetLastMoves(dv->gv, PLAYER_DRACULA, 
+							TRAIL_SIZE-1, &numHistMoves, &canFree);
 		/*
 		PlaceId *trailMoves = GvGetLastMoves(
 			dv->gv, PLAYER_DRACULA, numMoves, &numHistMoves, &canFree
