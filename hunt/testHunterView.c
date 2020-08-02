@@ -704,6 +704,25 @@ int main(void)
 
 		HvFree(hv);
 
+		hv = HvNew(
+			"GED.... STS.... HAO.... MBS.... DCD.V..",
+			(Message[5]) {}
+		);
+		
+		path = HvGetShortestPathTo(
+			hv, PLAYER_LORD_GODALMING, CASTLE_DRACULA, &length
+		);
+		assert(length == 6);
+		free(path);
+
+		path = HvGetShortestPathTo(
+			hv, PLAYER_LORD_GODALMING, CASTLE_DRACULA, &length
+		);
+		assert(length == 6);
+		free(path);
+
+		HvFree(hv);
+
 		printf("passed\n");
 	}
 
