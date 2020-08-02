@@ -13,6 +13,8 @@
 #include "hunter.h"
 #include "HunterView.h"
 
+#include <stdio.h>
+
 #define RESEARCH_THRESHOLD 12
 #define PATROL_THRESHOLD 3
 #define HUNT_THRESHOLD 0
@@ -59,7 +61,7 @@ void decideHunterMove(HunterView hv) {
 
 	Round dracLocAge = RESEARCH_THRESHOLD;
 	HvGetLastKnownDraculaLocation(hv, &dracLocAge);
-
+	dracLocAge = HvGetRound(hv) - dracLocAge;
 	if (dracLocAge >= RESEARCH_THRESHOLD) {
 		if (HvGetRound(hv) < EARLY_GAME_ROUNDS) {
 			move = earlyMode(hv, &message);
@@ -92,7 +94,50 @@ PlaceId researchMode(HunterView hv, Message *message) {
 
 // Spread out and cover a large area to find the trail
 PlaceId patrolMode(HunterView hv, Message *message) {
-	return NOWHERE;
+	// TODO: determine locations dracula could have gone
+	int dracLocAge = 0;
+	PlaceId lastDracLoc = HvGetLastKnownDraculaLocation(hv, &dracLocAge);
+	dracLocAge = HvGetRound(hv) - dracLocAge;
+
+	int numLocs = -1;
+	PlaceId *patrolLocs = locationsNNodesAway(hv, lastDracLoc, dracLocAge, &numLocs);
+
+	// TODO: Discard Nodes whose path would've resulted in 
+	// a hunter revealing a better dracLocAge
+
+	// TODO: determine the best way to split the nodes
+	// amoung the hunters
+	Player whosSearching[numLocs];
+	int bestLen = 100;
+	int lenToDest;
+	//PlaceId *path;
+	for (int i = 0; i < numLocs; i++) {
+		bestLen = 100;
+		for (int j = 0; j < NUM_PLAYERS - 1; j++) {
+			HvGetShortestPathTo(hv, j, patrolLocs[i], &lenToDest);
+			if (lenToDest < bestLen) {
+				bestLen = lenToDest;
+				whosSearching[i] = j;
+			}
+		}
+	}
+
+	Player me = HvGetPlayer(hv);
+	PlaceId *path;
+	int numPathLocs;
+
+	for (int i = 0; i < numLocs; i++) {
+		if (whosSearching[i] == me) {
+			printf("actually here?\n");
+			path = HvGetShortestPathTo(hv, me, patrolLocs[i], &numPathLocs);
+			if (numLocs > 0) {
+				return path[0];
+			}
+		}
+	}
+	// If the hunter isnt closest to any node move closer to last Drac Loc
+	path = HvGetShortestPathTo(hv, me, lastDracLoc, &numPathLocs);
+	return path[0];
 }
 
 // Try to force an encounter, used when info is accurate

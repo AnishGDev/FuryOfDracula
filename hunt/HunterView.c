@@ -36,6 +36,8 @@ struct hunterView {
 	Path pathCache[NUM_REAL_PLACES];
 };
 
+static void dfsHelper(Map m, PlaceId from, int maxDepth, int depth, int *visited, int *numLocs, PlaceId **hunterMoves, int *numRetMoves);
+
 ////////////////////////////////////////////////////////////////////////
 // Constructor/Destructor
 
@@ -319,4 +321,82 @@ HunterView HvWaybackMachine(HunterView hv, Round round) {
 	substring[length] = '\0';
 
 	return HvNew(substring, NULL); // TODO: is NULL ok?
+}
+
+PlaceId *locationsNNodesAway(HunterView hv, PlaceId from, int maxDepth, int *numLocs) {
+	// Uses a DFS to get locations at max depth away
+	// I think should be a BFS
+	int numRetLocs[NUM_PLAYERS-1];
+	bool canfree[NUM_PLAYERS-1];
+	PlaceId *hunterPrevMoves[NUM_PLAYERS-1];
+	for (int i = 0; i < NUM_PLAYERS-1; i++) {
+		hunterPrevMoves[i] = GvGetLocationHistory(hv->gv, i, &numRetLocs[i], &canfree[i]);
+	}
+	
+
+	int visited[NUM_REAL_PLACES] = {0};
+	int depth = 1;
+	visited[from] = depth;
+	Map m = MapNew();
+	maxDepth--;
+	*numLocs = 0;
+	dfsHelper(m, from, maxDepth, depth, visited, numLocs, hunterPrevMoves, numRetLocs);
+
+	// Free Hunter Moves
+	for (int i = 0; i < NUM_PLAYERS - 1; i++) {
+		if (canfree[i]) {
+			free(hunterPrevMoves[i]);
+			hunterPrevMoves[i] = NULL;
+		}
+	}
+	
+	PlaceId *locations = malloc(sizeof(PlaceId) * NUM_REAL_PLACES);
+	int freeLocIndex = 0;
+	for (int i = 0; i < NUM_REAL_PLACES; i++) {
+		if (visited[i] == maxDepth) {
+			locations[freeLocIndex] = i;
+			freeLocIndex++;
+		}
+	}
+
+	return locations;
+}
+
+static void dfsHelper(Map m, PlaceId from, int maxDepth, int depth, int *visited, int *numLocs, PlaceId **hunterMoves, int *numRetLoc) {
+	
+	ConnList toVisit = MapGetConnections(m, from);
+	depth++;
+	visited[from] = depth;
+
+	while (toVisit != NULL) {
+		if (visited[toVisit->p] == 0) {
+			visited[toVisit->p] = depth;
+
+			// Check if a Hunter would've been at that location
+			// after dracula
+
+			/*
+			if (maxDepth - depth <= TRAIL_SIZE) { // If dracula has been here in the last 6 moves
+				int maxHistIndex = 0;
+				for (int i = 0; i < NUM_PLAYERS -1; i++) {
+					maxHistIndex = (numRetLoc[i] > TRAIL_SIZE) ? TRAIL_SIZE : numRetLoc[i]; // Whichevers smaller
+					for (int j = 0; j < maxHistIndex; j++) {
+						if (hunterMoves[i][j] == toVisit->p) {
+							visited[toVisit->p] = 0;
+							return; // Do not persue this path, if dracula went here a hunter wouldve caught it
+						}
+					}
+				}
+			}
+			*/
+			if (depth == maxDepth) {
+				*numLocs += 1;
+			}
+			else {
+				dfsHelper(m, toVisit->p, maxDepth, depth, visited, numLocs, hunterMoves, numRetLoc);
+			}
+		}
+		toVisit = toVisit->next;
+	}
+
 }

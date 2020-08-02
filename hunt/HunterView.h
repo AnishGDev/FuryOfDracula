@@ -217,4 +217,6 @@ PlaceId *HvWhereCanTheyGoByType(HunterView hv, Player player,
 
 HunterView HvWaybackMachine(HunterView hv, Round round);
 
+PlaceId *locationsNNodesAway(HunterView hv, PlaceId from, int maxDepth, int *numLocs);
+
 #endif // !defined (FOD__HUNTER_VIEW_H_)
