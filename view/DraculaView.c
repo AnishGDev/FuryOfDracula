@@ -263,7 +263,7 @@ static PlaceId *ReplaceWithDoubleBack(
 ) {
 	// Go through places and see if they occur in Dracula's trail, if they do, replace
 	// them with double_back_n
-	for (int i = 0; i < numHistMoves; i++) {
+	for (int i = numHistMoves - 1; i >= 0; i--) {
 		for (int j = 0; j < *numReturnedLocs; j++) {
 			if (trailMoves[i] == locations[j]) {
 				// Move to somewere 1 moves ago -- how many moves before it was
