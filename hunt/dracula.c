@@ -22,9 +22,9 @@
 #define INFINITY 1e9
 #define NEGATIVE_INFINITY -1e9
 
-#define DISTANCE_WEIGHTING 10
+#define DISTANCE_WEIGHTING 8
 #define HEALTH_LOSS_WEIGHTING -20
-#define MAX_DIST_IGNORE 4 // At what distance to ignore DISTANCE_WEIGHTING
+#define MAX_DIST_IGNORE 100 // At what distance to ignore DISTANCE_WEIGHTING
 
 static inline int max(int a, int b) {
 	return a > b ? a : b; 
@@ -38,17 +38,24 @@ int minimax(DraculaView currView, int currDepth, bool isMaximising, char * prevS
 PlaceId minimaxHelper(DraculaView rootView, int currDepth);
 void decideDraculaMove(DraculaView dv)
 {
-	printf("\nSELECTED MOVE: %s\n", placeIdToName(minimaxHelper(dv, 0)));
-	registerBestPlay((char *)placeIdToName(minimaxHelper(dv, 0)), "");
+	//printf("\nSELECTED MOVE: %s\n", placeIdToName(minimaxHelper(dv, 0)));
+	registerBestPlay((char *)placeIdToAbbrev(minimaxHelper(dv, 0)), "");
 }
 
 // Takes a game state s, and evaluates it based on how good is it.
 int evalFunction(DraculaView currView) {
 	int score = 0; 
+	//printf("Evaluating at %s ", placeIdToName(DvGetPlayerLocation(currView, PLAYER_DRACULA)));
 	for (int i = 0; i < NUM_PLAYERS - 1; i++) {
-		score+= DISTANCE_WEIGHTING * calculateHunterDistFromDrac(currView, i, DvGetRound(currView), DvGetPlayerLocation(currView, PLAYER_DRACULA), DvGetPlayerLocation(currView, i));
+		int dist = calculateHunterDistFromDrac(currView, i, DvGetRound(currView), DvGetPlayerLocation(currView, PLAYER_DRACULA), DvGetPlayerLocation(currView, i));
+		if (dist > MAX_DIST_IGNORE) {
+			dist = MAX_DIST_IGNORE;
+		}
+		score+= DISTANCE_WEIGHTING * dist;
 	}
+	//printf("HEALTH IS %d\n", DvGetHealth(currView, PLAYER_DRACULA));
 	score+= (GAME_START_BLOOD_POINTS- DvGetHealth(currView, PLAYER_DRACULA)) * HEALTH_LOSS_WEIGHTING;
+	//printf(" SCORE: %d\n",score);
 	return score;
 }
 PlaceId minimaxHelper(DraculaView rootView, int currDepth) {
@@ -64,9 +71,9 @@ PlaceId minimaxHelper(DraculaView rootView, int currDepth) {
 		strcat(extension, placeIdToAbbrev(possibleMoves[i])); 
 		strcat(extension, "....");
 		DraculaView newState = extendGameState(rootView, extension, 7);
-		//printf("========NEXT when moving to %s ========\n", placeIdToName(possibleMoves[i]));
+		printf("\t========NEXT when moving to %s ========\n", placeIdToName(possibleMoves[i]));
 		int score = minimax(newState, currDepth+1, !isMaximising, NULL); 
-		//printf("Evaluated %s with a score of %d \n",placeIdToName(possibleMoves[i]), score);
+		printf("Evaluated %s with a score of %d \n",placeIdToName(possibleMoves[i]), score);
 		if (score > max) {
 			max = score;
 			index = i; 
@@ -104,6 +111,7 @@ int minimax(DraculaView currView, int currDepth, bool isMaximising, char * prevS
 			//printf("OH SHIT WE HIT TELEPORT!!");
 		}
 		// Test for teleport as well ^^
+		int index = -1; 
 		for (int i = 0; i < len; i++) {
 			char extension[40];
 			strcpy(extension, prevString); 
@@ -111,14 +119,16 @@ int minimax(DraculaView currView, int currDepth, bool isMaximising, char * prevS
 			strcat(extension, placeIdToAbbrev(possibleMoves[i])); 
 			strcat(extension, "...."); // Lets ignore traps and vampires. Game engine will deal with this.
 			//printf("Testing on %s@\nlol\n", extension);
-			DraculaView newState = extendGameState(currView, extension, 39);
+			DraculaView newState = extendGameState(currView, extension, 40);
 			//printf("\tmoving dracula to %s with DEPTH: %d\n", placeIdToName(possibleMoves[i]), currDepth);
 			int score = minimax(newState, currDepth+1, !isMaximising, NULL); 
 			if (score > maxScore) {
 				maxScore = score;
+				index = i; 
 			}
 			DvFree(newState);
 		}
+		printf("%s is good depth: %d\n", placeIdToName(possibleMoves[index]), currDepth);
 		free(possibleMoves);
 		//printf("====");
 		return maxScore; 
@@ -143,7 +153,11 @@ int minimax(DraculaView currView, int currDepth, bool isMaximising, char * prevS
 			extension[player * 8] = playerIdToName(player);
 			extension[player * 8 + 1] = '\0';
 			strcat(extension, placeIdToAbbrev(minScores[player]));
-			strcat(extension, ".... ");
+			if (minScores[player] == DvGetPlayerLocation(currView, PLAYER_DRACULA)) {
+				strcat(extension, "D... ");
+			} else {
+				strcat(extension, ".... ");
+			}
 			//score = min(score, global_min);
 			//printf("\tMoving player %d to %s DEPTH: %d\n", player, placeIdToName(minScores[player]), currDepth);
 			/*
