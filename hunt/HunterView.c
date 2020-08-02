@@ -38,7 +38,7 @@ struct hunterView {
 	Path pathCache[NUM_PLAYERS - 1][NUM_REAL_PLACES];
 };
 
-static void dfsHelper(Map m, PlaceId from, int maxDepth, int depth, int *visited, int *numLocs, PlaceId **hunterMoves, int *numRetMoves);
+static void dfsHelper(HunterView hv, Map m, PlaceId from, int maxDepth, int depth, int *visited, int *numLocs, PlaceId **hunterMoves, int *numRetMoves);
 
 ////////////////////////////////////////////////////////////////////////
 // Constructor/Destructor
@@ -373,7 +373,7 @@ PlaceId *locationsNNodesAway(HunterView hv, PlaceId from, int maxDepth, int *num
 	Map m = MapNew();
 	maxDepth--;
 	*numLocs = 0;
-	dfsHelper(m, from, maxDepth, depth, visited, numLocs, hunterPrevMoves, numRetLocs);
+	dfsHelper(hv, m, from, maxDepth, depth, visited, numLocs, hunterPrevMoves, numRetLocs);
 
 	// Free Hunter Moves
 	for (int i = 0; i < NUM_PLAYERS - 1; i++) {
@@ -396,7 +396,7 @@ PlaceId *locationsNNodesAway(HunterView hv, PlaceId from, int maxDepth, int *num
 	return locations;
 }
 
-static void dfsHelper(Map m, PlaceId from, int maxDepth, int depth, int *visited, int *numLocs, PlaceId **hunterMoves, int *numRetLoc) {
+static void dfsHelper(HunterView hv, Map m, PlaceId from, int maxDepth, int depth, int *visited, int *numLocs, PlaceId **hunterMoves, int *numRetLoc) {
 	
 	ConnList toVisit = MapGetConnections(m, from);
 	depth++;
@@ -410,6 +410,12 @@ static void dfsHelper(Map m, PlaceId from, int maxDepth, int depth, int *visited
 			// after dracula
 
 			
+			for (int i = 0; i < NUM_PLAYERS - 1; i++) {
+				if (toVisit->p == HvGetPlayerLocation(hv, i)) {
+					visited[toVisit->p] = depth-1;
+				}
+			}
+			/*
 			if (maxDepth - depth <= TRAIL_SIZE) { // If dracula has been here in the last 6 moves
 				int maxHistIndex = 0;
 				for (int i = 0; i < NUM_PLAYERS -1; i++) {
@@ -421,13 +427,13 @@ static void dfsHelper(Map m, PlaceId from, int maxDepth, int depth, int *visited
 						}
 					}
 				}
-			}
+			}*/
 			
 			if (depth == maxDepth) {
 				*numLocs += 1;
 			}
 			else {
-				dfsHelper(m, toVisit->p, maxDepth, depth, visited, numLocs, hunterMoves, numRetLoc);
+				dfsHelper(hv, m, toVisit->p, maxDepth, depth, visited, numLocs, hunterMoves, numRetLoc);
 			}
 		}
 		toVisit = toVisit->next;
