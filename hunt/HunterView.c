@@ -392,6 +392,7 @@ PlaceId *locationsNNodesAway(HunterView hv, PlaceId from, int maxDepth, int *num
 		}
 	}
 
+	MapFree(m);
 	return locations;
 }
 
@@ -408,7 +409,7 @@ static void dfsHelper(Map m, PlaceId from, int maxDepth, int depth, int *visited
 			// Check if a Hunter would've been at that location
 			// after dracula
 
-			/*
+			
 			if (maxDepth - depth <= TRAIL_SIZE) { // If dracula has been here in the last 6 moves
 				int maxHistIndex = 0;
 				for (int i = 0; i < NUM_PLAYERS -1; i++) {
@@ -421,7 +422,7 @@ static void dfsHelper(Map m, PlaceId from, int maxDepth, int depth, int *visited
 					}
 				}
 			}
-			*/
+			
 			if (depth == maxDepth) {
 				*numLocs += 1;
 			}

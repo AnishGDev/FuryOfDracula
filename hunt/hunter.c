@@ -15,8 +15,6 @@
 #include "hunter.h"
 #include "HunterView.h"
 
-#include <stdio.h>
-
 #define RESEARCH_THRESHOLD 12
 #define PATROL_THRESHOLD 3
 #define HUNT_THRESHOLD 0
@@ -135,19 +133,26 @@ PlaceId patrolMode(HunterView hv, Message *message) {
 	Player me = HvGetPlayer(hv);
 	PlaceId *path;
 	int numPathLocs;
+	PlaceId bestMove = NOWHERE;
 
 	for (int i = 0; i < numLocs; i++) {
 		if (whosSearching[i] == me) {
 			// printf("actually here?\n");
 			path = HvGetShortestPathTo(hv, me, patrolLocs[i], &numPathLocs);
 			if (numLocs > 0) {
-				return path[0];
+				bestMove = path[0];
+				break;
 			}
 		}
 	}
 	// If the hunter isnt closest to any node move closer to last Drac Loc
-	path = HvGetShortestPathTo(hv, me, lastDracLoc, &numPathLocs);
-	return path[0];
+	if (bestMove == NOWHERE) {
+		path = HvGetShortestPathTo(hv, me, lastDracLoc, &numPathLocs);
+		bestMove = path[0];
+	}
+	free(patrolLocs);
+	free(path);
+	return bestMove;
 }
 
 // Array of place names for debugging; TODO: remove
