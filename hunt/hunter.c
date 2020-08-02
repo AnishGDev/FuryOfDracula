@@ -73,8 +73,8 @@ void decideHunterMove(HunterView hv) {
 	if (HvGetLastKnownDraculaLocation(hv, &dracLocAge) != NOWHERE) {
 		dracLocAge = HvGetRound(hv) - dracLocAge;
 	}
-	printf("Round: %d\n", HvGetRound(hv));
-	printf("DracLocAge %d\n", dracLocAge);
+	// printf("Round: %d\n", HvGetRound(hv));
+	// printf("DracLocAge %d\n", dracLocAge);
 
 	if (dracLocAge >= RESEARCH_THRESHOLD) {
 		if (HvGetRound(hv) < EARLY_GAME_ROUNDS) {

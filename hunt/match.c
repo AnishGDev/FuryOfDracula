@@ -50,7 +50,7 @@ static char latestMessage[MESSAGE_SIZE] = "";
 int main(void) {
 	char pastPlays[ROUND_CHARS * START_SCORE] = "";
 
-	for (int round = 0; round < START_SCORE; round++) {
+	for (int round = 0; round < 20; round++) {
 		bool end = false;
 
 		for (int player = 0; player < NUM_PLAYERS - 1; player++) {
@@ -64,9 +64,8 @@ int main(void) {
 			strcat(pastPlays, latestPlay);
 			strcat(pastPlays, ".... ");
 
-			if (HvGetHealth(HvNew(
-				pastPlays, (Message[]) {}
-			), PLAYER_DRACULA) <= 0) {
+			HunterView hv = HvNew(pastPlays, (Message[]) {});
+			if (HvGetHealth(hv, PLAYER_DRACULA) <= 0) {
 				end = true;
 			}
 		}
@@ -85,14 +84,29 @@ int main(void) {
 		}
 		strcat(pastPlays, ".. ");
 
-		if (DvGetHealth(DvNew(
-			pastPlays, (Message[]) {}
-		), PLAYER_DRACULA) <= 0) {
+		dv = DvNew(pastPlays, (Message[]) {});
+		if (DvGetHealth(dv, PLAYER_DRACULA) <= 0) {
 			break;
 		}
+
+		printf(
+			"=== Hunters: %d === Dracula: %d ===\n",
+			DvGetScore(dv),
+			DvGetHealth(dv, PLAYER_DRACULA)
+		);
+		printf("%s\n", pastPlays);
 	}
 
-	printf("%s\n", pastPlays);
+	DraculaView dv = DvNew(pastPlays, (Message[]) {});
+	int hunters = DvGetScore(dv);
+	int dracula = DvGetHealth(dv, PLAYER_DRACULA);
+	if (hunters > 0 && dracula <= 0) {
+		printf("The hunters won!\n");
+	} else if (hunters <= 0 && dracula > 0) {
+		printf("Dracula won!");
+	} else {
+		printf("Tie?\n");
+	}
 
 	return EXIT_SUCCESS;
 }
