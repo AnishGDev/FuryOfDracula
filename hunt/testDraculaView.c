@@ -23,6 +23,20 @@
 #include "Places.h"
 #include "testUtils.h"
 
+char playerIdToName(int id) {
+	if (id == 0) {
+		return 'G'; 
+	} else if (id == 1) {
+		return 'S';
+	} else if (id == 2) {
+		return 'H';
+	} else if (id == 3) {
+		return 'M';
+	} else {
+		return '.';
+	}
+}
+
 int main(void)
 {
 	{///////////////////////////////////////////////////////////////////
@@ -1125,18 +1139,68 @@ int main(void)
 		Message messages[9] = {};
 		DraculaView dv = DvNew(trail, messages); 
 		Round nextRound = 2; 
-		int len = calculateHunterDistFromDrac(dv,PLAYER_LORD_GODALMING, nextRound, LIVERPOOL, ZURICH);
+		int len = calculateHunterDistFromDrac(dv,PLAYER_LORD_GODALMING, nextRound, LIVERPOOL, ZURICH, true, true, true);
 		printf("Length is %d\n", len);
 		assert(len == 5);
-		len = calculateHunterDistFromDrac(dv,PLAYER_DR_SEWARD , nextRound, LONDON, ZURICH);
+		len = calculateHunterDistFromDrac(dv,PLAYER_DR_SEWARD , nextRound, LONDON, ZURICH, true, true, true);
 		printf("Length is %d\n", len);
 		assert(len == 4);
-		len = calculateHunterDistFromDrac(dv,PLAYER_VAN_HELSING , nextRound, NORTH_SEA, ZURICH);
+		len = calculateHunterDistFromDrac(dv,PLAYER_VAN_HELSING , nextRound, NORTH_SEA, ZURICH, true, true, true);
 		printf("Length is %d\n", len);
 		assert(len == 4);
-		len = calculateHunterDistFromDrac(dv,PLAYER_MINA_HARKER, nextRound, STRASBOURG, ZURICH);
+		len = calculateHunterDistFromDrac(dv,PLAYER_MINA_HARKER, nextRound, STRASBOURG, ZURICH, true, true, true);
 		printf("Length is %d\n", len);
 		assert(len == 1);
+	}
+
+	{
+		printf("Let us test copying game states NOW!!!!\n");
+		char *trail = 
+					"GMN.... SPL.... HAM.... MPA.... DZU.... "
+					"GLV.... SLO.... HNS.... MST.... DHI....";
+		Message messages[9] = {};
+		DraculaView dv = DvNew(trail, messages);
+		/*
+		int numTraps = -1;
+		PlaceId *traps = DvGetTrapLocations(dv, &numTraps);
+		
+		assert(numTraps == 1);
+		sortPlaces(traps, numTraps);
+		assert(traps[0] == ZURICH);
+		*/
+		DraculaView new = extendGameState(dv, "GLV.... SLO.... HNS.... MST.... DMI....", 40);
+		/*
+		traps = DvGetTrapLocations(new, &numTraps);
+		assert(numTraps == 2);
+		sortPlaces(traps, numTraps);
+		assert(traps[0] == MILAN);
+		assert(traps[1] == ZURICH);
+		*/
+		assert(DvGetRound(new) == 3); 
+		char extension[32];
+		for (int i = 0; i < NUM_PLAYERS-1; i++) {
+			extension[i * 8] = playerIdToName(i);
+			extension[i * 8 + 1] = '\0';
+			strcat(extension, placeIdToAbbrev(LIVERPOOL));
+			strcat(extension, ".... ");	
+		}
+		DraculaView new2 = extendGameState(new, "GLV.... SLO.... HNS.... MST....", 33);
+		assert(DvGetRound(new2) == 4);
+		DvFree(new2);
+		DvFree(new);
+		DvFree(dv);
+		//free(traps);
+
+	}
+	{
+		char * trail = "GSW.... SLS.... HMR.... MHA.... DSJ.V.. GLO.... SAL.... HCO.... MBR.... DBET... GED.... SBO.... HLI.... MPR.... DKLT... GLV.... SNA.... HNU.... MBD.... DCDT... GIR.... SPA.... HPR.... MKLT...";
+		Message messages[20] = {};
+		DraculaView dv = DvNew(trail, messages);
+		int len = -1;
+		PlaceId * moves = DvGetValidMoves(dv, &len);
+		for (int i = 0; i < len; i++) {
+			printf("%s\n",placeIdToName(moves[i]));
+		}
 	}
 	return EXIT_SUCCESS;
 }
