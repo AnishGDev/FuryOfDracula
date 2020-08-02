@@ -148,9 +148,6 @@ void reverse(int *array, int n) {
 	}
 }
 
-// Array of place names for debugging; TODO: remove
-char *e[] = {"ADRIATIC_SEA", "ALICANTE", "AMSTERDAM", "ATHENS", "ATLANTIC_OCEAN", "BARCELONA", "BARI", "BAY_OF_BISCAY", "BELGRADE", "BERLIN", "BLACK_SEA", "BORDEAUX", "BRUSSELS", "BUCHAREST", "BUDAPEST", "CADIZ", "CAGLIARI", "CASTLE_DRACULA", "CLERMONT_FERRAND", "COLOGNE", "CONSTANTA", "DUBLIN", "EDINBURGH", "ENGLISH_CHANNEL", "FLORENCE", "FRANKFURT", "GALATZ", "GALWAY", "GENEVA", "GENOA", "GRANADA", "HAMBURG", "IONIAN_SEA", "IRISH_SEA", "KLAUSENBURG", "LE_HAVRE", "LEIPZIG", "LISBON", "LIVERPOOL", "LONDON", "MADRID", "MANCHESTER", "MARSEILLES", "MEDITERRANEAN_SEA", "MILAN", "MUNICH", "NANTES", "NAPLES", "NORTH_SEA", "NUREMBURG", "PARIS", "PLYMOUTH", "PRAGUE", "ROME", "SALONICA", "SANTANDER", "SARAGOSSA", "SARAJEVO", "SOFIA", "ST_JOSEPH_AND_ST_MARY", "STRASBOURG", "SWANSEA", "SZEGED", "TOULOUSE", "TYRRHENIAN_SEA", "VALONA", "VARNA", "VENICE", "VIENNA", "ZAGREB", "ZURICH"};
-
 // Memoised BFS algorithm to find shortest path
 PlaceId *HvGetShortestPathTo(
 	HunterView hv, Player hunter, PlaceId dest, int *pathLength
@@ -158,8 +155,6 @@ PlaceId *HvGetShortestPathTo(
 	PlaceId src = GvGetPlayerLocation(hv->gv, hunter);
 	PlaceId *path = NULL;
 	*pathLength = 0;
-
-	// printf("from %s to %s\n", e[src], e[dest]);
 
 	if (src == dest) {
 		*pathLength = 1;

@@ -19,9 +19,6 @@
 #include "GameView.h"
 #include "Map.h"
 
-#define REMOVED -3 
-
-// Long parameters have been split up for more readability.
 static bool hiddenInLast5(DraculaView dv, PlaceId *moveHist, int numHistMoves);
 static bool doubleInLast5(DraculaView dv, PlaceId *moveHist, int numHistMoves);
 static PlaceId *ReplaceWithDoubleBack(
@@ -46,10 +43,9 @@ struct _trailInfo {
 // from it
 struct draculaView {
 	GameView gv;
-	Trail trailInfo;
 	// Internal representation which can be modified to get a theoretical state.
 	// This allows dracula AI to modify states and explore options without modifying actual state.
-	PlaceId whereIsPlayer[NUM_PLAYERS]; // idk why but whereIsPlayer[i] is not working.
+	//PlaceId whereIsPlayer[NUM_PLAYERS]; // idk why but whereIsPlayer[i] is not working.
 	Round round; // internal storage of round.
 };
 
@@ -64,14 +60,8 @@ DraculaView DvNew(char *pastPlays, Message messages[]) {
 		exit(EXIT_FAILURE);
 	}
 	new->gv = GvNew(pastPlays,messages);
-	new->trailInfo = malloc(sizeof(struct _trailInfo));
-	new->trailInfo->trail = GvGetLastMoves(new->gv, PLAYER_DRACULA, 
-							TRAIL_SIZE-1, &(new->trailInfo->trailLen), &(new->trailInfo->canFree));
-							
-	//new->whereIsPlayer = malloc(sizeof(enum placeId) * NUM_PLAYERS); 
-	for (int i =0; i < NUM_PLAYERS; i++) {
-		new->whereIsPlayer[i] = GvGetPlayerLocation(new->gv, i);
-	}
+	//reconstructGameState(new->gv);
+
 	new->round = GvGetRound(new->gv);
 	//new->isRealTrail = true;
 	return new;
@@ -115,6 +105,14 @@ PlaceId *DvGetTrapLocations(DraculaView dv, int *numTraps) {
 ////////////////////////////////////////////////////////////////////////
 // Making a Move
 
+DraculaView extendGameState(DraculaView currView, char *extension, int extLength) {
+	DraculaView new = malloc(sizeof(struct draculaView));
+	new->gv = copyGameState(currView->gv, extension, extLength);
+	//GvExtendGameState(new->gv, extension, extLength);
+	//reconstructGameState(new->gv);
+	return new;
+}
+
 PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves) {
 	// Check if dracula has made a move
 	if (DvGetPlayerLocation(dv, PLAYER_DRACULA) == NOWHERE) {
@@ -124,10 +122,13 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves) {
 
 	PlaceId *moves = DvWhereCanIGoByType(dv, true, true, numReturnedMoves);
 
+
 	int numHistMoves;
 	bool canFree = false;
-	int numMoves = TRAIL_SIZE-1;
-  
+	//int numMoves = 5;
+	PlaceId * trailMoves = GvGetLastMoves(dv->gv, PLAYER_DRACULA, 
+							TRAIL_SIZE-1, &numHistMoves, &canFree);
+	/*
 	PlaceId *trailMoves = GvGetLastMoves(
 		dv->gv, PLAYER_DRACULA, numMoves, &numHistMoves, &canFree
 	);
@@ -158,7 +159,8 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves) {
 }
 
 
-int calculateHunterDistFromDrac(DraculaView dv,Player player, Round round, PlaceId from, PlaceId dest) {
+int calculateHunterDistFromDrac(DraculaView dv,Player player, Round round, PlaceId from, PlaceId dest, 
+	bool road, bool rail, bool boat) {
 	Queue q = newQueue();
 	QueueJoin(q, from);
 	//int ret_distance = 0;
@@ -176,7 +178,7 @@ int calculateHunterDistFromDrac(DraculaView dv,Player player, Round round, Place
 		}
 		//printf("Curent is %s\n", placeIdToName(popped));
 		int length = -1; 
-		PlaceId * possibleLocs = GvGetReachable(dv->gv, player, round, popped, &length);
+		PlaceId * possibleLocs = GvGetReachableByType(dv->gv, player, round, popped, road, rail, boat, &length);
 		for (int i = 0; i < length; i++) {
 			if(visited[possibleLocs[i]] == NOT_VISITED) {
 				distance[possibleLocs[i]] = distance[popped] + 1; 
@@ -184,7 +186,9 @@ int calculateHunterDistFromDrac(DraculaView dv,Player player, Round round, Place
 				QueueJoin(q, possibleLocs[i]);
 			}
 		}
+		free(possibleLocs);
 	}
+	/*
 	printf("%s<-", placeIdToName(dest));
 	PlaceId curr = visited[dest];
 	while(curr != from) {
@@ -193,30 +197,10 @@ int calculateHunterDistFromDrac(DraculaView dv,Player player, Round round, Place
 	}
 	printf("%s", placeIdToName(curr));
 	printf("\n");
+	*/
+	dropQueue(q);
 	return distance[dest]; // Something went wrong. 
 }
-
-void setTheoreticalState(DraculaView dv, PlaceId * trailToSet, Round round, PlaceId whereIsPlayer[]) {
-	// Set internal representation to what the Dracula AI wants to evaluate future states. 
-	dv->round = round;
-	memcpy(dv->whereIsPlayer, whereIsPlayer, sizeof(PlaceId) * NUM_PLAYERS);
-	memcpy(dv->trailInfo->trail, trailToSet, sizeof(PlaceId) * TRAIL_SIZE);
-	//dv->trailInfo->trail = trailToSet;
-}
-
-void resetTheoreticalState(DraculaView dv) {
-	dv->trailInfo->trail = GvGetLastMoves(dv->gv, PLAYER_DRACULA, 
-							TRAIL_SIZE-1, &(dv->trailInfo->trailLen), &(dv->trailInfo->canFree));
-}
-
-PlaceId * returnCurrentTrail(DraculaView dv, int *numReturnedLocs, bool * canFree) {
-	// Return cached trail locations. Can be used to change represent future states by AI. 
-	*numReturnedLocs = dv->trailInfo->trailLen;
-	*canFree = dv->trailInfo->canFree; 
-	return dv->trailInfo->trail;
-} 
-
-
 
 PlaceId *DvWhereCanIGo(DraculaView dv, int *numReturnedLocs)
 {
@@ -261,17 +245,21 @@ PlaceId *DvWhereCanTheyGoByType(
 	}
 
 	if (player == PLAYER_DRACULA) {
-		PlaceId *places = GvGetReachableByType(
-			dv->gv, player, DvGetRound(dv),
-			DvGetPlayerLocation(dv, player),
-			road, rail, boat,
-			numReturnedLocs
-		);
+
+		//PlaceId *places = GvGetReachableByType(dv->gv, player, dv->round, DvGetPl, road, rail, boat, numReturnedLocs);
 		
-		// Account for trail Restrictions. 
+		PlaceId *places = GvGetReachableByType(dv->gv, player, DvGetRound(dv),
+												DvGetPlayerLocation(dv, PLAYER_DRACULA),road, 
+												rail, boat, numReturnedLocs);
+		
+		// Account for trail Restrictions
+	
 		int numHistMoves;
 		bool canFree = false;
-		int numMoves = TRAIL_SIZE-1;
+		//int numMoves = 5;
+		PlaceId * trailMoves = GvGetLastMoves(dv->gv, PLAYER_DRACULA, 
+							TRAIL_SIZE-1, &numHistMoves, &canFree);
+		/*
 		PlaceId *trailMoves = GvGetLastMoves(
 			dv->gv, PLAYER_DRACULA, numMoves, &numHistMoves, &canFree
 		);
@@ -280,7 +268,7 @@ PlaceId *DvWhereCanTheyGoByType(
 
 		if (doubleBackInTrail) { // Remove Double back locations
 			places = RemoveDoubleBack(places, trailMoves, numHistMoves, numReturnedLocs);
-
+			
 			// If still can hide, add current location Back
 			bool hiddenInTrail = hiddenInLast5(dv, trailMoves, numHistMoves);
 			if (!hiddenInTrail) {
@@ -306,22 +294,13 @@ PlaceId *DvWhereCanTheyGoByType(
 		return places;
 	} else {
 		return GvGetReachableByType(
-			dv->gv, player, dv->round,
-			dv->whereIsPlayer[player],
+			dv->gv, player, DvGetRound(dv),
+			DvGetPlayerLocation(dv, player),
 			road, rail, boat,
 			numReturnedLocs
 		);
 	}
 }
-
-
-////////////////////////////////////////////////////////////////////////
-// CUSTOM FUNCTIONS. 
-
-/* These functons take in a trailMoves/moveHist parameter so that 
-/  when the dracula AI can choose to modify ITS OWN view of the trail, (so if it decides to 
-   considers future states of the game) the getReachable functions take this into account and 
-   return proper results. */
 
 // Checks if dracula has used a Hide in the last 5 moves
 static bool hiddenInLast5 (DraculaView dv, PlaceId *moveHist, int numHistMoves) {
@@ -362,7 +341,7 @@ static PlaceId *ReplaceWithDoubleBack(
 		for (int j = 0; j < *numReturnedLocs; j++) {
 			if (trailMoves[i] == locations[j]) {
 				// Move to somewere 1 moves ago -- how many moves before it was
-				locations[j] = DOUBLE_BACK_1 + numHistMoves - 1 - i; // trailMoves[i]; 
+				locations[j] = DOUBLE_BACK_1 + numHistMoves - 1 - i;; // trailMoves[i]; 
 			}
 		}
 	}
@@ -370,38 +349,42 @@ static PlaceId *ReplaceWithDoubleBack(
 	return locations;
 }
 
-// Removes double back locations in the set of possible locations. 
 static PlaceId *RemoveDoubleBack(
 	PlaceId *locations, PlaceId *trailMoves, int numHistMoves, int *numReturnedLocs
 ) {
+	PlaceId remove = -3;
 
 	// Go through places and see if they occur in Dracula's trail, if they do, remove them
 	for (int i = 0; i < numHistMoves; i++) {
 		for (int j = 0; j < *numReturnedLocs; j++) {
 			if (trailMoves[i] == locations[j]) {
-				// Move to somewhere 5 moves ago - how many moves before it was
-				locations[j] = REMOVED;
+				// Move to somewere 5 moves ago - how many moves before it was
+				locations[j] = remove;
 			}
 		}
 	}
 
 	// Rearrange the array
-	// numShift is the amount of elements removed so far (and how much we have to shift array by)
+
 	int numShift = 0;
 	for (int i = 0; i < *numReturnedLocs; i++) {
-		if (locations[i] == REMOVED) {
-			// Increase numShift (the amount of removed elements so far)
+		if (locations[i] == remove) {
 			numShift++;
 		} else {
 			locations[i-numShift] = locations[i];
 		}
 	}
-	// Amount of elements in array = previousAmount - amountRemoved. 
+
 	*numReturnedLocs -= numShift;
-	if (*numReturnedLocs == 0) {
+	if (numReturnedLocs == 0) {
 		free(locations);
 		locations = NULL;
 	}
 
 	return locations;
 }
+
+////////////////////////////////////////////////////////////////////////
+// Your own interface functions
+
+// TODO

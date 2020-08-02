@@ -22,7 +22,6 @@
 #include "Places.h"
 
 typedef struct draculaView *DraculaView;
-typedef struct _trailInfo * Trail;
 ////////////////////////////////////////////////////////////////////////
 // Constructor/Destructor
 
@@ -179,7 +178,9 @@ PlaceId *DvWhereCanTheyGoByType(DraculaView dv, Player player,
 // Your own interface functions
 void setTheoreticalState(DraculaView dv, PlaceId * trailToSet, Round round, PlaceId whereIsPlayer[]);
 PlaceId * returnCurrentTrail(DraculaView dv, int *numReturnedLocs, bool * canFree);
-int calculateHunterDistFromDrac(DraculaView dv,Player player, Round round, PlaceId from, PlaceId dest);
+int calculateHunterDistFromDrac(DraculaView dv,Player player, Round round, PlaceId from, PlaceId dest, 
+	bool road, bool rail, bool boat);
+DraculaView extendGameState(DraculaView currView, char *extension, int extLength);
 // TODO
 
 #endif // !defined(FOD__DRACULA_VIEW_H_)

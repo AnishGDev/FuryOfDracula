@@ -58,13 +58,12 @@ int main(void)
 		sortPlaces(locs, numLocs);
 		assert(locs[0] == ALICANTE); 
 		free(locs);
-
 		locs = GvGetReachable(gv, PLAYER_DRACULA, 0, ZURICH, &numLocs);
 		assert(numLocs == 6);
 		sortPlaces(locs, numLocs);
 		assert(locs[0] == GENEVA);
-		GvFree(gv);
 		free(locs);
+		GvFree(gv);
 	}
 
 	{///////////////////////////////////////////////////////////////////
@@ -820,6 +819,20 @@ int main(void)
 		free(trapLocs);
 	}
 	printf("ALL TESTS PASSED SUCCESSFULLY!!!\n");
+
+	{
+		char *trail = "GGW.... SPL.... HCA.... MCG.... DST.V.. GDU.... SLO.... HLS.... MTS....";
+		Message messages[] = {};
+		GameView gv = GvNew(trail, messages);
+		int numLocs = -1;
+		PlaceId *locs = GvGetReachableByType(gv, PLAYER_MINA_HARKER,
+												 3, ROME, true, true,
+												 true, &numLocs);
+		sortPlaces(locs, numLocs);
+		for(int i = 0; i < numLocs; i++) {
+			printf("%s\n", placeIdToName(locs[i]));
+		}
+	}
 	return EXIT_SUCCESS;
 }
 
