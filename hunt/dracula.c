@@ -102,7 +102,7 @@ PlaceId minimaxHelper(DraculaView rootView, int currDepth) {
 	PlaceId * possibleMoves = DvGetValidMoves(rootView, &len); 
 	int max = INT_MIN; 
 	int index = -1; 
-	if (possibleMoves == NULL) return TELEPORT;
+	if (possibleMoves == NULL) return TELEPORT; 
 	for (int i = 0; i < len; i++) {
 		char extension[8]; 
 		strcpy(extension, "D"); 
@@ -168,7 +168,6 @@ int minimax(DraculaView currView, int currDepth, bool isMaximising, char * prevS
 		if (possibleMoves == NULL) {
 			strcpy(extension, prevString);
 			strcat(extension, "DTP....");
-			printf("oh yeah, we're teleporting NOW!\n");
 			DraculaView newState = extendGameState(currView, extension, 40);
 			maxScore = minimax(newState, currDepth+1, !isMaximising, NULL);
 			DvFree(newState);
