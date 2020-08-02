@@ -75,6 +75,7 @@ typedef HunterView View;
 	"GGE.... SAM.... HAM.... MAM.... DGE.V.. " \
 	"GGEV... SAM.... HAM.... MAM.... DC?.V.. " \
 	"GGE.... SAM.... HAM.... MAM.... DC?.V.. " \
+	"GGEV... SAM.... HAM.... MAM.... DC?.V.. " \
 	"GGEV... SAM.... HAM.... MAM.... DC?.V.." \
 )
 # define xMsgs {}

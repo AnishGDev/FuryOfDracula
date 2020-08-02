@@ -53,7 +53,8 @@ EvaluatedLoc runBestDracLoc(
 	HunterView *history, PlaceId from, Round fromRound, Round toRound
 );
 int evaluateDracLoc(HunterView hv, PlaceId loc);
-HunterView *buildHistory(HunterView hv);
+HunterView *buildHistory(HunterView hv, int *length);
+void freeHistory(HunterView *history, int length);
 
 // Is a global variable like this ok?
 PlaceId hunterPaths[NUM_PLAYERS - 1][EARLY_GAME_ROUNDS] = {
@@ -114,12 +115,14 @@ PlaceId huntMode(HunterView hv, Message *message) {
 	PlaceId *path = HvGetShortestPathTo(
 		hv, HvGetPlayer(hv), bestDracLoc(hv), &n
 	);
-	
+
+	PlaceId move = NOWHERE; // No movement
 	if (n > 0) {
-		return path[0];
-	} else {
-		return NOWHERE; // No movement
+		move = path[0];
 	}
+
+	free(path);
+	return move;
 }
 
 int bruh = 0;
@@ -127,7 +130,8 @@ int bruh = 0;
 // Approximates the singularly most likely place where Dracula would
 // currently be
 PlaceId bestDracLoc(HunterView hv) {
-	HunterView *history = buildHistory(hv);
+	int historySize = 0;
+	HunterView *history = buildHistory(hv, &historySize);
 
 	Round toRound = HvGetRound(hv) - 1;
 	Round fromRound = toRound; // In case something goes wrong
@@ -137,7 +141,7 @@ PlaceId bestDracLoc(HunterView hv) {
 		history, lastDracLoc, fromRound, toRound
 	);
 
-	free(history);
+	freeHistory(history, historySize);
 	printf("%s (%d) (evaluation calls: %d)\n", d[result.place], result.score, bruh);
 
 	return result.place;
@@ -180,6 +184,8 @@ EvaluatedLoc runBestDracLoc(
 		}
 	}
 
+	free(reachable);
+
 	return best;
 }
 
@@ -190,14 +196,14 @@ int evaluateDracLoc(HunterView hv, PlaceId loc) {
 
 	for (int i = 0; i < NUM_PLAYERS - 1; i++) {
 		int distance = 0;
-		HvGetShortestPathTo(hv, i, loc, &distance);
+		free(HvGetShortestPathTo(hv, i, loc, &distance));
 		score += distance;
 	}
 
 	return score;
 }
 
-HunterView *buildHistory(HunterView hv) {
+HunterView *buildHistory(HunterView hv, int *length) {
 	Round round = HvGetRound(hv);
 	// + 1 for the current state
 	HunterView *history = malloc(sizeof(*history) * (round + 1));
@@ -207,5 +213,14 @@ HunterView *buildHistory(HunterView hv) {
 	}
 	history[round] = hv;
 
+	*length = round;
 	return history;
+}
+
+void freeHistory(HunterView *history, int length) {
+	for (int i = 0; i < length; i++) {
+		HvFree(history[i]);
+	}
+
+	free(history);
 }

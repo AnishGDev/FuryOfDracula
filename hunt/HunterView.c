@@ -33,27 +33,35 @@ typedef struct _Path {
 struct hunterView {
 	GameView gv;
 	char *pastPlays;
+	bool canFreePastPlays;
 	Path pathCache[NUM_REAL_PLACES];
 };
 
 ////////////////////////////////////////////////////////////////////////
 // Constructor/Destructor
 
-HunterView HvNew(char *pastPlays, Message messages[]) {
-	HunterView new = malloc(sizeof(*new));
-	if (new == NULL) {
+HunterView HvNewGeneric(
+	char *pastPlays, Message messages[], bool canFreePastPlays
+) {
+	HunterView hv = malloc(sizeof(*hv));
+	if (hv == NULL) {
 		fprintf(stderr, "Couldn't allocate HunterView!\n");
 		exit(EXIT_FAILURE);
 	}
 
-	new->gv = GvNew(pastPlays, messages);
-	new->pastPlays = pastPlays;
+	hv->gv = GvNew(pastPlays, messages);
+	hv->pastPlays = pastPlays;
+	hv->canFreePastPlays = canFreePastPlays;
 
 	for (int i = 0; i < NUM_REAL_PLACES; i++) {
-		new->pathCache[i].array = NULL; // No path
+		hv->pathCache[i].array = NULL; // No path
 	}
 
-	return new;
+	return hv;
+}
+
+HunterView HvNew(char *pastPlays, Message messages[]) {
+	return HvNewGeneric(pastPlays, messages, false);
 }
 
 void HvFree(HunterView hv) {
@@ -62,6 +70,11 @@ void HvFree(HunterView hv) {
 			free(hv->pathCache[i].array);
 		}
 	}
+
+	if (hv->canFreePastPlays) {
+		free(hv->pastPlays);
+	}
+
 	GvFree(hv->gv);
 	free(hv);
 }
@@ -232,11 +245,11 @@ PlaceId *HvGetShortestPathTo(
 	}
 
 	// Add to cache
-	if (placeIsReal(dest)) {
-		hv->pathCache[dest].array = malloc(PATH_SIZE);
-		memcpy(hv->pathCache[dest].array, path, PATH_SIZE);
-		hv->pathCache[dest].length = *pathLength;
-	}
+	// if (placeIsReal(dest)) {
+	// 	hv->pathCache[dest].array = malloc(PATH_SIZE);
+	// 	memcpy(hv->pathCache[dest].array, path, PATH_SIZE);
+	// 	hv->pathCache[dest].length = *pathLength;
+	// }
 
 	return path;
 }
@@ -334,7 +347,7 @@ HunterView HvWaybackMachine(HunterView hv, Round round) {
 	memcpy(substring, hv->pastPlays, length);
 	substring[length] = '\0';
 
-	return HvNew(substring, NULL); // TODO: is NULL ok?
+	return HvNewGeneric(substring, NULL, true); // TODO: is NULL ok?
 }
 
 int HvGetDraculaLocationAge(HunterView hv) {
