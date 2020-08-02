@@ -23,6 +23,20 @@
 #include "Places.h"
 #include "testUtils.h"
 
+char playerIdToName(int id) {
+	if (id == 0) {
+		return 'G'; 
+	} else if (id == 1) {
+		return 'S';
+	} else if (id == 2) {
+		return 'H';
+	} else if (id == 3) {
+		return 'M';
+	} else {
+		return '.';
+	}
+}
+
 int main(void)
 {
 	{///////////////////////////////////////////////////////////////////
@@ -1142,29 +1156,40 @@ int main(void)
 	{
 		printf("Let us test copying game states NOW!!!!\n");
 		char *trail = 
-					"GMN.... SPL.... HAM.... MPA.... DZU.V.. "
-					"GLV.... SLO.... HNS.... MST.... DHIT...";
+					"GMN.... SPL.... HAM.... MPA.... DZU.... "
+					"GLV.... SLO.... HNS.... MST.... DHI....";
 		Message messages[9] = {};
 		DraculaView dv = DvNew(trail, messages);
+		/*
 		int numTraps = -1;
 		PlaceId *traps = DvGetTrapLocations(dv, &numTraps);
 		
 		assert(numTraps == 1);
 		sortPlaces(traps, numTraps);
 		assert(traps[0] == ZURICH);
-		DraculaView new = extendGameState(dv, "GLV.... SLO.... HNS.... MST.... DMIT...", 40);
+		*/
+		DraculaView new = extendGameState(dv, "GLV.... SLO.... HNS.... MST.... DMI....", 40);
+		/*
 		traps = DvGetTrapLocations(new, &numTraps);
 		assert(numTraps == 2);
 		sortPlaces(traps, numTraps);
 		assert(traps[0] == MILAN);
 		assert(traps[1] == ZURICH);
+		*/
 		assert(DvGetRound(new) == 3); 
-		DraculaView new2 = extendGameState(new, "GLV.... SLO.... HNS.... MST.... ", 40);
-		assert(DvGetRound(new2) == 4); 
+		char extension[32];
+		for (int i = 0; i < NUM_PLAYERS-1; i++) {
+			extension[i * 8] = playerIdToName(i);
+			extension[i * 8 + 1] = '\0';
+			strcat(extension, placeIdToAbbrev(LIVERPOOL));
+			strcat(extension, ".... ");	
+		}
+		DraculaView new2 = extendGameState(new, "GLV.... SLO.... HNS.... MST....", 33);
+		assert(DvGetRound(new2) == 4);
 		DvFree(new2);
 		DvFree(new);
 		DvFree(dv);
-		free(traps);
+		//free(traps);
 
 	}
 	return EXIT_SUCCESS;

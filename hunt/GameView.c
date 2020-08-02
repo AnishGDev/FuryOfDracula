@@ -179,20 +179,21 @@ GameView copyGameState(GameView copyFrom, char *extension, int extLength) {
 	for (int i = 0; i < NUM_PLAYERS -1; i++) {
 		copyInto->hunters[i] = malloc(sizeof(struct _hunterData));
 		*(copyInto->hunters[i]) = *(copyFrom->hunters[i]);
-		copyInto->hunters[i]->moveHistory = malloc(sizeof(enum placeId) * ((copyFrom->pastPlaysLength + extLength) / ROUND_CHARACTER_LENGTH + 1));
+		//printf("allocating %ld\n", sizeof(enum placeId));
+		copyInto->hunters[i]->moveHistory = malloc(sizeof(enum placeId) * ((copyFrom->roundNum+1) * 4));
 		//*(copyInto->hunters[i]->moveHistory) = *(copyFrom->hunters[i]->moveHistory);
-		memcpy(copyInto->hunters[i]->moveHistory, copyFrom->hunters[i]->moveHistory, sizeof(enum placeId) * ((copyFrom->pastPlaysLength + extLength) / ROUND_CHARACTER_LENGTH + 1));
+		memcpy(copyInto->hunters[i]->moveHistory, copyFrom->hunters[i]->moveHistory, sizeof(enum placeId) * ((copyFrom->roundNum+1) * 4));
 	}
 	//copyInto->hunters = copyFrom->hunters;
 	//copyInto->hunters->moveHistory = malloc(sizeof(enum placeId) * ((copyFrom->pastPlaysLength + extLength) / ROUND_CHARACTER_LENGTH + 1));
 	//copyInto->hunters->moveHistory = copyFrom->hunters->moveHistory;
 	copyInto->dracula = malloc(sizeof(struct _draculaData));
 	*(copyInto->dracula) = *(copyFrom->dracula); 
-	copyInto->dracula->locHistory = malloc(sizeof(enum placeId) * ((copyFrom->pastPlaysLength + extLength) / ROUND_CHARACTER_LENGTH + 1));
-	memcpy(copyInto->dracula->locHistory, copyFrom->dracula->locHistory, sizeof(enum placeId) * ((copyFrom->pastPlaysLength + extLength) / ROUND_CHARACTER_LENGTH + 1));
+	copyInto->dracula->locHistory = malloc(sizeof(enum placeId) * ((copyFrom->roundNum+1) * 4));
+	memcpy(copyInto->dracula->locHistory, copyFrom->dracula->locHistory, sizeof(enum placeId) * ((copyFrom->roundNum+1) * 4));
 	//*(copyInto->dracula->locHistory) = *(copyFrom->dracula->locHistory);
-	copyInto->dracula->moveHistory = malloc(sizeof(enum placeId) * ((copyFrom->pastPlaysLength + extLength) / ROUND_CHARACTER_LENGTH + 1));
-	memcpy(copyInto->dracula->moveHistory, copyFrom->dracula->moveHistory, sizeof(enum placeId) * ((copyFrom->pastPlaysLength + extLength) / ROUND_CHARACTER_LENGTH + 1));
+	copyInto->dracula->moveHistory = malloc(sizeof(enum placeId) * ((copyFrom->roundNum+1) * ROUND_CHARACTER_LENGTH));
+	memcpy(copyInto->dracula->moveHistory, copyFrom->dracula->moveHistory, sizeof(enum placeId) * ((copyFrom->roundNum+1) * 4));
 	//*(copyInto->dracula->moveHistory) = *(copyFrom->dracula->locHistory);
 	copyInto->gameMap = MapNew();
 	copyInto->pastPlays = extension; 

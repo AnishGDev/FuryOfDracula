@@ -185,6 +185,7 @@ int calculateHunterDistFromDrac(DraculaView dv,Player player, Round round, Place
 				QueueJoin(q, possibleLocs[i]);
 			}
 		}
+		free(possibleLocs);
 	}
 	/*
 	printf("%s<-", placeIdToName(dest));
@@ -196,6 +197,7 @@ int calculateHunterDistFromDrac(DraculaView dv,Player player, Round round, Place
 	printf("%s", placeIdToName(curr));
 	printf("\n");
 	*/
+	dropQueue(q);
 	return distance[dest]; // Something went wrong. 
 }
 
