@@ -145,18 +145,16 @@ int minimax(DraculaView currView, int currDepth, bool isMaximising, char * prevS
 		int len = -1;
 		PlaceId * possibleMoves = DvGetValidMoves(currView, &len);
 		if (possibleMoves == NULL) {
-			//printf("OH SHIT WE HIT TELEPORT!!");
+			strcpy(extension, prevString);
+			strcat(extension, "DTP....");
 		}
-		// Test for teleport as well ^^
 		for (int i = 0; i < len; i++) {
 			char extension[40];
 			strcpy(extension, prevString); 
 			strcat(extension, "D");
 			strcat(extension, placeIdToAbbrev(possibleMoves[i])); 
 			strcat(extension, "...."); // Lets ignore traps and vampires. Game engine will deal with this.
-			//printf("Testing on %s@\nlol\n", extension);
 			DraculaView newState = extendGameState(currView, extension, 40);
-			//printf("\tmoving dracula to %s with DEPTH: %d\n", placeIdToName(possibleMoves[i]), currDepth);
 			int score = minimax(newState, currDepth+1, !isMaximising, NULL); 
 			if (possibleMoves[i] == CASTLE_DRACULA) {
 				score+= CASTLE_DRACULA_WEIGHTING/currDepth; // The more moves you take to get to Castle Dracula, the smaller the increase.
