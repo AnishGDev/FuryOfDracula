@@ -68,8 +68,10 @@ void decideHunterMove(HunterView hv) {
 	Message message = "";
 
 	Round dracLocAge = RESEARCH_THRESHOLD;
-	HvGetLastKnownDraculaLocation(hv, &dracLocAge);
-	dracLocAge = HvGetRound(hv) - dracLocAge;
+	if (HvGetLastKnownDraculaLocation(hv, &dracLocAge) != NOWHERE) {
+		dracLocAge = HvGetRound(hv) - dracLocAge;
+	}
+
 	if (dracLocAge >= RESEARCH_THRESHOLD) {
 		if (HvGetRound(hv) < EARLY_GAME_ROUNDS) {
 			move = earlyMode(hv, &message);
