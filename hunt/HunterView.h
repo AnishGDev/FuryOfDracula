@@ -215,6 +215,13 @@ PlaceId *HvWhereCanTheyGoByType(HunterView hv, Player player,
 ////////////////////////////////////////////////////////////////////////
 // Your own interface functions
 
-// TODO
+HunterView HvWaybackMachine(HunterView hv, Round round);
+
+PlaceId *locationsNNodesAway(HunterView hv, PlaceId from, int maxDepth, int *numLocs);
+
+PlaceId *HvGetReachable(
+	HunterView hv, Player player, Round round, PlaceId from,
+	int *numReturnedLocs
+);
 
 #endif // !defined (FOD__HUNTER_VIEW_H_)

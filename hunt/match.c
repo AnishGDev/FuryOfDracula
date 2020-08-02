@@ -33,78 +33,73 @@
 #include <string.h>
 
 #include "Game.h"
-#ifdef I_AM_DRACULA
-# include "dracula.h"
-# include "DraculaView.h"
-#else
-# include "hunter.h"
-# include "HunterView.h"
-#endif
+#include "dracula.h"
+#include "DraculaView.h"
+#include "hunter.h"
+#include "HunterView.h"
 
 // Moves given by registerBestPlay are this long (including terminator)
 #define MOVE_SIZE 3
+#define ROUND_CHARS 40
+#define START_SCORE 366
 
 // The minimum static globals I can get away with
 static char latestPlay[MOVE_SIZE] = "";
 static char latestMessage[MESSAGE_SIZE] = "";
 
-// A pseudo-generic interface, which defines
-// - a type `View',
-// - functions `ViewNew', `decideMove', `ViewFree',
-// - a trail `xtrail', and a message buffer `xmsgs'.
-#ifdef I_AM_DRACULA
+int main(void) {
+	char pastPlays[ROUND_CHARS * START_SCORE] = "";
 
-typedef DraculaView View;
+	for (int round = 0; round < START_SCORE; round++) {
+		bool end = false;
 
-# define ViewNew DvNew
-# define decideMove decideDraculaMove
-# define ViewFree DvFree
+		for (int player = 0; player < NUM_PLAYERS - 1; player++) {
+			decideHunterMove(HvNew(pastPlays, (Message[]) {}));
 
-//# define xPastPlays "GZA.... SED.... HZU.... MZU...."
-//# define xPastPlays "GZA.... SED.... HZU.... MZU.... DCD.V.. GSZ.... SNS.... HMU.... MMU...."
-//# define xPastPlays "GGW.... SPL.... HCA.... MCG.... DST.V.. GDU.... SLO.... HLS.... MTS...."
-//# define xPastPlays "GMN.... SPL.... HAM.... MPA.... DZU.V.. GLV.... SLO.... HNS.... MST...."
-// Very far away near CD. 
-//#define xPastPlays "GMN.... SPL.... HAM.... MPA.... DGA.V.. GLV.... SLO.... HNS.... MST...."
-// Got caught in first round
-//#define xPastPlays "GED.... SGE.... HZU.... MCA.... DCF.V.. GMN.... SCFVD.. HGE.... MLS...."
-// Another far away near CD.
-//#define  xPastPlays "GSW.... SLS.... HMR.... MHA.... DSJ.V.. GLO.... SAL.... HCO.... MBR...."
-#define xPastPlays "GSW.... SLS.... HMR.... MHA.... DSJ.V.. GLO.... SAL.... HCO.... MBR.... DBET... GED.... SBO.... HLI.... MPR.... DKLT... GLV.... SNA.... HNU.... MBD.... DCDT... GIR.... SPA.... HPR.... MKLT..."
-#define xMsgs { "", "", "", "", "", "","","","","","","","","","","","","","","" }
+			if (player == 0) strcat(pastPlays, "G");
+			if (player == 1) strcat(pastPlays, "S");
+			if (player == 2) strcat(pastPlays, "H");
+			if (player == 3) strcat(pastPlays, "M");
 
-#else
+			strcat(pastPlays, latestPlay);
+			strcat(pastPlays, ".... ");
 
-typedef HunterView View;
+			if (HvGetHealth(HvNew(
+				pastPlays, (Message[]) {}
+			), PLAYER_DRACULA) <= 0) {
+				end = true;
+			}
+		}
 
-# define ViewNew HvNew
-# define decideMove decideHunterMove
-# define ViewFree HvFree
+		if (end) break;
 
-# define xPastPlays (\
-	"GED.... STS.... HAO.... MBS.... DCD.V.." \
-)
-# define xMsgs {}
+		DraculaView dv = DvNew(pastPlays, (Message[]) {});
+		decideDraculaMove(dv);
 
-#endif
+		strcat(pastPlays, "D");
+		strcat(pastPlays, latestPlay);
+		if (round % 13 == 0) {
+			strcat(pastPlays, ".V");
+		} else {
+			strcat(pastPlays, "T.");
+		}
+		strcat(pastPlays, ".. ");
 
-int main(void)
-{
-	char *pastPlays = xPastPlays;
-	Message msgs[] = xMsgs;
+		if (DvGetHealth(DvNew(
+			pastPlays, (Message[]) {}
+		), PLAYER_DRACULA) <= 0) {
+			break;
+		}
+	}
 
-	View state = ViewNew(pastPlays, msgs);
-	decideMove(state);
-	ViewFree(state);
+	printf("%s\n", pastPlays);
 
-	printf("Move: %s, Message: %s\n", latestPlay, latestMessage);
 	return EXIT_SUCCESS;
 }
 
 // Saves characters from play (and appends a terminator)
 // and saves characters from message (and appends a terminator)
-void registerBestPlay(char *play, Message message)
-{
+void registerBestPlay(char *play, Message message) {
 	strncpy(latestPlay, play, MOVE_SIZE - 1);
 	latestPlay[MOVE_SIZE - 1] = '\0';
 
