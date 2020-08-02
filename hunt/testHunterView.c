@@ -621,6 +621,13 @@ int main(void)
 			"GLS.... SLS.... HSW.... MMR.... DCD.V..",
 			(Message[5]) {}
 		);
+		
+		path = HvGetShortestPathTo(
+			hv, PLAYER_LORD_GODALMING, LISBON, &length
+		);
+		assert(length == 1);
+		assert(path[0] == LISBON);
+		free(path);
 
 		path = HvGetShortestPathTo(
 			hv, PLAYER_LORD_GODALMING, BARCELONA, &length
@@ -679,6 +686,20 @@ int main(void)
 		assert(path[4] == BUDAPEST);
 		assert(path[5] == GALATZ || path[5] == KLAUSENBURG);
 		assert(path[6] == CASTLE_DRACULA);
+		free(path);
+
+		HvFree(hv);
+
+		hv = HvNew(
+			"GGE.... SSR.... HSR.... MSR.... DGE.V..",
+			(Message[5]) {}
+		);
+		
+		path = HvGetShortestPathTo(
+			hv, PLAYER_VAN_HELSING, BARCELONA, &length
+		);
+		assert(length == 1);
+		assert(path[0] == BARCELONA);
 		free(path);
 
 		HvFree(hv);

@@ -219,4 +219,9 @@ HunterView HvWaybackMachine(HunterView hv, Round round);
 
 int HvGetDraculaLocationAge(HunterView hv);
 
+PlaceId *HvGetReachable(
+	HunterView hv, Player player, Round round, PlaceId from,
+	int *numReturnedLocs
+);
+
 #endif // !defined (FOD__HUNTER_VIEW_H_)

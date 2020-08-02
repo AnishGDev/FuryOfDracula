@@ -122,6 +122,8 @@ PlaceId huntMode(HunterView hv, Message *message) {
 	}
 }
 
+int bruh = 0;
+
 // Approximates the singularly most likely place where Dracula would
 // currently be
 PlaceId bestDracLoc(HunterView hv) {
@@ -130,27 +132,24 @@ PlaceId bestDracLoc(HunterView hv) {
 	Round toRound = HvGetRound(hv) - 1;
 	Round fromRound = toRound; // In case something goes wrong
 	PlaceId lastDracLoc = HvGetLastKnownDraculaLocation(hv, &fromRound);
-	// printf("%d, %d from %s\n", fromRound, toRound, d[lastDracLoc]);
 
-	PlaceId bestLoc = runBestDracLoc(
+	EvaluatedLoc result = runBestDracLoc(
 		history, lastDracLoc, fromRound, toRound
-	).place;
+	);
 
 	free(history);
-	printf("%s (%d)\n", d[bestLoc], runBestDracLoc(
-		history, lastDracLoc, fromRound, toRound
-	).score);
+	printf("%s (%d) (evaluation calls: %d)\n", d[result.place], result.score, bruh);
 
-	return bestLoc;
+	return result.place;
 }
 
 EvaluatedLoc runBestDracLoc(
 	HunterView *history, PlaceId from, Round fromRound, Round toRound
 ) {
+	bruh++;
 	HunterView hv = history[fromRound];
 
 	if (fromRound == toRound) {
-		// printf("%d %s\n", evaluateDracLoc(hv, from, 0), d[from]);
 		return (EvaluatedLoc) {
 			.place = from,
 			.score = evaluateDracLoc(hv, from)
@@ -160,8 +159,8 @@ EvaluatedLoc runBestDracLoc(
 	fromRound++;
 
 	int n = 0;
-	PlaceId* reachable = HvWhereCanTheyGo(
-		history[fromRound], PLAYER_DRACULA, &n
+	PlaceId* reachable = HvGetReachable(
+		history[fromRound], PLAYER_DRACULA, fromRound, from, &n
 	);
 
 	EvaluatedLoc best = {
@@ -170,12 +169,14 @@ EvaluatedLoc runBestDracLoc(
 	};
 
 	for (int i = 0; i < n; i++) {
-		EvaluatedLoc this = runBestDracLoc(
-			history, reachable[i], fromRound, toRound
-		);
-		// printf("%s => %s\n", d[from], d[reachable[i]]);
-		if (this.score >= best.score) {
-			best = this;
+		if (placeIsLand(reachable[i])) {
+			EvaluatedLoc this = runBestDracLoc(
+				history, reachable[i], fromRound, toRound
+			);
+
+			if (this.score >= best.score) {
+				best = this;
+			}
 		}
 	}
 
@@ -190,11 +191,9 @@ int evaluateDracLoc(HunterView hv, PlaceId loc) {
 	for (int i = 0; i < NUM_PLAYERS - 1; i++) {
 		int distance = 0;
 		HvGetShortestPathTo(hv, i, loc, &distance);
-
 		score += distance;
 	}
 
-	printf("%s: %d\n", d[loc], score);
 	return score;
 }
 
