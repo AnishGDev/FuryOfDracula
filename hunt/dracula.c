@@ -18,23 +18,13 @@
 #include <stdio.h> // Remove later.
 // structure to store a snapshot of a game state. 
 // Anything above 8 won't make the 1.5 second time limit. 
-#define MAX_DEPTH 5 // might increase depending on how long it takes to evaluate.
+#define MAX_DEPTH 7 // might increase depending on how long it takes to evaluate.
 #define INFINITY 1e9
 #define NEGATIVE_INFINITY -1e9
 
 #define DISTANCE_WEIGHTING 10
 #define HEALTH_LOSS_WEIGHTING -20
 #define MAX_DIST_IGNORE 4 // At what distance to ignore DISTANCE_WEIGHTING
-typedef struct _state {
-	PlaceId whereIsPlayer[5]; // to keep track of which placeID. 5th one is dracula. 
-	// used in evalFunction. 
-	int health;
-	int score;
-	PlaceId * trail;// Store current trail info. 
-	int distFromPlayers[NUM_PLAYERS];
-	// store CD later.
-	Round currRound;
-} State; 
 
 static inline int max(int a, int b) {
 	return a > b ? a : b; 
@@ -52,49 +42,15 @@ void decideDraculaMove(DraculaView dv)
 	registerBestPlay((char *)placeIdToName(minimaxHelper(dv, 0)), "");
 }
 
-State updateTrailInfo(State *s) {
-	return *s;
-}
-
 // Takes a game state s, and evaluates it based on how good is it.
 int evalFunction(DraculaView currView) {
 	int score = 0; 
 	for (int i = 0; i < NUM_PLAYERS - 1; i++) {
-		if (DvGetPlayerLocation(currView, PLAYER_DRACULA) == ADRIATIC_SEA) {
-			//printf("FROM: %s %d TO: %s\n",placeIdToName(DvGetPlayerLocation(currView, PLAYER_DRACULA)),DvGetPlayerLocation(currView, PLAYER_DRACULA), placeIdToName( DvGetPlayerLocation(currView, i)));
-		}
-
 		score+= DISTANCE_WEIGHTING * calculateHunterDistFromDrac(currView, i, DvGetRound(currView), DvGetPlayerLocation(currView, PLAYER_DRACULA), DvGetPlayerLocation(currView, i));
 	}
 	score+= (GAME_START_BLOOD_POINTS- DvGetHealth(currView, PLAYER_DRACULA)) * HEALTH_LOSS_WEIGHTING;
 	return score;
 }
-// If Dracula was at place p, what would his distance to other players be?
-void evalDistFromPlayers(DraculaView dv, PlaceId p, State *s) {
-	for (int i =0; i < NUM_PLAYERS - 1; i++) {
-		//s->whereIsPlayer[i] = DvGetPlayerLocation(dv, i); 
-		s->distFromPlayers[i] = //calculateDistance(dv, s->whereIsPlayer[PLAYER_DRACULA], s->whereIsPlayer[i]); //calculateDistance(dv, from, to); 
-								calculateHunterDistFromDrac(dv, i, s->currRound, s->whereIsPlayer[PLAYER_DRACULA], s->whereIsPlayer[i]);
-		//printf("We are %d away from player %d who is at %s and we are at %s\n", s->distFromPlayers[i], i, placeIdToName(s->whereIsPlayer[i]), placeIdToName(s->whereIsPlayer[PLAYER_DRACULA]));
-	}	
-}
-// Takes in a possible positions and evaluates their state.
-// Returns a list. 
-State * evaluatePositionState(PlaceId *positions, Player currPlayer,State *rootState, int numPositions) {
-	// From the root state, generate possible states.
-	State *s = malloc(sizeof(struct _state) * numPositions); 
-	for (int i =0; i < numPositions; i++) {
-		s[i] = *rootState; 
-		s[i].whereIsPlayer[currPlayer] = positions[i];
-	}
-	return s;
-}
-
-void appendToTrail(PlaceId * trail) {
-
-}
-
-
 PlaceId minimaxHelper(DraculaView rootView, int currDepth) {
 	// is maxmising set to true for Drac.
 	bool isMaximising = true; 
@@ -121,37 +77,6 @@ PlaceId minimaxHelper(DraculaView rootView, int currDepth) {
 	free(possibleMoves);
 	return ret; 
 }
-
-/*
-// Returns best move. 
-PlaceId minimaxHelper(DraculaView dv, State *rootState, int currDepth, bool isMaximising) {
-	// For the rootState, call the recursive function on its children
-	// And evaluate the max. 
-	int len = -1; 
-	PlaceId *possiblePositions = DvWhereCanIGo(dv, &len);
-	printf("len is %d\n", len);
-	//State * s = evaluatePositionState(possiblePositions, PLAYER_DRACULA, rootState, len);
-	int maxScore = INT_MIN; // Very smoll number. 
-	PlaceId retValue = 0; 
-	for (int i =0; i < len; i++) {
-		State s = *rootState;
-		// Update round.
-		s.currRound+=1; 
-		s.whereIsPlayer[PLAYER_DRACULA] = possiblePositions[i];
-		setTheoreticalState(dv, s.trail, s.currRound, s.whereIsPlayer);
-		evalDistFromPlayers(dv, possiblePositions[i], &s); 
-		//maxScore = max(maxScore, minimax(dv, s, currDepth+1, !isMaximising)); // switch isMaximising.
-		//printf("========NEXT when moving to %s ========\n", placeIdToName(possiblePositions[i]));
-		int score = minimax(dv, s, currDepth+1, !isMaximising); // switch isMaximising.
-		printf("Loc: %s\n with a score of %d\n========DONE========\n", placeIdToName(possiblePositions[i]), score);
-		if (score > maxScore) {
-			maxScore = score;
-			retValue = possiblePositions[i]; 
-		}
-	}
-	return retValue;
-}
-*/
 // Evaluate each substate and return a score.
 // Need to support Hunter States as well. 
 // Perhaps only consider distance for now? Hunter's goal is to minimize distance. 
