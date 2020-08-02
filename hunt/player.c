@@ -75,7 +75,12 @@ typedef HunterView View;
 	"GGE.... SBR.... HBR.... MBR.... DGE.V.. " \
 	"GGEV... SBR.... HBR.... MBR.... DC?.V.. " \
 	"GGE.... SBR.... HBR.... MBR.... DC?.V.. " \
-	"GGEV... SBR.... HBR.... MBR.... DC?.V.." \
+	"GGEV... SBR.... HBR.... MBR.... DC?.V.. " \
+	"GGEV... SBR.... HBR.... MBR.... DC?.V.. " \
+	"GGEV... SBR.... HBR.... MBR.... DC?.V.. " \
+	"GGEV... SBR.... HBR.... MBR.... DC?.V.. " \
+	"GGEV... SBR.... HBR.... MBR.... DC?.V.. " \
+	"GGEV... SBR.... HBR.... MBR.... DC?.V.. " \
 )
 # define xMsgs {}
 
