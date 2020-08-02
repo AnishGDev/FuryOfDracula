@@ -136,7 +136,7 @@ PlaceId *HvGetShortestPathTo(
 	if (placeIsReal(dest)) {
 		if (hv->pathCache[dest].array != NULL) {
 			PlaceId * path = malloc(PATH_SIZE);
-			memcpy(path, hv->pathCache[dest].array, PATH_SIZE);
+			memmove(path, hv->pathCache[dest].array, PATH_SIZE);
 			*pathLength = hv->pathCache[dest].length;
 			return path;
 		}
@@ -216,7 +216,7 @@ PlaceId *HvGetShortestPathTo(
 	// Add to cache
 	if (placeIsReal(dest)) {
 		hv->pathCache[dest].array = malloc(PATH_SIZE);
-		memcpy(hv->pathCache[dest].array, path, PATH_SIZE);
+		memmove(hv->pathCache[dest].array, path, PATH_SIZE);
 		hv->pathCache[dest].length = *pathLength;
 	}
 

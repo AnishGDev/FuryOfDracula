@@ -33,7 +33,9 @@ typedef struct _Path {
 struct hunterView {
 	GameView gv;
 	char *pastPlays;
-	Path pathCache[NUM_REAL_PLACES];
+	bool canFreePastPlays;
+	// -1 to exclude Dracula
+	Path pathCache[NUM_PLAYERS - 1][NUM_REAL_PLACES];
 };
 
 static void dfsHelper(Map m, PlaceId from, int maxDepth, int depth, int *visited, int *numLocs, PlaceId **hunterMoves, int *numRetMoves);
@@ -41,29 +43,45 @@ static void dfsHelper(Map m, PlaceId from, int maxDepth, int depth, int *visited
 ////////////////////////////////////////////////////////////////////////
 // Constructor/Destructor
 
-HunterView HvNew(char *pastPlays, Message messages[]) {
-	HunterView new = malloc(sizeof(*new));
-	if (new == NULL) {
+HunterView HvNewGeneric(
+	char *pastPlays, Message messages[], bool canFreePastPlays
+) {
+	HunterView hv = malloc(sizeof(*hv));
+	if (hv == NULL) {
 		fprintf(stderr, "Couldn't allocate HunterView!\n");
 		exit(EXIT_FAILURE);
 	}
 
-	new->gv = GvNew(pastPlays, messages);
-	new->pastPlays = pastPlays;
+	hv->gv = GvNew(pastPlays, messages);
+	hv->pastPlays = pastPlays;
+	hv->canFreePastPlays = canFreePastPlays;
 
-	for (int i = 0; i < NUM_REAL_PLACES; i++) {
-		new->pathCache[i].array = NULL; // No path
+	for (int i = 0; i < NUM_PLAYERS - 1; i++) {
+		for (int j = 0; j < NUM_REAL_PLACES; j++) {
+			hv->pathCache[i][j].array = NULL; // No path
+		}
 	}
 
-	return new;
+	return hv;
+}
+
+HunterView HvNew(char *pastPlays, Message messages[]) {
+	return HvNewGeneric(pastPlays, messages, false);
 }
 
 void HvFree(HunterView hv) {
-	for (int i = 0; i < NUM_REAL_PLACES; i++) {
-		if (hv->pathCache[i].array != NULL) {
-			free(hv->pathCache[i].array);
+	for (int i = 0; i < NUM_PLAYERS - 1; i++) {
+		for (int j = 0; j < NUM_REAL_PLACES; j++) {
+			if (hv->pathCache[i][j].array != NULL) {
+				free(hv->pathCache[i][j].array);
+			}
 		}
+	} 
+
+	if (hv->canFreePastPlays) {
+		free(hv->pastPlays);
 	}
+
 	GvFree(hv->gv);
 	free(hv);
 }
@@ -130,23 +148,37 @@ void reverse(int *array, int n) {
 	}
 }
 
+// Array of place names for debugging; TODO: remove
+char *e[] = {"ADRIATIC_SEA", "ALICANTE", "AMSTERDAM", "ATHENS", "ATLANTIC_OCEAN", "BARCELONA", "BARI", "BAY_OF_BISCAY", "BELGRADE", "BERLIN", "BLACK_SEA", "BORDEAUX", "BRUSSELS", "BUCHAREST", "BUDAPEST", "CADIZ", "CAGLIARI", "CASTLE_DRACULA", "CLERMONT_FERRAND", "COLOGNE", "CONSTANTA", "DUBLIN", "EDINBURGH", "ENGLISH_CHANNEL", "FLORENCE", "FRANKFURT", "GALATZ", "GALWAY", "GENEVA", "GENOA", "GRANADA", "HAMBURG", "IONIAN_SEA", "IRISH_SEA", "KLAUSENBURG", "LE_HAVRE", "LEIPZIG", "LISBON", "LIVERPOOL", "LONDON", "MADRID", "MANCHESTER", "MARSEILLES", "MEDITERRANEAN_SEA", "MILAN", "MUNICH", "NANTES", "NAPLES", "NORTH_SEA", "NUREMBURG", "PARIS", "PLYMOUTH", "PRAGUE", "ROME", "SALONICA", "SANTANDER", "SARAGOSSA", "SARAJEVO", "SOFIA", "ST_JOSEPH_AND_ST_MARY", "STRASBOURG", "SWANSEA", "SZEGED", "TOULOUSE", "TYRRHENIAN_SEA", "VALONA", "VARNA", "VENICE", "VIENNA", "ZAGREB", "ZURICH"};
+
 // Memoised BFS algorithm to find shortest path
 PlaceId *HvGetShortestPathTo(
 	HunterView hv, Player hunter, PlaceId dest, int *pathLength
 ) {
-	// Check cache first
-	//PlaceId *path = NULL;
+	PlaceId src = GvGetPlayerLocation(hv->gv, hunter);
 	PlaceId *path = NULL;
 	*pathLength = 0;
+
+	// printf("from %s to %s\n", e[src], e[dest]);
+
+	if (src == dest) {
+		*pathLength = 1;
+		path = malloc(sizeof(enum placeId));
+		path[0] = dest;
+
+		return path;
+	}
+
+	// Check cache first
 	if (placeIsReal(dest)) {
-		if (hv->pathCache[dest].array != NULL) {
-			PlaceId * path = malloc(PATH_SIZE);
-			memcpy(path, hv->pathCache[dest].array, PATH_SIZE);
-			*pathLength = hv->pathCache[dest].length;
+		if (hv->pathCache[hunter][dest].array != NULL) {
+			path = malloc(PATH_SIZE);
+			memmove(path, hv->pathCache[hunter][dest].array, PATH_SIZE);
+			*pathLength = hv->pathCache[hunter][dest].length;
+
 			return path;
 		}
 	}
-	PlaceId src = GvGetPlayerLocation(hv->gv, hunter);
 
 	if (src != NOWHERE) {
 		Round currentRound = GvGetRound(hv->gv);
@@ -220,9 +252,9 @@ PlaceId *HvGetShortestPathTo(
 
 	// Add to cache
 	if (placeIsReal(dest)) {
-		hv->pathCache[dest].array = malloc(PATH_SIZE);
-		memcpy(hv->pathCache[dest].array, path, PATH_SIZE);
-		hv->pathCache[dest].length = *pathLength;
+		hv->pathCache[hunter][dest].array = malloc(PATH_SIZE);
+		memmove(hv->pathCache[hunter][dest].array, path, PATH_SIZE);
+		hv->pathCache[hunter][dest].length = *pathLength;
 	}
 
 	return path;
@@ -275,7 +307,8 @@ PlaceId *HvWhereCanTheyGoByType(
 	// don't return any info
 	if (player == PLAYER_DRACULA) {
 		Round round;
-		if (HvGetLastKnownDraculaLocation(hv, &round) == NOWHERE) {
+		location = HvGetLastKnownDraculaLocation(hv, &round);
+		if (location == NOWHERE) {
 			return NULL;
 		}
 	}
@@ -317,10 +350,10 @@ HunterView HvWaybackMachine(HunterView hv, Round round) {
 	int length = round * ROUND_CHARS;
 	char *substring = malloc(length + 1); // + 1 for \0
 
-	memcpy(substring, hv->pastPlays, length);
+	memmove(substring, hv->pastPlays, length);
 	substring[length] = '\0';
 
-	return HvNew(substring, NULL); // TODO: is NULL ok?
+	return HvNewGeneric(substring, NULL, true); // TODO: is NULL ok?
 }
 
 PlaceId *locationsNNodesAway(HunterView hv, PlaceId from, int maxDepth, int *numLocs) {
@@ -399,4 +432,18 @@ static void dfsHelper(Map m, PlaceId from, int maxDepth, int depth, int *visited
 		toVisit = toVisit->next;
 	}
 
+}
+
+int HvGetDraculaLocationAge(HunterView hv) {
+	Round dracLocRound = -1;
+	Round currentRound = GvGetRound(hv->gv);
+	HvGetLastKnownDraculaLocation(hv, &dracLocRound);
+	return dracLocRound - currentRound;
+}
+
+PlaceId *HvGetReachable(
+	HunterView hv, Player player, Round round, PlaceId from,
+	int *numReturnedLocs
+) {
+	return GvGetReachable(hv->gv, player, round, from, numReturnedLocs);
 }
