@@ -178,7 +178,8 @@ PlaceId *DvWhereCanTheyGoByType(DraculaView dv, Player player,
 // Your own interface functions
 void setTheoreticalState(DraculaView dv, PlaceId * trailToSet, Round round, PlaceId whereIsPlayer[]);
 PlaceId * returnCurrentTrail(DraculaView dv, int *numReturnedLocs, bool * canFree);
-int calculateHunterDistFromDrac(DraculaView dv,Player player, Round round, PlaceId from, PlaceId dest);
+int calculateHunterDistFromDrac(DraculaView dv,Player player, Round round, PlaceId from, PlaceId dest, 
+	bool road, bool rail, bool boat);
 DraculaView extendGameState(DraculaView currView, char *extension, int extLength);
 // TODO
 

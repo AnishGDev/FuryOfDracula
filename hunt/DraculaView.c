@@ -159,7 +159,8 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves) {
 }
 
 
-int calculateHunterDistFromDrac(DraculaView dv,Player player, Round round, PlaceId from, PlaceId dest) {
+int calculateHunterDistFromDrac(DraculaView dv,Player player, Round round, PlaceId from, PlaceId dest, 
+	bool road, bool rail, bool boat) {
 	Queue q = newQueue();
 	QueueJoin(q, from);
 	//int ret_distance = 0;
@@ -177,7 +178,7 @@ int calculateHunterDistFromDrac(DraculaView dv,Player player, Round round, Place
 		}
 		//printf("Curent is %s\n", placeIdToName(popped));
 		int length = -1; 
-		PlaceId * possibleLocs = GvGetReachable(dv->gv, player, round, popped, &length);
+		PlaceId * possibleLocs = GvGetReachableByType(dv->gv, player, round, popped, road, rail, boat, &length);
 		for (int i = 0; i < length; i++) {
 			if(visited[possibleLocs[i]] == NOT_VISITED) {
 				distance[possibleLocs[i]] = distance[popped] + 1; 
@@ -336,11 +337,11 @@ static PlaceId *ReplaceWithDoubleBack(
 ) {
 	// Go through places and see if they occur in Dracula's trail, if they do, replace
 	// them with double_back_n
-	for (int i = 0; i < numHistMoves; i++) {
+	for (int i = numHistMoves - 1; i >= 0; i--) {
 		for (int j = 0; j < *numReturnedLocs; j++) {
 			if (trailMoves[i] == locations[j]) {
 				// Move to somewere 1 moves ago -- how many moves before it was
-				locations[j] = DOUBLE_BACK_1 + i; // trailMoves[i]; 
+				locations[j] = DOUBLE_BACK_1 + numHistMoves - 1 - i;; // trailMoves[i]; 
 			}
 		}
 	}

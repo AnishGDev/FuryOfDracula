@@ -1139,16 +1139,16 @@ int main(void)
 		Message messages[9] = {};
 		DraculaView dv = DvNew(trail, messages); 
 		Round nextRound = 2; 
-		int len = calculateHunterDistFromDrac(dv,PLAYER_LORD_GODALMING, nextRound, LIVERPOOL, ZURICH);
+		int len = calculateHunterDistFromDrac(dv,PLAYER_LORD_GODALMING, nextRound, LIVERPOOL, ZURICH, true, true, true);
 		printf("Length is %d\n", len);
 		assert(len == 5);
-		len = calculateHunterDistFromDrac(dv,PLAYER_DR_SEWARD , nextRound, LONDON, ZURICH);
+		len = calculateHunterDistFromDrac(dv,PLAYER_DR_SEWARD , nextRound, LONDON, ZURICH, true, true, true);
 		printf("Length is %d\n", len);
 		assert(len == 4);
-		len = calculateHunterDistFromDrac(dv,PLAYER_VAN_HELSING , nextRound, NORTH_SEA, ZURICH);
+		len = calculateHunterDistFromDrac(dv,PLAYER_VAN_HELSING , nextRound, NORTH_SEA, ZURICH, true, true, true);
 		printf("Length is %d\n", len);
 		assert(len == 4);
-		len = calculateHunterDistFromDrac(dv,PLAYER_MINA_HARKER, nextRound, STRASBOURG, ZURICH);
+		len = calculateHunterDistFromDrac(dv,PLAYER_MINA_HARKER, nextRound, STRASBOURG, ZURICH, true, true, true);
 		printf("Length is %d\n", len);
 		assert(len == 1);
 	}
@@ -1191,6 +1191,16 @@ int main(void)
 		DvFree(dv);
 		//free(traps);
 
+	}
+	{
+		char * trail = "GSW.... SLS.... HMR.... MHA.... DSJ.V.. GLO.... SAL.... HCO.... MBR.... DBET... GED.... SBO.... HLI.... MPR.... DKLT... GLV.... SNA.... HNU.... MBD.... DCDT... GIR.... SPA.... HPR.... MKLT...";
+		Message messages[20] = {};
+		DraculaView dv = DvNew(trail, messages);
+		int len = -1;
+		PlaceId * moves = DvGetValidMoves(dv, &len);
+		for (int i = 0; i < len; i++) {
+			printf("%s\n",placeIdToName(moves[i]));
+		}
 	}
 	return EXIT_SUCCESS;
 }
