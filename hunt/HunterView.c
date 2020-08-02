@@ -34,7 +34,8 @@ struct hunterView {
 	GameView gv;
 	char *pastPlays;
 	bool canFreePastPlays;
-	Path pathCache[NUM_REAL_PLACES];
+	// -1 to exclude Dracula
+	Path pathCache[NUM_PLAYERS - 1][NUM_REAL_PLACES];
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -53,8 +54,10 @@ HunterView HvNewGeneric(
 	hv->pastPlays = pastPlays;
 	hv->canFreePastPlays = canFreePastPlays;
 
-	for (int i = 0; i < NUM_REAL_PLACES; i++) {
-		hv->pathCache[i].array = NULL; // No path
+	for (int i = 0; i < NUM_PLAYERS - 1; i++) {
+		for (int j = 0; j < NUM_REAL_PLACES; j++) {
+			hv->pathCache[i][j].array = NULL; // No path
+		}
 	}
 
 	return hv;
@@ -65,11 +68,13 @@ HunterView HvNew(char *pastPlays, Message messages[]) {
 }
 
 void HvFree(HunterView hv) {
-	for (int i = 0; i < NUM_REAL_PLACES; i++) {
-		if (hv->pathCache[i].array != NULL) {
-			free(hv->pathCache[i].array);
+	for (int i = 0; i < NUM_PLAYERS - 1; i++) {
+		for (int j = 0; j < NUM_REAL_PLACES; j++) {
+			if (hv->pathCache[i][j].array != NULL) {
+				free(hv->pathCache[i][j].array);
+			}
 		}
-	}
+	} 
 
 	if (hv->canFreePastPlays) {
 		free(hv->pastPlays);
@@ -163,16 +168,15 @@ PlaceId *HvGetShortestPathTo(
 	}
 
 	// Check cache first
-	//PlaceId *path = NULL;
-	// if (placeIsReal(dest)) {
-	// 	if (hv->pathCache[dest].array != NULL) {
-	// 		PlaceId * path = malloc(PATH_SIZE);
-	// 		memcpy(path, hv->pathCache[dest].array, PATH_SIZE);
-	// 		*pathLength = hv->pathCache[dest].length;
+	if (placeIsReal(dest)) {
+		if (hv->pathCache[hunter][dest].array != NULL) {
+			path = malloc(PATH_SIZE);
+			memmove(path, hv->pathCache[hunter][dest].array, PATH_SIZE);
+			*pathLength = hv->pathCache[hunter][dest].length;
 
-	// 		return path;
-	// 	}
-	// }
+			return path;
+		}
+	}
 
 	if (src != NOWHERE) {
 		Round currentRound = GvGetRound(hv->gv);
@@ -245,11 +249,11 @@ PlaceId *HvGetShortestPathTo(
 	}
 
 	// Add to cache
-	// if (placeIsReal(dest)) {
-	// 	hv->pathCache[dest].array = malloc(PATH_SIZE);
-	// 	memcpy(hv->pathCache[dest].array, path, PATH_SIZE);
-	// 	hv->pathCache[dest].length = *pathLength;
-	// }
+	if (placeIsReal(dest)) {
+		hv->pathCache[hunter][dest].array = malloc(PATH_SIZE);
+		memmove(hv->pathCache[hunter][dest].array, path, PATH_SIZE);
+		hv->pathCache[hunter][dest].length = *pathLength;
+	}
 
 	return path;
 }
@@ -344,7 +348,7 @@ HunterView HvWaybackMachine(HunterView hv, Round round) {
 	int length = round * ROUND_CHARS;
 	char *substring = malloc(length + 1); // + 1 for \0
 
-	memcpy(substring, hv->pastPlays, length);
+	memmove(substring, hv->pastPlays, length);
 	substring[length] = '\0';
 
 	return HvNewGeneric(substring, NULL, true); // TODO: is NULL ok?
