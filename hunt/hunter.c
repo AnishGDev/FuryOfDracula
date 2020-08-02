@@ -23,19 +23,19 @@
 #define TURN_CHARS 8
 
 #define LORD_GODALMING_EARLY_GAME_PATH { \
-	EDINBURGH, MANCHESTER, LIVERPOOL, SWANSEA, LONDON \
+	EDINBURGH, MANCHESTER, LONDON, SWANSEA, LIVERPOOL \
 }
 
 #define DR_SEWARD_EARLY_GAME_PATH { \
-	TYRRHENIAN_SEA, ROME, FLORENCE, GENOA, MILAN \
+	MADRID, BORDEAUX, NANTES, LE_HAVRE, PARIS \
 }
 
 #define VAN_HELSING_EARLY_GAME_PATH { \
-	ATLANTIC_OCEAN, BAY_OF_BISCAY, SANTANDER, SARAGOSSA, TOULOUSE \
+	ROME, MILAN, ZURICH, STRASBOURG, LEIPZIG \
 }
 
 #define MINA_HARKER_EARLY_GAME_PATH { \
-	BLACK_SEA, CONSTANTA, BUCHAREST, BELGRADE, SZEGED \
+	GALATZ, CASTLE_DRACULA, KLAUSENBURG, BELGRADE, BUDAPEST \
 }
 
 typedef struct _EvaluatedLoc {
@@ -68,9 +68,13 @@ void decideHunterMove(HunterView hv) {
 	Message message = "";
 
 	Round dracLocAge = RESEARCH_THRESHOLD;
+	//printf("DracLoc:%s\n", placeIdToName(HvGetLastKnownDraculaLocation(hv, &dracLocAge)));
+	
 	if (HvGetLastKnownDraculaLocation(hv, &dracLocAge) != NOWHERE) {
 		dracLocAge = HvGetRound(hv) - dracLocAge;
 	}
+	printf("Round: %d\n", HvGetRound(hv));
+	printf("DracLocAge %d\n", dracLocAge);
 
 	if (dracLocAge >= RESEARCH_THRESHOLD) {
 		if (HvGetRound(hv) < EARLY_GAME_ROUNDS) {
