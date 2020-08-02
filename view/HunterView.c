@@ -94,12 +94,6 @@ PlaceId HvGetVampireLocation(HunterView hv) {
 // Utility Functions
 
 PlaceId HvGetLastKnownDraculaLocation(HunterView hv, Round *round) {
-	// PlaceId result = GvGetLastKnownDraculaLocation(hv->gv, round);
-	// if (result == CITY_UNKNOWN) {
-	// 	return NOWHERE; 
-	// }
-	// return result;
-
 	PlaceId result = NOWHERE;
 	
 	int n = 0;

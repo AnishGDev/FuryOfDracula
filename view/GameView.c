@@ -32,6 +32,8 @@
 #define LOC_SIZE_STR 3
 #define HUNTER_INFO_START 3
 #define HUNTER_INFO_END 7
+#define NOT_FOUND_TRAP -1
+#define MAX_TRAPS_ALLOWED 6
 #define HISTORY_SIZE ( \
 	sizeof(enum placeId) * (pastPlaysLength / ROUND_CHARACTER_LENGTH + 1) \
 )
@@ -45,7 +47,6 @@ typedef struct _hunterData {
 typedef struct _draculaData {
 	int health; 
 	PlaceId currLoc; 
-	Round lastRevealed; 
 	PlaceId * moveHistory;
 	PlaceId * locHistory;
 } DraculaData; 
@@ -103,7 +104,6 @@ static DraculaData *createNewDracula(int pastPlaysLength) {
 
 	d->health = GAME_START_BLOOD_POINTS;
 	d->currLoc = NOWHERE;
-	d->lastRevealed = 0; 
 	d->moveHistory = malloc(HISTORY_SIZE);
 	d->locHistory = malloc(HISTORY_SIZE);
 	d->locHistory[0] = NOWHERE;
@@ -173,16 +173,12 @@ void reconstructGameState(GameView gv) {
 				DRAC_LHIST[gv->roundNum] = CASTLE_DRACULA;
 			} else if (currentLoc >= HIDE && currentLoc <= DOUBLE_BACK_5) {
 				int offset = currentLoc - DOUBLE_BACK_1 + 1; // DOUBLE_BACK_n => n
-				if (currentLoc == HIDE) offset++; // same as DOUBLE_BACK_1
+				if (currentLoc == HIDE) offset++; // same offset as DOUBLE_BACK_1
 
 				DRAC_LHIST[gv->roundNum] = gv->dracula->currLoc = DRAC_LHIST[gv->roundNum - offset];
 			} else {
 				DRAC_LHIST[gv->roundNum] = currentLoc;
 				gv->dracula->currLoc = currentLoc;
-
-				if (currentLoc != CITY_UNKNOWN && currentLoc != NOWHERE) {
-					gv->dracula->lastRevealed = gv->roundNum;
-				}
 			}
 
 			DRAC_MHIST[gv->roundNum] = currentLoc;
@@ -259,7 +255,7 @@ void addTrapAndShift(GameView gv, PlaceId loc) {
 	}
 
 	gv->trapLocs[0] = loc;
-	if (gv->numTraps < 6) gv->numTraps++;
+	if (gv->numTraps < MAX_TRAPS_ALLOWED) gv->numTraps++;
 }
 
 // Finds the location of a trap in a particular city
@@ -270,13 +266,13 @@ int findTrap(GameView gv, PlaceId trapToDelete) {
 		}
 	}
 
-	return -1; 
+	return NOT_FOUND_TRAP; 
 }
 
 // Deletes a trap, and shifts resulting NOWHERE to end of gv->trapLocs
 void deleteTrapAndShift(GameView gv, PlaceId trapToDelete) {
 	int index = findTrap(gv, trapToDelete);
-	if (index == -1) return;
+	if (index == NOT_FOUND_TRAP) return;
 
 	for (int i = index; i < gv->numTraps - 1; i++) {
 		gv->trapLocs[i] = gv->trapLocs[i + 1]; // Shift
@@ -404,9 +400,7 @@ PlaceId *GvGetLocationHistory(
 		ret = DRAC_LHIST;
 	}
 
-	*numReturnedLocs = gv->roundNum + (
-		player >= gv->whoseTurn ? 0 : 1
-	);
+	*numReturnedLocs = gv->roundNum + (player >= gv->whoseTurn ? 0 : 1);
 
 	*canFree = false;
 	return ret;
@@ -443,7 +437,7 @@ PlaceId *GvGetLastLocations(
 }
 
 ////////////////////////////////////////////////////////////////////////
-// Making a Move
+// Getting Reachable Locations.
 
 
 void addNextRailway(
@@ -544,13 +538,4 @@ PlaceId *GvGetReachableByType(
 	}
 
 	return reachableLocations;
-}
-
-// If a hunter calls this it will return CITY_UNKNOWN
-PlaceId GvGetLastKnownDraculaLocation(GameView gv, int *round) {
-	if (DRAC_LHIST[gv->dracula->lastRevealed] != NOWHERE) {
-		*round = gv->dracula->lastRevealed;
-	}
-
-	return DRAC_LHIST[gv->dracula->lastRevealed];
 }
