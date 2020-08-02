@@ -267,7 +267,7 @@ static PlaceId *ReplaceWithDoubleBack(
 		for (int j = 0; j < *numReturnedLocs; j++) {
 			if (trailMoves[i] == locations[j]) {
 				// Move to somewere 1 moves ago -- how many moves before it was
-				locations[j] = DOUBLE_BACK_1 + i; // trailMoves[i]; 
+				locations[j] = DOUBLE_BACK_1 + numHistMoves - 1 - i; // trailMoves[i]; 
 			}
 		}
 	}
