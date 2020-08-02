@@ -117,7 +117,7 @@ PlaceId patrolMode(HunterView hv, Message *message) {
 
 	// TODO: determine the best way to split the nodes
 	// amoung the hunters
-	Player whosSearching[numLocs];
+	Player whosSearching[NUM_REAL_PLACES];
 	int bestLen = 100;
 	int lenToDest;
 	//PlaceId *path;
@@ -138,7 +138,7 @@ PlaceId patrolMode(HunterView hv, Message *message) {
 
 	for (int i = 0; i < numLocs; i++) {
 		if (whosSearching[i] == me) {
-			printf("actually here?\n");
+			// printf("actually here?\n");
 			path = HvGetShortestPathTo(hv, me, patrolLocs[i], &numPathLocs);
 			if (numLocs > 0) {
 				return path[0];
