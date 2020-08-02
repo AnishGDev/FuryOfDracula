@@ -14,6 +14,7 @@
 #include "Game.h"
 #include <limits.h>
 #include <string.h>
+#include <stdio.h>
 // structure to store a snapshot of a game state. 
 // Anything above 8 won't make the 1.5 second time limit. 
 #define MAX_DEPTH 7 
@@ -55,7 +56,8 @@ void decideDraculaMove(DraculaView dv)
 			int score = 0;
 			if (placeIdToType(pid) != SEA && insideArray(filter, pid, 8)==false) {
 				for (int player = 0; player < NUM_PLAYERS-1; player++) {
-					score += calculateHunterDistFromDrac(dv, player, 0, pid, DvGetPlayerLocation(dv, player), true, true, true); 
+					score += calculateHunterDistFromDrac(dv, player, 0, pid, 
+								DvGetPlayerLocation(dv, player), true, true, true); 
 				}
 				if (score > maxScore) {
 					maxScore = score;
@@ -75,12 +77,18 @@ void decideDraculaMove(DraculaView dv)
 int evalFunction(DraculaView currView) {
 	int score = 0; 
 	for (int i = 0; i < NUM_PLAYERS - 1; i++) {
-		int dist = calculateHunterDistFromDrac(currView, i, DvGetRound(currView), DvGetPlayerLocation(currView, PLAYER_DRACULA), DvGetPlayerLocation(currView, i), true, false, false);
+		int dist = calculateHunterDistFromDrac(currView, i, DvGetRound(currView), 
+					DvGetPlayerLocation(currView, PLAYER_DRACULA), DvGetPlayerLocation(currView, i), 
+					true, false, false);
 		if (dist > MAX_DIST_IGNORE) {
 			dist = MAX_DIST_IGNORE;
 		}
-		dist+= calculateHunterDistFromDrac(currView, i, DvGetRound(currView), DvGetPlayerLocation(currView, PLAYER_DRACULA), DvGetPlayerLocation(currView, i), false, true, false);
-		dist+= calculateHunterDistFromDrac(currView, i, DvGetRound(currView), DvGetPlayerLocation(currView, PLAYER_DRACULA), DvGetPlayerLocation(currView, i), false, false, true);
+		dist+= calculateHunterDistFromDrac(currView, i, DvGetRound(currView), 
+				DvGetPlayerLocation(currView, PLAYER_DRACULA), DvGetPlayerLocation(currView, i), 
+				false, true, false);
+		dist+= calculateHunterDistFromDrac(currView, i, DvGetRound(currView), 
+				DvGetPlayerLocation(currView, PLAYER_DRACULA), DvGetPlayerLocation(currView, i), 
+				false, false, true);
 		score+= DISTANCE_WEIGHTING * (dist/3);
 	}
 	score+= (GAME_START_BLOOD_POINTS- DvGetHealth(currView, PLAYER_DRACULA)) * HEALTH_LOSS_WEIGHTING;
@@ -94,6 +102,7 @@ PlaceId minimaxHelper(DraculaView rootView, int currDepth) {
 	PlaceId * possibleMoves = DvGetValidMoves(rootView, &len); 
 	int max = INT_MIN; 
 	int index = -1; 
+	if (possibleMoves == NULL) return TELEPORT;
 	for (int i = 0; i < len; i++) {
 		char extension[8]; 
 		strcpy(extension, "D"); 
@@ -139,19 +148,15 @@ int minimax(DraculaView currView, int currDepth, bool isMaximising, char * prevS
 	if (isMaximising) {
 		int maxScore = INT_MIN; 
 		int len = -1;
+		char extension[40];
 		PlaceId * possibleMoves = DvGetValidMoves(currView, &len);
-		if (possibleMoves == NULL) {
-			strcpy(extension, prevString);
-			strcat(extension, "DTP....");
-		}
 		for (int i = 0; i < len; i++) {
-			char extension[40];
 			strcpy(extension, prevString); 
 			strcat(extension, "D");
 			strcat(extension, placeIdToAbbrev(possibleMoves[i])); 
 			strcat(extension, "...."); // Lets ignore traps and vampires. Game engine will deal with this.
 			DraculaView newState = extendGameState(currView, extension, 40);
-			int score = minimax(newState, currDepth+1, !isMaxi mising, NULL); 
+			int score = minimax(newState, currDepth+1, !isMaximising, NULL); 
 			if (possibleMoves[i] == CASTLE_DRACULA) {
 				score+= CASTLE_DRACULA_WEIGHTING/currDepth; // The more moves you take to get to Castle Dracula, the smaller the increase.
 			}
@@ -160,7 +165,14 @@ int minimax(DraculaView currView, int currDepth, bool isMaximising, char * prevS
 			}
 			DvFree(newState);
 		}
-		free(possibleMoves);
+		if (possibleMoves == NULL) {
+			strcpy(extension, prevString);
+			strcat(extension, "DTP....");
+			printf("oh yeah, we're teleporting NOW!\n");
+			DraculaView newState = extendGameState(currView, extension, 40);
+			maxScore = minimax(newState, currDepth+1, !isMaximising, NULL);
+			DvFree(newState);
+		} else free(possibleMoves);
 		return maxScore; 
 	} else {
 		PlaceId minScores[NUM_PLAYERS-1] = {NOWHERE, NOWHERE, NOWHERE, NOWHERE};

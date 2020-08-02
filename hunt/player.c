@@ -70,7 +70,8 @@ typedef DraculaView View;
 //#define xPastPlays "GED.... SGE.... HZU.... MCA.... DCF.V.. GMN.... SCFVD.. HGE.... MLS...."
 // Another far away near CD.
 //#define  xPastPlays "GSW.... SLS.... HMR.... MHA.... DSJ.V.. GLO.... SAL.... HCO.... MBR...."
-#define xPastPlays "GSW.... SLS.... HMR.... MHA.... DSJ.V.. GLO.... SAL.... HCO.... MBR.... DBET... GED.... SBO.... HLI.... MPR.... DKLT... GLV.... SNA.... HNU.... MBD.... DCDT... GIR.... SPA.... HPR.... MKLT..."
+#define xPastPlays "GSW.... SLS.... HMR.... MHA.... DNS.V.. GSW.... SLS.... HMR.... MHA.... DAM.V.. GSW.... SLS.... HMR.... MHA.... DCO.V.. GSW.... SLS.... HMR.... MHA.... DBU.V.. GSW.... SLS.... HMR.... MHA.... DD3.V.. GSW.... SLS.... HMR.... MHA.... DHI.V.." 
+					//"GSW.... SLS.... HMR.... MHA.... DSJ.V.. GLO.... SAL.... HCO.... MBR.... DBET... GED.... SBO.... HLI.... MPR.... DKLT... GLV.... SNA.... HNU.... MBD.... DCDT... GIR.... SPA.... HPR.... MKLT..."
 #define xMsgs { "", "", "", "", "", "","","","","","","","","","","","","","","" }
 
 #else

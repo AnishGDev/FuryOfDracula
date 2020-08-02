@@ -1202,5 +1202,6 @@ int main(void)
 			printf("%s\n",placeIdToName(moves[i]));
 		}
 	}
+
 	return EXIT_SUCCESS;
 }
