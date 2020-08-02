@@ -58,7 +58,6 @@ int evaluateDracLoc(HunterView hv, PlaceId loc);
 HunterView *buildHistory(HunterView hv, int *length);
 void freeHistory(HunterView *history, int length);
 
-// Is a global variable like this ok?
 PlaceId hunterPaths[NUM_PLAYERS - 1][EARLY_GAME_ROUNDS] = {
 	LORD_GODALMING_EARLY_GAME_PATH,
 	DR_SEWARD_EARLY_GAME_PATH,
@@ -171,8 +170,6 @@ PlaceId huntMode(HunterView hv, Message *message) {
 	return move;
 }
 
-int bruh = 0;
-
 // Approximates the singularly most likely place where Dracula would
 // currently be
 PlaceId bestDracLoc(HunterView hv) {
@@ -188,7 +185,6 @@ PlaceId bestDracLoc(HunterView hv) {
 	);
 
 	freeHistory(history, historySize);
-	printf("%s (%d) (evaluation calls: %d)\n", d[result.place], result.score, bruh);
 
 	return result.place;
 }
@@ -196,7 +192,6 @@ PlaceId bestDracLoc(HunterView hv) {
 EvaluatedLoc runBestDracLoc(
 	HunterView *history, PlaceId from, Round fromRound, Round toRound
 ) {
-	bruh++;
 	HunterView hv = history[fromRound];
 
 	if (fromRound == toRound) {

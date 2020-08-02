@@ -219,8 +219,6 @@ HunterView HvWaybackMachine(HunterView hv, Round round);
 
 PlaceId *locationsNNodesAway(HunterView hv, PlaceId from, int maxDepth, int *numLocs);
 
-int HvGetDraculaLocationAge(HunterView hv);
-
 PlaceId *HvGetReachable(
 	HunterView hv, Player player, Round round, PlaceId from,
 	int *numReturnedLocs

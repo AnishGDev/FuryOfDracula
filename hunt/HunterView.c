@@ -434,13 +434,6 @@ static void dfsHelper(Map m, PlaceId from, int maxDepth, int depth, int *visited
 
 }
 
-int HvGetDraculaLocationAge(HunterView hv) {
-	Round dracLocRound = -1;
-	Round currentRound = GvGetRound(hv->gv);
-	HvGetLastKnownDraculaLocation(hv, &dracLocRound);
-	return dracLocRound - currentRound;
-}
-
 PlaceId *HvGetReachable(
 	HunterView hv, Player player, Round round, PlaceId from,
 	int *numReturnedLocs
