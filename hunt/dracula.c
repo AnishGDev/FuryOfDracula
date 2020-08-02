@@ -22,9 +22,9 @@
 #define INFINITY 1e9
 #define NEGATIVE_INFINITY -1e9
 
-#define DISTANCE_WEIGHTING 8
-#define HEALTH_LOSS_WEIGHTING -20
-#define MAX_DIST_IGNORE 100 // At what distance to ignore DISTANCE_WEIGHTING
+#define DISTANCE_WEIGHTING 12
+#define HEALTH_LOSS_WEIGHTING -15
+#define MAX_DIST_IGNORE 100 // At what distance to ignore DISTANCE_WEIGHTING. Set it rlly high :shrug:
 
 static inline int max(int a, int b) {
 	return a > b ? a : b; 
@@ -36,10 +36,41 @@ static inline int min(int a, int b) {
 
 int minimax(DraculaView currView, int currDepth, bool isMaximising, char * prevString);
 PlaceId minimaxHelper(DraculaView rootView, int currDepth);
+
+bool insideArray(PlaceId * arr, PlaceId element, int len) {
+	for (int i = 0; i < len; i++) {
+		if (arr[i] == element) {
+			return true;
+		}
+	}
+	return false;
+}
+
 void decideDraculaMove(DraculaView dv)
 {
 	//printf("\nSELECTED MOVE: %s\n", placeIdToName(minimaxHelper(dv, 0)));
-	registerBestPlay((char *)placeIdToAbbrev(minimaxHelper(dv, 0)), "");
+	if (DvGetRound(dv) == 0) {
+		int max_pid = -1; 
+		int maxScore = -1;
+		for (int pid = 0; pid < NUM_REAL_PLACES; pid++) {
+			PlaceId filter[8] = {GALWAY, DUBLIN, SWANSEA, PLYMOUTH, LONDON, LIVERPOOL, MANCHESTER, EDINBURGH};
+			int score = 0;
+			if (placeIdToType(pid) != SEA && insideArray(filter, pid, 8)==false) {
+				for (int player = 0; player < NUM_PLAYERS-1; player++) {
+					score += calculateHunterDistFromDrac(dv, player, 0, pid, DvGetPlayerLocation(dv, player)); 
+				}
+				if (score > maxScore) {
+					maxScore = score;
+					max_pid = pid; 
+				}
+			}
+			printf("score %d\n", score);
+		}
+		printf("%d\n", max_pid);
+		registerBestPlay((char *)placeIdToAbbrev(max_pid), "");
+	} else {
+		registerBestPlay((char *)placeIdToAbbrev(minimaxHelper(dv, 0)), "");
+	}
 }
 
 // Takes a game state s, and evaluates it based on how good is it.
@@ -111,7 +142,6 @@ int minimax(DraculaView currView, int currDepth, bool isMaximising, char * prevS
 			//printf("OH SHIT WE HIT TELEPORT!!");
 		}
 		// Test for teleport as well ^^
-		int index = -1; 
 		for (int i = 0; i < len; i++) {
 			char extension[40];
 			strcpy(extension, prevString); 
@@ -124,11 +154,10 @@ int minimax(DraculaView currView, int currDepth, bool isMaximising, char * prevS
 			int score = minimax(newState, currDepth+1, !isMaximising, NULL); 
 			if (score > maxScore) {
 				maxScore = score;
-				index = i; 
 			}
 			DvFree(newState);
 		}
-		printf("%s is good depth: %d\n", placeIdToName(possibleMoves[index]), currDepth);
+		//printf("%s is good depth: %d\n", placeIdToName(possibleMoves[index]), currDepth);
 		free(possibleMoves);
 		//printf("====");
 		return maxScore; 
