@@ -51,15 +51,45 @@ int main(void) {
 	char pastPlays[ROUND_CHARS * START_SCORE] = "";
 
 	for (int round = 0; round < START_SCORE; round++) {
+		bool end = false;
+
 		for (int player = 0; player < NUM_PLAYERS - 1; player++) {
-			HunterView hv = HvNew(pastPlays, (Message[]) {});
-			decideHunterMove(hv);
-			strcpy(pastPlays, latestPlay);
+			decideHunterMove(HvNew(pastPlays, (Message[]) {}));
+
+			if (player == 0) strcat(pastPlays, "G");
+			if (player == 1) strcat(pastPlays, "S");
+			if (player == 2) strcat(pastPlays, "H");
+			if (player == 3) strcat(pastPlays, "M");
+
+			strcat(pastPlays, latestPlay);
+			strcat(pastPlays, ".... ");
+
+			if (HvGetHealth(HvNew(
+				pastPlays, (Message[]) {}
+			), PLAYER_DRACULA) <= 0) {
+				end = true;
+			}
 		}
+
+		if (end) break;
 
 		DraculaView dv = DvNew(pastPlays, (Message[]) {});
 		decideDraculaMove(dv);
-		strcpy(pastPlays, latestPlay);
+
+		strcat(pastPlays, "D");
+		strcat(pastPlays, latestPlay);
+		if (round % 13 == 0) {
+			strcat(pastPlays, ".V");
+		} else {
+			strcat(pastPlays, "T.");
+		}
+		strcat(pastPlays, ".. ");
+
+		if (DvGetHealth(DvNew(
+			pastPlays, (Message[]) {}
+		), PLAYER_DRACULA) <= 0) {
+			break;
+		}
 	}
 
 	printf("%s\n", pastPlays);

@@ -72,15 +72,7 @@ typedef HunterView View;
 # define ViewFree HvFree
 
 # define xPastPlays (\
-	"GGE.... SBR.... HBR.... MBR.... DGE.V.. " \
-	"GGEV... SBR.... HBR.... MBR.... DC?.V.. " \
-	"GGE.... SBR.... HBR.... MBR.... DC?.V.. " \
-	"GGEV... SBR.... HBR.... MBR.... DC?.V.. " \
-	"GGEV... SBR.... HBR.... MBR.... DC?.V.. " \
-	"GGEV... SBR.... HBR.... MBR.... DC?.V.. " \
-	"GGEV... SBR.... HBR.... MBR.... DC?.V.. " \
-	"GGEV... SBR.... HBR.... MBR.... DC?.V.. " \
-	"GGEV... SBR.... HBR.... MBR.... DC?.V.. " \
+	"GED.... STS.... HAO.... MBS.... DCD.V.." \
 )
 # define xMsgs {}
 

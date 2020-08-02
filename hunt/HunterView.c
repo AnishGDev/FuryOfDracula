@@ -251,7 +251,7 @@ PlaceId *HvGetShortestPathTo(
 	}
 
 	// Add to cache
-	if (placeIsReal(dest)) {
+	if (placeIsReal(dest) && *pathLength > 0) {
 		hv->pathCache[hunter][dest].array = malloc(PATH_SIZE);
 		memmove(hv->pathCache[hunter][dest].array, path, PATH_SIZE);
 		hv->pathCache[hunter][dest].length = *pathLength;
