@@ -404,10 +404,10 @@ static void dfsHelper(HunterView hv, Map m, PlaceId from, int maxDepth, int dept
 			// Check if a Hunter would've been at that location
 			// after dracula
 
-			
+			// If a hunter is at that location dont add it to the patrolled locations
 			for (int i = 0; i < NUM_PLAYERS - 1; i++) {
 				if (toVisit->p == HvGetPlayerLocation(hv, i)) {
-					visited[toVisit->p] = depth-1;
+					visited[toVisit->p] = 1;
 				}
 			}
 			/*

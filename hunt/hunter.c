@@ -56,6 +56,8 @@ int evaluateDracLoc(HunterView hv, PlaceId loc);
 HunterView *buildHistory(HunterView hv, int *length);
 void freeHistory(HunterView *history, int length);
 
+PlaceId *removeLocsByType (PlaceId *places, PlaceType placeType, int *numLocs);
+
 PlaceId hunterPaths[NUM_PLAYERS - 1][EARLY_GAME_ROUNDS] = {
 	LORD_GODALMING_EARLY_GAME_PATH,
 	DR_SEWARD_EARLY_GAME_PATH,
@@ -73,6 +75,7 @@ void decideHunterMove(HunterView hv) {
 	if (HvGetLastKnownDraculaLocation(hv, &dracLocAge) != NOWHERE) {
 		dracLocAge = HvGetRound(hv) - dracLocAge;
 	}
+
 	printf("Round: %d\n", HvGetRound(hv));
 	printf("DracLocAge %d\n", dracLocAge);
 
@@ -113,8 +116,15 @@ PlaceId patrolMode(HunterView hv, Message *message) {
 	PlaceId lastDracLoc = HvGetLastKnownDraculaLocation(hv, &dracLocAge);
 	dracLocAge = HvGetRound(hv) - dracLocAge;
 
+	PlaceType dracLocType = placeIdToType(HvGetPlayerLocation(hv, PLAYER_DRACULA));
+
 	int numLocs = -1;
 	PlaceId *patrolLocs = locationsNNodesAway(hv, lastDracLoc, dracLocAge, &numLocs);
+
+	patrolLocs = removeLocsByType(patrolLocs, dracLocType, &numLocs);
+	printf("NLocs: %d\n", numLocs);
+	for (int i = 0; i < numLocs; i++) printf("Patrol: %s %d\n", placeIdToName(patrolLocs[i]), placeIdToType(patrolLocs[i]));
+
 
 	// TODO: Discard Nodes whose path would've resulted in 
 	// a hunter revealing a better dracLocAge
@@ -124,7 +134,7 @@ PlaceId patrolMode(HunterView hv, Message *message) {
 	Player whosSearching[NUM_REAL_PLACES];
 	int bestLen = 100;
 	int lenToDest;
-	//PlaceId *path;
+
 	for (int i = 0; i < numLocs; i++) {
 		bestLen = 100;
 		for (int j = 0; j < NUM_PLAYERS - 1; j++) {
@@ -143,7 +153,6 @@ PlaceId patrolMode(HunterView hv, Message *message) {
 
 	for (int i = 0; i < numLocs; i++) {
 		if (whosSearching[i] == me) {
-			// printf("actually here?\n");
 			path = HvGetShortestPathTo(hv, me, patrolLocs[i], &numPathLocs);
 			if (numLocs > 0) {
 				bestMove = path[0];
@@ -275,4 +284,21 @@ void freeHistory(HunterView *history, int length) {
 	}
 
 	free(history);
+}
+
+// If a place isnt of the same type it will be removed
+PlaceId *removeLocsByType (PlaceId *places, PlaceType placeType, int *numLocs) {
+	
+	int numShift = 0;
+	
+	for (int i = 0; i < *numLocs; i++) {
+		if (placeIdToType(places[i]) != placeType) {
+			numShift++;
+		} else {
+			places[i - numShift] = places[i];
+		}
+	}
+	
+	*numLocs -= numShift;
+	return places;
 }
