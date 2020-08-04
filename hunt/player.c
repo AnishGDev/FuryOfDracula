@@ -70,8 +70,11 @@ typedef DraculaView View;
 //#define xPastPlays "GED.... SGE.... HZU.... MCA.... DCF.V.. GMN.... SCFVD.. HGE.... MLS...."
 // Another far away near CD.
 //#define  xPastPlays "GSW.... SLS.... HMR.... MHA.... DSJ.V.. GLO.... SAL.... HCO.... MBR...."
-#define xPastPlays "GSW.... SLS.... HMR.... MHA.... DCD.V.. GSW.... SLS.... HMR.... MHA.... DGA.V.. GSW.... SLS.... HMR.... MHA.... DKL.V.. GSW.... SLS.... HMR.... MHA.... DD3.V.. GSW.... SLS.... HMR.... MHA.... DHI.V.." 
+//#define xPastPlays "GSW.... SLS.... HMR.... MHA.... DCD.V.. GSW.... SLS.... HMR.... MHA.... DGA.V.. GSW.... SLS.... HMR.... MHA.... DKL.V.. GSW.... SLS.... HMR.... MHA.... DD3.V.. GSW.... SLS.... HMR.... MHA.... DHI.V.." 
 					//"GSW.... SLS.... HMR.... MHA.... DSJ.V.. GLO.... SAL.... HCO.... MBR.... DBET... GED.... SBO.... HLI.... MPR.... DKLT... GLV.... SNA.... HNU.... MBD.... DCDT... GIR.... SPA.... HPR.... MKLT..."
+
+// PLAYING AGAINST G70
+#define xPastPlays "GHA.... SSR.... HLE.... MGW.... DCD.V.. GBR.... SBO.... HMR.... MAO.... DKLT... GVI.... SMR.... HGO.... MMS.... DGAT... GBC.... SGO.... HVE.... MTS.... DD3T... GGAT... SVE.... HBD.... MIO.... DHIT... GCDTTVD SBD.... HGA.... MBS.... DTPT... GSZ.... SGA.... HCDTD.. MCN.... DTPT... GGA.... SCDTD.. HCDD... MGA.... DKLT.M. GKLTD.. SKLD... HSJ.... MKLD..."
 #define xMsgs { "", "", "", "", "", "","","","","","","","","","","","","","","" }
 
 #else
@@ -81,10 +84,12 @@ typedef HunterView View;
 # define ViewNew HvNew
 # define decideMove decideHunterMove
 # define ViewFree HvFree
-
+/*
 # define xPastPlays (\
 	"GED.... STS.... HAO.... MBS.... DCD.V.." \
 )
+*/
+#define xPastPlays "GED.... SMA.... HRO.... MGA.... DMI.V.. GMN.... SBO.... HMIVD.. MKL.... DC?T... GED.... SPA.... HMU.... MSZ.... DMUT... GNS.... SST.... HMUTD.. MVI.... DC?T... GHA.... SZU...."
 # define xMsgs {}
 
 #endif
