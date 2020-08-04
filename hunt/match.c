@@ -40,12 +40,82 @@
 
 // Moves given by registerBestPlay are this long (including terminator)
 #define MOVE_SIZE 3
+#define LOC_SIZE_STR 3
+#define TURN_CHARS 8
 #define ROUND_CHARS 40
 #define START_SCORE 366
 
 // The minimum static globals I can get away with
 static char latestPlay[MOVE_SIZE] = "";
 static char latestMessage[MESSAGE_SIZE] = "";
+
+Player getPlayer(char *s, int i) {
+	if (i < 0) return -2;
+	if (s[i] == 'G') return 0;
+	if (s[i] == 'S') return 1;
+	if (s[i] == 'H') return 2;
+	if (s[i] == 'M') return 3;
+	if (s[i] == 'D') return 4;
+	return -1;
+}
+
+PlaceId getLoc(char *s, int i) {
+	char locString[LOC_SIZE_STR];
+	sprintf(locString, "%c%c", s[i + 1], s[i + 2]);
+	return placeAbbrevToId(locString);
+}
+
+bool hasRested(char *s, int i) {
+	return (
+		i >= TURN_CHARS * NUM_PLAYERS
+		&& getLoc(s, i) == getLoc(s, i - TURN_CHARS * NUM_PLAYERS)
+	);
+}
+
+bool hasResearched(char *s, int i) {
+	for (int j = i; j >= i - TURN_CHARS * NUM_PLAYERS; j -= TURN_CHARS) {
+		if (getPlayer(s, j) != PLAYER_DRACULA && !hasRested(s, j)) {
+			return false;
+		}
+	}
+	return true;
+}
+
+void trailAdd(PlaceId *trail, PlaceId loc) {
+	for (int i = TRAIL_SIZE - 1; i > 0; i--) {
+		trail[i] = trail[i - 1];
+	}
+
+	trail[0] = loc;
+}
+
+bool isRevealed(char *s, int i) {
+	return false; // TODO
+}
+
+char *redactedPastPlays(char *pastPlays) {
+	char *new = strdup(pastPlays);
+	PlaceId trail[TRAIL_SIZE] = {[0 ... TRAIL_SIZE - 1] = NOWHERE};
+	
+	for (int i = 0; i < strlen(new); i += TURN_CHARS) {
+		Player player = getPlayer(new, i);
+		PlaceId loc = getLoc(new, i);
+
+		if (player == PLAYER_DRACULA) {
+			trailAdd(trail, getLoc(new, i));
+
+			if (!isRevealed(new, i)) {
+				new[i + 1] = placeIsLand(loc) ? 'C' : 'S';
+				new[i + 2] = '?';
+			}
+		}
+		// if (hasResearched(new, i)) {
+		// 	printf("Research at %d\n", i);
+		// }
+	}
+
+	return new;
+}
 
 int main(void) {
 	char pastPlays[ROUND_CHARS * START_SCORE] = "";
@@ -54,6 +124,8 @@ int main(void) {
 		bool end = false;
 
 		for (int player = 0; player < NUM_PLAYERS - 1; player++) {
+			printf("%s\n", redactedPastPlays(pastPlays));
+
 			decideHunterMove(HvNew(pastPlays, (Message[]) {}));
 
 			if (player == 0) strcat(pastPlays, "G");
@@ -94,7 +166,7 @@ int main(void) {
 			DvGetScore(dv),
 			DvGetHealth(dv, PLAYER_DRACULA)
 		);
-		printf("%s\n", pastPlays);
+		// printf("%s\n", pastPlays);
 	}
 
 	DraculaView dv = DvNew(pastPlays, (Message[]) {});

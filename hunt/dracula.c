@@ -64,7 +64,7 @@ void decideDraculaMove(DraculaView dv)
 					max_pid = pid; 
 				}
 			}
-			printf("score %d\n", score);
+			// printf("score %d\n", score);
 		}
 		printf("%d\n", max_pid);
 		registerBestPlay((char *)placeIdToAbbrev(max_pid), "");
@@ -109,12 +109,12 @@ PlaceId minimaxHelper(DraculaView rootView, int currDepth) {
 		strcat(extension, placeIdToAbbrev(possibleMoves[i])); 
 		strcat(extension, "....");
 		DraculaView newState = extendGameState(rootView, extension, 7);
-		printf("\t========NEXT when moving to %s ========\n", placeIdToName(possibleMoves[i]));
+		// printf("\t========NEXT when moving to %s ========\n", placeIdToName(possibleMoves[i]));
 		int score = minimax(newState, currDepth+1, !isMaximising, NULL);
 		if (possibleMoves[i] == CASTLE_DRACULA) {
 			score+= CASTLE_DRACULA_WEIGHTING;
 		} 
-		printf("Evaluated %s with a score of %d \n",placeIdToName(possibleMoves[i]), score);
+		// printf("Evaluated %s with a score of %d \n",placeIdToName(possibleMoves[i]), score);
 		if (score > max) {
 			max = score;
 			index = i; 
