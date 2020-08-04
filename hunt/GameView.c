@@ -253,10 +253,6 @@ void reconstructGameState(GameView gv) {
 				CURR_HUNTER->health = GAME_START_HUNTER_LIFE_POINTS;
 			}
 
-			if (currentLoc == CURR_HUNTER->currLoc) {
-				CURR_HUNTER->health += LIFE_GAIN_REST;
-			}
-
 			if (CURR_HUNTER->health > GAME_START_HUNTER_LIFE_POINTS) {
 				CURR_HUNTER->health = GAME_START_HUNTER_LIFE_POINTS;
 			}
@@ -284,6 +280,10 @@ void reconstructGameState(GameView gv) {
 				gv->score -= SCORE_LOSS_HUNTER_HOSPITAL;
 				CURR_HUNTER->health = 0;
 				CURR_HUNTER->currLoc = HOSPITAL_PLACE;
+			}
+
+			if (currentLoc == CURR_HUNTER->currLoc) {
+				CURR_HUNTER->health += LIFE_GAIN_REST;
 			}
 		}
 
