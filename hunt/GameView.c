@@ -213,7 +213,7 @@ void reconstructGameState(GameView gv) {
 
 		if (gv->whoseTurn == PLAYER_DRACULA) {
 			if (currentLoc == TELEPORT) {
-				DRAC_LHIST[gv->roundNum] = CASTLE_DRACULA;
+				DRAC_LHIST[gv->roundNum] = gv->dracula->currLoc = CASTLE_DRACULA;
 			} else if (currentLoc >= HIDE && currentLoc <= DOUBLE_BACK_5) {
 				int offset = currentLoc - DOUBLE_BACK_1 + 1; // DOUBLE_BACK_n => n
 				if (currentLoc == HIDE) offset++; // same as DOUBLE_BACK_1
