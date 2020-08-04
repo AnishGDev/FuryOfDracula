@@ -56,7 +56,7 @@ int evaluateDracLoc(HunterView hv, PlaceId loc);
 HunterView *buildHistory(HunterView hv, int *length);
 void freeHistory(HunterView *history, int length);
 
-//PlaceId *removeLocsByType (PlaceId *places, PlaceType placeType, int *numLocs);
+PlaceId *removeLocsByType (PlaceId *places, PlaceType placeType, int *numLocs);
 
 PlaceId hunterPaths[NUM_PLAYERS - 1][EARLY_GAME_ROUNDS] = {
 	LORD_GODALMING_EARLY_GAME_PATH,
@@ -118,12 +118,12 @@ PlaceId patrolMode(HunterView hv, Message *message) {
 	PlaceId lastDracLoc = HvGetLastKnownDraculaLocation(hv, &dracLocAge);
 	dracLocAge = HvGetRound(hv) - dracLocAge;
 
-	//PlaceType dracLocType = placeIdToType(HvGetPlayerLocation(hv, PLAYER_DRACULA));
-
+	PlaceType dracLocType = placeIdToType(HvGetPlayerLocation(hv, PLAYER_DRACULA));
+	//printf("LastDLoc: %s\n", placeIdToName(lastDracLoc));
 	int numLocs = -1;
 	PlaceId *patrolLocs = locationsNNodesAway(hv, lastDracLoc, dracLocAge, &numLocs);
 
-	//patrolLocs = removeLocsByType(patrolLocs, dracLocType, &numLocs);
+	patrolLocs = removeLocsByType(patrolLocs, dracLocType, &numLocs);
 	//printf("NLocs: %d\n", numLocs);
 	//for (int i = 0; i < numLocs; i++) printf("Patrol: %s %d\n", placeIdToName(patrolLocs[i]), placeIdToType(patrolLocs[i]));
 
