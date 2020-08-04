@@ -10,6 +10,8 @@ CFLAGS = -Wall -Werror -g
 
 # do not change the following line
 BINS = dracula hunter
+# For debugging.
+#BINS = dracula hunter testHunterView testDraculaView testGameView match
 
 # add any other *.o files that your solution requires
 # (and add their dependencies below after DraculaView.o)
@@ -47,6 +49,12 @@ Places.o: Places.c Places.h
 
 #testDraculaView: testDraculaView.o testUtils.o DraculaView.o GameView.o Map.o Places.o Queue.o
 #testDraculaView.o: testDraculaView.c DraculaView.h GameView.h Map.h Places.h Game.h Queue.h
+
+testDraculaView: testDraculaView.o testUtils.o DraculaView.o GameView.o Map.o Places.o Queue.o
+testDraculaView.o: testDraculaView.c DraculaView.h GameView.h Map.h Places.h Game.h Queue.h
+
+testGameView: testGameView.o testUtils.o GameView.o Map.o Places.o Queue.o
+testGameView.o: testGameView.c GameView.h Map.h Places.h Game.h Queue.h
 
 # if you use other ADTs, add dependencies for them here
 

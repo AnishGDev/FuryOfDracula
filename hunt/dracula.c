@@ -55,7 +55,7 @@ void decideDraculaMove(DraculaView dv)
 		for (int pid = 0; pid < NUM_REAL_PLACES; pid++) {
 			PlaceId filter[8] = {GALWAY, DUBLIN, SWANSEA, PLYMOUTH, LONDON, LIVERPOOL, MANCHESTER, EDINBURGH};
 			int score = 0;
-			if (placeIdToType(pid) != SEA && insideArray(filter, pid, 8)==false) {
+			if (placeIdToType(pid) != SEA && pid != HOSPITAL_PLACE && insideArray(filter, pid, 8)==false) {
 				for (int player = 0; player < NUM_PLAYERS-1; player++) {
 					score += calculateHunterDistFromDrac(dv, player, 0, pid, 
 								DvGetPlayerLocation(dv, player), true, true, true); 
