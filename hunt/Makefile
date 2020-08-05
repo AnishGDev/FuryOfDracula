@@ -6,7 +6,7 @@
 # 2020-07-10	v2.0	Team Dracula <cs2521@cse.unsw.edu.au>
 
 CC = gcc
-CFLAGS = -Wall -Werror -g
+CFLAGS = -Wall -Werror -g -O3
 
 # do not change the following line
 BINS = dracula hunter
