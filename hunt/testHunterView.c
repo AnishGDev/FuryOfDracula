@@ -338,7 +338,7 @@ int main(void)
 
 		hv = HvNew(
 			"GGE.... SGE.... HGE.... MGE.... DC?T... "
-			"GGET...",
+			"GZRT...",
 			(Message[6]) {}
 		);
 		assert(HvGetHealth(hv, PLAYER_LORD_GODALMING) == (
@@ -352,7 +352,7 @@ int main(void)
 
 		hv = HvNew(
 			"GGE.... SGE.... HGE.... MGE.... DC?T... "
-			"GGE.... SGE.... HGE.... MGE.... DC?T... "
+			"GZR.... SGE.... HGE.... MGE.... DC?T... "
 			"GGETT.. SGE.... HGE.... MGE.... DC?.... "
 			"GGE....",
 			(Message[16]) {}

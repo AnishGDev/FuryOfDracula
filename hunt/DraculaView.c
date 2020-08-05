@@ -302,6 +302,21 @@ PlaceId *DvWhereCanTheyGoByType(
 	}
 }
 
+bool castleDraculaInLast5(DraculaView dv) {
+	int numHistMoves;
+	bool canFree = false;
+	//int numMoves = 5;
+	PlaceId * trailMoves = GvGetLastMoves(dv->gv, PLAYER_DRACULA, 
+							TRAIL_SIZE-1, &numHistMoves, &canFree);
+	
+	for (int i = 0; i < numHistMoves; i++) {
+		if (trailMoves[i] == CASTLE_DRACULA) {
+			return true; 
+		}
+	}
+	return false; 
+}
+
 // Checks if dracula has used a Hide in the last 5 moves
 static bool hiddenInLast5 (DraculaView dv, PlaceId *moveHist, int numHistMoves) {
 	bool found = false;
