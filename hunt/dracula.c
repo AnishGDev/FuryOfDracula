@@ -21,12 +21,13 @@
 #define INFINITY 1e9
 #define NEGATIVE_INFINITY -1e9
 
-#define DISTANCE_WEIGHTING 12
+#define DISTANCE_WEIGHTING 7
 #define HEALTH_LOSS_WEIGHTING -15
 #define MAX_DIST_IGNORE 700 // At what distance to ignore DISTANCE_WEIGHTING. Set it rlly high (100 * 7) 7 combinations
 #define CASTLE_DRACULA_WEIGHTING 15 // You get health points. So weight it higher.
-#define SEA_WEIGHTING 0
-#define SCORE_WEIGHTING 0
+#define TELEPORT_WEIGHTING -15
+#define SEA_WEIGHTING -6
+#define SCORE_WEIGHTING 12
 static inline int max(int a, int b) {
 	return a > b ? a : b; 
 }
@@ -54,7 +55,7 @@ void decideDraculaMove(DraculaView dv)
 		int maxScore = -1;
 		for (int pid = 0; pid < NUM_REAL_PLACES; pid++) {
 			PlaceId filter[8] = {GALWAY, DUBLIN, SWANSEA, PLYMOUTH, LONDON, LIVERPOOL, MANCHESTER, EDINBURGH};
-			int score = 0;
+			int score = 1;
 			if (placeIdToType(pid) != SEA && pid != HOSPITAL_PLACE && insideArray(filter, pid, 8)==false) {
 				for (int player = 0; player < NUM_PLAYERS-1; player++) {
 					printf("Distance from %s to %s is %d\n", placeIdToName(DvGetPlayerLocation(dv, player)),placeIdToName(pid), calculateHunterDistFromDrac(dv, player, 0, DvGetPlayerLocation(dv, player), pid, true, true, true));
@@ -111,7 +112,7 @@ int evalFunction(DraculaView currView) {
 		}	
 		score+= DISTANCE_WEIGHTING * (dist/7);
 	}
-	//score+= (GAME_START_SCORE - DvGetScore(currView)) * SCORE_WEIGHTING;
+	score+= (GAME_START_SCORE - DvGetScore(currView)) * SCORE_WEIGHTING;
 	score+= (GAME_START_BLOOD_POINTS- DvGetHealth(currView, PLAYER_DRACULA)) * HEALTH_LOSS_WEIGHTING;
 	return score;
 }
@@ -316,6 +317,7 @@ int minimax(DraculaView currView, int currDepth, bool isMaximising, char * prevS
 				strcat(extension, "DTP....");
 				DraculaView newState = extendGameState(currView, extension, 40);
 				maxScore = minimax(newState, currDepth+1, !isMaximising, NULL, counter);
+				maxScore += TELEPORT_WEIGHTING;
 				DvFree(newState);
 			} else free(possibleMoves);
 		}
