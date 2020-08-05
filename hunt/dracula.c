@@ -24,7 +24,7 @@
 #define DISTANCE_WEIGHTING 11
 #define HEALTH_LOSS_WEIGHTING -15
 #define MAX_DIST_IGNORE 100 // At what distance to ignore DISTANCE_WEIGHTING. Set it rlly high 
-#define CASTLE_DRACULA_WEIGHTING 15 // You get health points. So weight it higher.
+#define CASTLE_DRACULA_WEIGHTING 5 // You get health points. So weight it higher.
 #define SEA_WEIGHTING 0
 
 static inline int max(int a, int b) {
