@@ -15,8 +15,8 @@
 #include "hunter.h"
 #include "HunterView.h"
 
-#define RESEARCH_THRESHOLD 12
-#define PATROL_THRESHOLD 3
+#define RESEARCH_THRESHOLD 11
+#define PATROL_THRESHOLD 4
 #define HUNT_THRESHOLD 0
 
 #define EARLY_GAME_ROUNDS 5
@@ -76,8 +76,8 @@ void decideHunterMove(HunterView hv) {
 		dracLocAge = HvGetRound(hv) - dracLocAge;
 	}
 
-	//printf("Round: %d\n", HvGetRound(hv));
-	//printf("DracLocAge %d\n", dracLocAge);
+	printf("Round: %d\n", HvGetRound(hv));
+	printf("DracLocAge %d\n", dracLocAge);
 	//printf("CurLoc %s\n", placeIdToName(HvGetPlayerLocation(hv, HvGetPlayer(hv))));
 	//printf("CurHealth %d\n", HvGetHealth(hv, HvGetPlayer(hv)));
 
@@ -124,52 +124,73 @@ PlaceId patrolMode(HunterView hv, Message *message) {
 	PlaceId *patrolLocs = locationsNNodesAway(hv, lastDracLoc, dracLocAge, &numLocs);
 
 	patrolLocs = removeLocsByType(patrolLocs, dracLocType, &numLocs);
-	//printf("NLocs: %d\n", numLocs);
-	//for (int i = 0; i < numLocs; i++) printf("Patrol: %s %d\n", placeIdToName(patrolLocs[i]), placeIdToType(patrolLocs[i]));
-
-
-	// TODO: Discard Nodes whose path would've resulted in 
-	// a hunter revealing a better dracLocAge
+	printf("NLocs: %d\n", numLocs);
+	for (int i = 0; i < numLocs; i++) printf("Patrol: %s %d\n", placeIdToName(patrolLocs[i]), placeIdToType(patrolLocs[i]));
 
 	// TODO: determine the best way to split the nodes
 	// amoung the hunters
-	Player whosSearching[NUM_REAL_PLACES];
-	int bestLen = 100;
+	int *lenToEachPatrolLoc[NUM_PLAYERS-1];
+	
+	for (int i = 0; i < NUM_PLAYERS - 1; i++) lenToEachPatrolLoc[i] = malloc(sizeof(int) * NUM_REAL_PLACES);
+	//Player closestPlayer[NUM_REAL_PLACES];
 	int lenToDest;
+	int bestLen;
+
+	// The hunter closest to the furthurst patrol loc will go to that
+	// hopefully this makes it cut down the middle of other locations
+	Player me = HvGetPlayer(hv);
+	PlaceId furthustTarget = patrolLocs[0];
+	Player furthustHunter = me;
+	int furthurst = -1;
 
 	for (int i = 0; i < numLocs; i++) {
 		bestLen = 100;
 		for (int j = 0; j < NUM_PLAYERS - 1; j++) {
 			HvGetShortestPathTo(hv, j, patrolLocs[i], &lenToDest);
+			lenToEachPatrolLoc[j][i] = lenToDest;
 			if (lenToDest < bestLen) {
 				bestLen = lenToDest;
-				whosSearching[i] = j;
+				//closestPlayer[patrolLocs[i]] = j; 
+
+				if (furthurst < lenToDest) {
+					furthustTarget = patrolLocs[i];
+					furthustHunter = j;
+					furthurst = lenToDest;
+				}
 			}
 		}
 	}
-
-	Player me = HvGetPlayer(hv);
+	
 	PlaceId *path;
-	int numPathLocs;
-	PlaceId bestMove = NOWHERE;
-
-	for (int i = 0; i < numLocs; i++) {
-		if (whosSearching[i] == me) {
-			path = HvGetShortestPathTo(hv, me, patrolLocs[i], &numPathLocs);
-			if (numLocs > 0) {
-				bestMove = path[0];
-				break;
+	int pathLen;
+	if (furthustHunter == me) {
+		path = HvGetShortestPathTo(hv, me, furthustTarget, &pathLen);
+	} else {
+		// Honestly idk anymore just choose a random node 
+		// an if a hunter is on it go somewhere else
+		// oh yea but the DFS doesnt return nodes that a 
+		// hunter has been to hell yea dont need to have 
+		// another loop to check for that #blessed
+		PlaceId target = patrolLocs[0];
+		int closestLen = 100;
+		for (int i = 0; i < numLocs; i++) {
+			if (lenToEachPatrolLoc[me][patrolLocs[i]] < closestLen) {
+				closestLen = lenToEachPatrolLoc[me][patrolLocs[i]];
+				target = patrolLocs[i];
 			}
 		}
+		path = HvGetShortestPathTo(hv, me, target, &pathLen);
 	}
-	// If the hunter isnt closest to any node move closer to last Drac Loc
-	if (bestMove == NOWHERE) {
-		path = HvGetShortestPathTo(hv, me, lastDracLoc, &numPathLocs);
-		bestMove = path[0];
-	}
+
+	PlaceId bestLoc;
+	if (pathLen <= 0) {
+		bestLoc = NOWHERE; // IDK if this can happen but its here
+	} else bestLoc = path[0];
+
+	for (int i = 0; i < NUM_PLAYERS - 1; i++) free(lenToEachPatrolLoc[i]);
 	free(patrolLocs);
 	free(path);
-	return bestMove;
+	return bestLoc;
 }
 
 // Array of place names for debugging; TODO: remove
@@ -260,6 +281,7 @@ int evaluateDracLoc(HunterView hv, PlaceId loc) {
 	for (int i = 0; i < NUM_PLAYERS - 1; i++) {
 		int distance = 0;
 		free(HvGetShortestPathTo(hv, i, loc, &distance));
+		if (distance == 1) return 0;
 		score += distance;
 	}
 
