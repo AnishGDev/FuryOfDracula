@@ -21,12 +21,12 @@
 #define INFINITY 1e9
 #define NEGATIVE_INFINITY -1e9
 
-#define DISTANCE_WEIGHTING 11
+#define DISTANCE_WEIGHTING 12
 #define HEALTH_LOSS_WEIGHTING -15
-#define MAX_DIST_IGNORE 100 // At what distance to ignore DISTANCE_WEIGHTING. Set it rlly high 
-#define CASTLE_DRACULA_WEIGHTING 5 // You get health points. So weight it higher.
+#define MAX_DIST_IGNORE 700 // At what distance to ignore DISTANCE_WEIGHTING. Set it rlly high (100 * 7) 7 combinations
+#define CASTLE_DRACULA_WEIGHTING 15 // You get health points. So weight it higher.
 #define SEA_WEIGHTING 0
-
+#define SCORE_WEIGHTING 0
 static inline int max(int a, int b) {
 	return a > b ? a : b; 
 }
@@ -79,7 +79,7 @@ void decideDraculaMove(DraculaView dv)
 int evalFunction(DraculaView currView) {
 	int score = 0; 
 	for (int i = 0; i < NUM_PLAYERS - 1; i++) {
-		/*
+		
 		int dist = calculateHunterDistFromDrac(currView, i, DvGetRound(currView), 
 					DvGetPlayerLocation(currView, i), DvGetPlayerLocation(currView, PLAYER_DRACULA), 
 					true, false, false);
@@ -100,8 +100,8 @@ int evalFunction(DraculaView currView) {
 		dist+= calculateHunterDistFromDrac(currView, i, DvGetRound(currView), 
 				DvGetPlayerLocation(currView, i), DvGetPlayerLocation(currView, PLAYER_DRACULA), 
 				false, true, true);
-				*/
-		int dist= calculateHunterDistFromDrac(currView, i, DvGetRound(currView), 
+				
+		dist+= calculateHunterDistFromDrac(currView, i, DvGetRound(currView), 
 				DvGetPlayerLocation(currView, i), DvGetPlayerLocation(currView, PLAYER_DRACULA), 
 				true, true, true);
 
@@ -109,8 +109,9 @@ int evalFunction(DraculaView currView) {
 			printf("%d was bigger", dist);
 			dist = MAX_DIST_IGNORE;
 		}	
-		score+= DISTANCE_WEIGHTING * (dist);
+		score+= DISTANCE_WEIGHTING * (dist/7);
 	}
+	//score+= (GAME_START_SCORE - DvGetScore(currView)) * SCORE_WEIGHTING;
 	score+= (GAME_START_BLOOD_POINTS- DvGetHealth(currView, PLAYER_DRACULA)) * HEALTH_LOSS_WEIGHTING;
 	return score;
 }
