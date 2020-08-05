@@ -29,7 +29,7 @@
 #define SEA_WEIGHTING -9
 #define SCORE_WEIGHTING 2
 
-#define TELEPORT_THRESHOLD 3 // n units away
+#define TELEPORT_THRESHOLD 2 // n units away
 
 static inline int max(int a, int b) {
 	return a > b ? a : b; 
@@ -319,15 +319,17 @@ int minimax(DraculaView currView, int currDepth, bool isMaximising, char * prevS
 			if (possibleMoves == NULL) {
 				//strcpy(extension, prevString);
 				extension[32] = '\0';
-				int dist = 0; 
+				int minDist = INT_MAX; 
 				for (int i = 0; i < NUM_PLAYERS - 1; i++) {
-					dist+= calculateHunterDistFromDrac(currView, i, DvGetRound(currView)+1, 
+					printf("Dist is %d\n", calculateHunterDistFromDrac(currView, i, DvGetRound(currView)+1, 
+						DvGetPlayerLocation(currView, i), CASTLE_DRACULA, true, true, true));
+					minDist = min(calculateHunterDistFromDrac(currView, i, DvGetRound(currView)+1, 
 						DvGetPlayerLocation(currView, i), CASTLE_DRACULA, 
-						true, true, true);
+						true, true, true), minDist);
 				}
-				printf("OKAY Teleport threshold is %d versus %d\n", dist, TELEPORT_THRESHOLD * 4);
-				if (dist < (TELEPORT_THRESHOLD * 4)) {
-					return -10000;
+				printf("OKAY Teleport threshold is %d versus %d\n", minDist, TELEPORT_THRESHOLD);
+				if (minDist < (TELEPORT_THRESHOLD)) {
+					return -5000;
 				}
 				strcat(extension, "DTP....");
 				DraculaView newState = extendGameState(currView, extension, 40);
