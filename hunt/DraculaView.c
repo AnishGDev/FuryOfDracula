@@ -171,8 +171,11 @@ int calculateHunterDistFromDrac(DraculaView dv,Player player, Round round, Place
 		//distance[i] = -1;
 	}
 	visited[from] = from; 
+	int added = 0; 
+	int amountPopped = 0; 
 	while(!QueueIsEmpty(q)) {
 		Item popped = QueueLeave(q);
+		amountPopped+=1; 
 		if(popped == dest) {
 			break; 
 		}
@@ -184,7 +187,12 @@ int calculateHunterDistFromDrac(DraculaView dv,Player player, Round round, Place
 				distance[possibleLocs[i]] = distance[popped] + 1; 
 				visited[possibleLocs[i]] = popped;
 				QueueJoin(q, possibleLocs[i]);
+				added+=1;
 			}
+		}
+		//printf("Round is %d\n", round);
+		if (amountPopped >= added) {
+			round+=1;
 		}
 		free(possibleLocs);
 	}
