@@ -15,7 +15,7 @@
 #include "hunter.h"
 #include "HunterView.h"
 
-#define RESEARCH_THRESHOLD 12
+#define RESEARCH_THRESHOLD 11
 #define PATROL_THRESHOLD 4
 #define HUNT_THRESHOLD 0
 
@@ -162,16 +162,15 @@ PlaceId patrolMode(HunterView hv, Message *message) {
 			}
 		}
 	}
-	// If the hunter isnt closest to any node move closer to last Drac Loc
+	// If the hunter isnt closest to any node move to any target
 	if (bestMove == NOWHERE) {
-		path = HvGetShortestPathTo(hv, me, lastDracLoc, &numPathLocs);
+		path = HvGetShortestPathTo(hv, me, patrolLocs[numLocs/2], &numPathLocs);
 		bestMove = path[0];
 	}
 	free(patrolLocs);
 	free(path);
 	return bestMove;
 }
-
 // Array of place names for debugging; TODO: remove
 char *d[] = {"ADRIATIC_SEA", "ALICANTE", "AMSTERDAM", "ATHENS", "ATLANTIC_OCEAN", "BARCELONA", "BARI", "BAY_OF_BISCAY", "BELGRADE", "BERLIN", "BLACK_SEA", "BORDEAUX", "BRUSSELS", "BUCHAREST", "BUDAPEST", "CADIZ", "CAGLIARI", "CASTLE_DRACULA", "CLERMONT_FERRAND", "COLOGNE", "CONSTANTA", "DUBLIN", "EDINBURGH", "ENGLISH_CHANNEL", "FLORENCE", "FRANKFURT", "GALATZ", "GALWAY", "GENEVA", "GENOA", "GRANADA", "HAMBURG", "IONIAN_SEA", "IRISH_SEA", "KLAUSENBURG", "LE_HAVRE", "LEIPZIG", "LISBON", "LIVERPOOL", "LONDON", "MADRID", "MANCHESTER", "MARSEILLES", "MEDITERRANEAN_SEA", "MILAN", "MUNICH", "NANTES", "NAPLES", "NORTH_SEA", "NUREMBURG", "PARIS", "PLYMOUTH", "PRAGUE", "ROME", "SALONICA", "SANTANDER", "SARAGOSSA", "SARAJEVO", "SOFIA", "ST_JOSEPH_AND_ST_MARY", "STRASBOURG", "SWANSEA", "SZEGED", "TOULOUSE", "TYRRHENIAN_SEA", "VALONA", "VARNA", "VENICE", "VIENNA", "ZAGREB", "ZURICH"};
 
