@@ -393,14 +393,10 @@ PlaceId *locationsNNodesAway(HunterView hv, PlaceId from, int maxDepth, int *num
 static void dfsHelper(HunterView hv, Map m, PlaceId from, int maxDepth, int depth, int *visited, int *numLocs, PlaceId **playerMoves, int *numPlayerLocs) {
 	ConnList toVisit = MapGetConnections(m, from);
 	depth++;
-	//visited[from] = (depth > visited[from]) ? visited[from]:depth;
+
 	bool expandNode = false;
 	// Check if dracula couldve been here
-	//printf("Depth: %d\n", depth);
 	int dracLocIndex = numPlayerLocs[PLAYER_DRACULA] - 1 - maxDepth + depth - 1;
-	//printf("DracL: %s\n", placeIdToName(playerMoves[PLAYER_DRACULA][dracLocIndex]));
-	//printf("FromL: %s\n", placeIdToName(from));
-	//printf("FromT: %d\n", placeIdToType(from));
 
 	if (playerMoves[PLAYER_DRACULA][dracLocIndex] == CITY_UNKNOWN) {
 		if (placeIdToType(from) == LAND) {
@@ -413,7 +409,7 @@ static void dfsHelper(HunterView hv, Map m, PlaceId from, int maxDepth, int dept
 	} else if (playerMoves[PLAYER_DRACULA][dracLocIndex] == from) {
 		expandNode = true;
 	}
-	//printf("Expand: %d\n", expandNode);
+
 	while ((toVisit != NULL) && (expandNode)) {
 		if ((visited[toVisit->p] == 0) && (toVisit->p != HOSPITAL_PLACE)) {
 			if (depth == maxDepth) {
