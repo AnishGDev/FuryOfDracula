@@ -21,13 +21,13 @@
 #define INFINITY 1e9
 #define NEGATIVE_INFINITY -1e9
 
-#define DISTANCE_WEIGHTING 7
-#define HEALTH_LOSS_WEIGHTING -15
+#define DISTANCE_WEIGHTING 12
+#define HEALTH_LOSS_WEIGHTING -16
 #define MAX_DIST_IGNORE DISTANCE_WEIGHTING * 10 // At what distance to ignore DISTANCE_WEIGHTING. Set it rlly high (100 * 7) 7 combinations
-#define CASTLE_DRACULA_WEIGHTING 5 // You get health points. So weight it higher.
-#define TELEPORT_WEIGHTING -5
-#define SEA_WEIGHTING -9
-#define SCORE_WEIGHTING 2
+#define CASTLE_DRACULA_WEIGHTING 40 // You get health points. So weight it higher.
+#define TELEPORT_WEIGHTING -10
+#define SEA_WEIGHTING -10
+#define SCORE_WEIGHTING 1
 
 #define TELEPORT_THRESHOLD 2 // n units away
 
