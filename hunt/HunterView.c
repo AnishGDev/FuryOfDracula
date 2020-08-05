@@ -38,7 +38,7 @@ struct hunterView {
 	Path pathCache[NUM_PLAYERS - 1][NUM_REAL_PLACES];
 };
 
-static void dfsHelper(HunterView hv, Map m, PlaceId from, int maxDepth, int depth, int *visited, int *numLocs, PlaceId **hunterMoves, int *numRetMoves);
+static void dfsHelper(HunterView hv, Map m, PlaceId from, int maxDepth, int depth, int *visited, int *numLocs, PlaceId **playerMoves, int *numRetMoves);
 
 ////////////////////////////////////////////////////////////////////////
 // Constructor/Destructor
@@ -354,27 +354,26 @@ HunterView HvWaybackMachine(HunterView hv, Round round) {
 PlaceId *locationsNNodesAway(HunterView hv, PlaceId from, int maxDepth, int *numLocs) {
 	// Uses a DFS to get locations at max depth away
 	// I think should be a BFS
-	int numRetLocs[NUM_PLAYERS-1];
-	bool canfree[NUM_PLAYERS-1];
-	PlaceId *hunterPrevMoves[NUM_PLAYERS-1];
-	for (int i = 0; i < NUM_PLAYERS-1; i++) {
-		hunterPrevMoves[i] = GvGetLocationHistory(hv->gv, i, &numRetLocs[i], &canfree[i]);
+	int numRetLocs[NUM_PLAYERS];
+	bool canfree[NUM_PLAYERS];
+	PlaceId *playerPrevMoves[NUM_PLAYERS];
+	for (int i = 0; i < NUM_PLAYERS; i++) {
+		playerPrevMoves[i] = GvGetLastLocations(hv->gv, i, TRAIL_SIZE, &numRetLocs[i], &canfree[i]);
 	}
 	
-
 	int visited[NUM_REAL_PLACES] = {0};
-	int depth = 1;
+	int depth = 0;
 	visited[from] = depth;
 	Map m = MapNew();
 	maxDepth--;
 	*numLocs = 0;
-	dfsHelper(hv, m, from, maxDepth, depth, visited, numLocs, hunterPrevMoves, numRetLocs);
+	dfsHelper(hv, m, from, maxDepth, depth, visited, numLocs, playerPrevMoves, numRetLocs);
 
 	// Free Hunter Moves
 	for (int i = 0; i < NUM_PLAYERS - 1; i++) {
 		if (canfree[i]) {
-			free(hunterPrevMoves[i]);
-			hunterPrevMoves[i] = NULL;
+			free(playerPrevMoves[i]);
+			playerPrevMoves[i] = NULL;
 		}
 	}
 	
@@ -391,49 +390,56 @@ PlaceId *locationsNNodesAway(HunterView hv, PlaceId from, int maxDepth, int *num
 	return locations;
 }
 
-static void dfsHelper(HunterView hv, Map m, PlaceId from, int maxDepth, int depth, int *visited, int *numLocs, PlaceId **hunterMoves, int *numRetLoc) {
-	
+static void dfsHelper(HunterView hv, Map m, PlaceId from, int maxDepth, int depth, int *visited, int *numLocs, PlaceId **playerMoves, int *numPlayerLocs) {
 	ConnList toVisit = MapGetConnections(m, from);
 	depth++;
-	visited[from] = depth;
+	//visited[from] = (depth > visited[from]) ? visited[from]:depth;
+	bool expandNode = false;
+	// Check if dracula couldve been here
+	//printf("Depth: %d\n", depth);
+	int dracLocIndex = numPlayerLocs[PLAYER_DRACULA] - 1 - maxDepth + depth - 1;
+	//printf("DracL: %s\n", placeIdToName(playerMoves[PLAYER_DRACULA][dracLocIndex]));
+	//printf("FromL: %s\n", placeIdToName(from));
+	//printf("FromT: %d\n", placeIdToType(from));
 
-	while (toVisit != NULL) {
-		if (visited[toVisit->p] == 0) {
-			visited[toVisit->p] = depth;
+	if (playerMoves[PLAYER_DRACULA][dracLocIndex] == CITY_UNKNOWN) {
+		if (placeIdToType(from) == LAND) {
+			expandNode = true;
+		}
+	} else if (playerMoves[PLAYER_DRACULA][dracLocIndex] == SEA_UNKNOWN) {
+		if (placeIdToType(from) == SEA) {
+			expandNode = true;
+		}
+	} else if (playerMoves[PLAYER_DRACULA][dracLocIndex] == from) {
+		expandNode = true;
+	}
+	//printf("Expand: %d\n", expandNode);
+	while ((toVisit != NULL) && (expandNode)) {
+		if ((visited[toVisit->p] == 0) && (toVisit->p != HOSPITAL_PLACE)) {
+			if (depth == maxDepth) {
 
-			// Check if a Hunter would've been at that location
-			// after dracula
-
-			
-			for (int i = 0; i < NUM_PLAYERS - 1; i++) {
-				if (toVisit->p == HvGetPlayerLocation(hv, i)) {
-					visited[toVisit->p] = depth-1;
-				}
-			}
-			/*
-			if (maxDepth - depth <= TRAIL_SIZE) { // If dracula has been here in the last 6 moves
-				int maxHistIndex = 0;
-				for (int i = 0; i < NUM_PLAYERS -1; i++) {
-					maxHistIndex = (numRetLoc[i] > TRAIL_SIZE) ? TRAIL_SIZE : numRetLoc[i]; // Whichevers smaller
-					for (int j = 0; j < maxHistIndex; j++) {
-						if (hunterMoves[i][j] == toVisit->p) {
-							visited[toVisit->p] = 0;
-							return; // Do not persue this path, if dracula went here a hunter wouldve caught it
+				// Check if a hunter was at that location
+				bool hunterBeenHere = false;
+				for (int i = 0; i < NUM_PLAYERS - 1; i++) { // For every hunter
+					for (int j = numPlayerLocs[i] - depth; j < numPlayerLocs[i]; j++) { 	// Check if they have visited this node at depth and after
+						if (playerMoves[i][j] == toVisit->p) {
+							hunterBeenHere = true;
+							//printf("Removing %s\n", placeIdToName(toVisit->p));
+							break;
 						}
 					}
+					if (hunterBeenHere) break;
 				}
-			}*/
-			
-			if (depth == maxDepth) {
-				*numLocs += 1;
-			}
-			else {
-				dfsHelper(hv, m, toVisit->p, maxDepth, depth, visited, numLocs, hunterMoves, numRetLoc);
+				if (!hunterBeenHere) {
+					*numLocs += 1;
+					visited[toVisit->p] = maxDepth;
+				}
+			} else {
+				dfsHelper(hv, m, toVisit->p, maxDepth, depth, visited, numLocs, playerMoves, numPlayerLocs);
 			}
 		}
 		toVisit = toVisit->next;
 	}
-
 }
 
 PlaceId *HvGetReachable(
