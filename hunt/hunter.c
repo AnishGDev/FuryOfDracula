@@ -16,7 +16,7 @@
 #include "HunterView.h"
 
 #define RESEARCH_THRESHOLD 12
-#define PATROL_THRESHOLD 3
+#define PATROL_THRESHOLD 6
 #define HUNT_THRESHOLD 0
 
 #define EARLY_GAME_ROUNDS 5
@@ -260,6 +260,7 @@ int evaluateDracLoc(HunterView hv, PlaceId loc) {
 	for (int i = 0; i < NUM_PLAYERS - 1; i++) {
 		int distance = 0;
 		free(HvGetShortestPathTo(hv, i, loc, &distance));
+		if (distance == 1) return 0;
 		score += distance;
 	}
 
