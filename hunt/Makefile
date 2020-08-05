@@ -6,7 +6,7 @@
 # 2020-07-10	v2.0	Team Dracula <cs2521@cse.unsw.edu.au>
 
 CC = gcc
-CFLAGS = -Wall -Werror
+CFLAGS = -Wall -Werror -O3
 
 # do not change the following line
 BINS = dracula hunter
@@ -15,7 +15,6 @@ BINS = dracula hunter
 # (and add their dependencies below after DraculaView.o)
 # if you're not using Map.o or Places.o, you can remove them
 OBJS = GameView.o Map.o Places.o
-
 # add whatever system libraries you need here (e.g. -lm)
 LIBS =
 
