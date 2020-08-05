@@ -17,7 +17,7 @@
 #include <stdio.h>
 // structure to store a snapshot of a game state. 
 // Anything above 8 won't make the 1.5 second time limit. 
-#define MAX_DEPTH 5 // Look ahead n
+#define MAX_DEPTH 4 // Look ahead n
 #define INFINITY 1e9
 #define NEGATIVE_INFINITY -1e9
 
@@ -57,8 +57,9 @@ void decideDraculaMove(DraculaView dv)
 			int score = 0;
 			if (placeIdToType(pid) != SEA && pid != HOSPITAL_PLACE && insideArray(filter, pid, 8)==false) {
 				for (int player = 0; player < NUM_PLAYERS-1; player++) {
-					score += calculateHunterDistFromDrac(dv, player, 0, pid, 
-								DvGetPlayerLocation(dv, player), true, true, true); 
+					printf("Distance from %s to %s is %d\n", placeIdToName(DvGetPlayerLocation(dv, player)),placeIdToName(pid), calculateHunterDistFromDrac(dv, player, 0, DvGetPlayerLocation(dv, player), pid, true, true, true));
+					score += calculateHunterDistFromDrac(dv, player, 0, DvGetPlayerLocation(dv, player), 
+								pid, true, true, true); 
 				}
 				if (score > maxScore) {
 					maxScore = score;
