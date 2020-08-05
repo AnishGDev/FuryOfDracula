@@ -15,9 +15,13 @@
 #include <limits.h>
 #include <string.h>
 #include <stdio.h>
+#include <sys/time.h>
+#include <stdint.h>
+
 // structure to store a snapshot of a game state. 
 // Anything above 8 won't make the 1.5 second time limit. 
-#define MAX_DEPTH 7 
+// #define MAX_DEPTH 7 
+#define MAX_TIME 0.5 * 1000000
 #define INFINITY 1e9
 #define NEGATIVE_INFINITY -1e9
 
@@ -46,8 +50,20 @@ bool insideArray(PlaceId * arr, PlaceId element, int len) {
 	return false;
 }
 
+uint64_t startTime;
+
+// Adapted from https://stackoverflow.com/a/5833240/5583289
+// Returns time in microseconds
+uint64_t getTime() {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return tv.tv_sec * (uint64_t) 1000000 + tv.tv_usec;
+}
+
 void decideDraculaMove(DraculaView dv)
 {
+	startTime = getTime();
+
 	if (DvGetRound(dv) == 0) {
 		int max_pid = -1; 
 		int maxScore = -1;
@@ -64,13 +80,15 @@ void decideDraculaMove(DraculaView dv)
 					max_pid = pid; 
 				}
 			}
-			printf("score %d\n", score);
+			// printf("score %d\n", score);
 		}
-		printf("%d\n", max_pid);
+		// printf("%d\n", max_pid);
 		registerBestPlay((char *)placeIdToAbbrev(max_pid), "");
 	} else {
 		registerBestPlay((char *)placeIdToAbbrev(minimaxHelper(dv, 0)), "");
 	}
+
+	// printf("time: %f seconds\n", ((float) (getTime() - startTime)) / 1000000.0);
 }
 
 // Takes a game state s, and evaluates it based on how good is it.
@@ -109,12 +127,12 @@ PlaceId minimaxHelper(DraculaView rootView, int currDepth) {
 		strcat(extension, placeIdToAbbrev(possibleMoves[i])); 
 		strcat(extension, "....");
 		DraculaView newState = extendGameState(rootView, extension, 7);
-		printf("\t========NEXT when moving to %s ========\n", placeIdToName(possibleMoves[i]));
+		// printf("\t========NEXT when moving to %s ========\n", placeIdToName(possibleMoves[i]));
 		int score = minimax(newState, currDepth+1, !isMaximising, NULL);
 		if (possibleMoves[i] == CASTLE_DRACULA) {
 			score+= CASTLE_DRACULA_WEIGHTING;
 		} 
-		printf("Evaluated %s with a score of %d \n",placeIdToName(possibleMoves[i]), score);
+		// printf("Evaluated %s with a score of %d \n",placeIdToName(possibleMoves[i]), score);
 		if (score > max) {
 			max = score;
 			index = i; 
@@ -144,7 +162,9 @@ char playerIdToName(int id) {
 }
 
 int minimax(DraculaView currView, int currDepth, bool isMaximising, char * prevString) {
-	if (currDepth >= MAX_DEPTH) return evalFunction(currView);
+	// if (currDepth >= MAX_DEPTH) return evalFunction(currView);
+	if (getTime() - startTime > MAX_TIME) return evalFunction(currView);
+
 	if (isMaximising) {
 		int maxScore = INT_MIN; 
 		int len = -1;

@@ -70,7 +70,7 @@ typedef DraculaView View;
 //#define xPastPlays "GED.... SGE.... HZU.... MCA.... DCF.V.. GMN.... SCFVD.. HGE.... MLS...."
 // Another far away near CD.
 //#define  xPastPlays "GSW.... SLS.... HMR.... MHA.... DSJ.V.. GLO.... SAL.... HCO.... MBR...."
-#define xPastPlays "GAO.... SAO.... HAO.... MCD...."
+#define xPastPlays "GMA.... SCD.... HMI.... MCO.... DAT.V.. GAL.... SGA.... HGO.... MAM.... DVAT... GMS.... SBD.... HTS.... MBU.... DD1T... GMR.... SVI.... HIO.... MBO.... DSOT... GGO.... SPR.... HATV... MAL.... DHIT... GGO.... SBD.... HIO.... MAL.... DSJT... GGE.... SBC.... HBS.... MBA.... DZAT... GGE.... SBC.... HCN.... MBA.... DMUT.M. GGE.... SBC.... HCN.... MBA.... DD1T.M. GMR.... SBD.... HBS.... MSR.... DNUT.M. GBU.... SBR.... HCN.... MBA.... DLIT.M. GBU.... SLITD.. HBC.... MBO.... DHIT.M. GCO.... SLITD.. HBD.... MCO.... DCOT.M. GCOTD.. SZA.... HBR.... MCOD..."
 //#define xPastPlays "GSW.... SLS.... HMR.... MHA.... DCD.V.. GSW.... SLS.... HMR.... MHA.... DGA.V.. GSW.... SLS.... HMR.... MHA.... DKL.V.. GSW.... SLS.... HMR.... MHA.... DD3.V.. GSW.... SLS.... HMR.... MHA.... DHI.V.." 
 					//"GSW.... SLS.... HMR.... MHA.... DSJ.V.. GLO.... SAL.... HCO.... MBR.... DBET... GED.... SBO.... HLI.... MPR.... DKLT... GLV.... SNA.... HNU.... MBD.... DCDT... GIR.... SPA.... HPR.... MKLT..."
 #define xMsgs { "", "", "", "", "", "","","","","","","","","","","","","","","" }
