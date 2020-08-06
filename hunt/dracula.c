@@ -24,7 +24,7 @@
 #define DISTANCE_WEIGHTING 12
 #define HEALTH_LOSS_WEIGHTING -14
 #define MAX_DIST_IGNORE DISTANCE_WEIGHTING * 10 // At what distance to ignore DISTANCE_WEIGHTING. Set it rlly high (100 * 7) 7 combinations
-#define CASTLE_DRACULA_WEIGHTING 5 // You get health points. So weight it higher.
+#define CASTLE_DRACULA_WEIGHTING 5 // You get health points. So weight it higher. Inverse proportional to curr_depth
 #define TELEPORT_WEIGHTING -10
 #define SEA_WEIGHTING -10
 #define SCORE_WEIGHTING 2
@@ -140,7 +140,7 @@ PlaceId minimaxHelper(DraculaView rootView, int currDepth) {
 		if (possibleMoves[i] == CASTLE_DRACULA) {
 			score+= CASTLE_DRACULA_WEIGHTING;
 		} 
-		printf("Evaluated %s with a score of %d \n",placeIdToName(possibleMoves[i]), score);
+		//printf("Evaluated %s with a score of %d \n",placeIdToName(possibleMoves[i]), score);
 		if (score > max) {
 			max = score;
 			index = i; 
@@ -299,7 +299,7 @@ int minimax(DraculaView currView, int currDepth, bool isMaximising, char * prevS
 				strcat(extension, "...."); // Lets ignore traps and vampires. Game engine will deal with this.
 				DraculaView newState = extendGameState(currView, extension, 40);
 				//printf("Health is %d\n", DvGetHealth(newState, PLAYER_DRACULA));
-				if (DvGetHealth(newState, PLAYER_DRACULA) <= 0) return -10000;
+				if (DvGetHealth(newState, PLAYER_DRACULA) <= 0) return -10000/currDepth;
 				int score = minimax(newState, currDepth+1, !isMaximising, NULL, counter); 
 				if (possibleMoves[i] == CASTLE_DRACULA) {
 					score+= CASTLE_DRACULA_WEIGHTING/(currDepth+1); // The more moves you take to get to Castle Dracula, the smaller the increase.
@@ -321,8 +321,10 @@ int minimax(DraculaView currView, int currDepth, bool isMaximising, char * prevS
 				extension[32] = '\0';
 				int minDist = INT_MAX; 
 				for (int i = 0; i < NUM_PLAYERS - 1; i++) {
+					/*
 					printf("Dist is %d\n", calculateHunterDistFromDrac(currView, i, DvGetRound(currView)+1, 
 						DvGetPlayerLocation(currView, i), CASTLE_DRACULA, true, true, true));
+						*/
 					minDist = min(calculateHunterDistFromDrac(currView, i, DvGetRound(currView)+1, 
 						DvGetPlayerLocation(currView, i), CASTLE_DRACULA, 
 						true, true, true), minDist);
