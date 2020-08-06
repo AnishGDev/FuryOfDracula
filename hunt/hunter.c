@@ -114,6 +114,37 @@ PlaceId researchMode(HunterView hv, Message *message) {
 // Spread out and cover a large area to find the trail
 PlaceId patrolMode(HunterView hv, Message *message) {
 	// TODO: determine locations dracula could have gone
+
+	Player me = HvGetPlayer(hv);
+
+	int teleports = numTeleports(hv);
+	printf("NTP: %d\n", teleports);
+	Player closestHunter = me + 1;
+	PlaceId bestMove = NOWHERE;
+	PlaceId *path;
+	if (teleports > TELEPORT_THRESHOLD) {
+		// If closest Hunter to CD, stay on CD
+		int bestDistToCD = 100;
+		int distToCD;
+		for (int i = 0; i < NUM_PLAYERS - 1; i++) {
+			path = HvGetShortestPathTo(hv, i, CASTLE_DRACULA, &distToCD);
+			if (bestDistToCD > distToCD) {
+				bestDistToCD = distToCD;
+				closestHunter = i;
+				bestMove = path[0];
+			}
+			free(path);
+		}
+	}
+	if (closestHunter == me) {
+		printf("Dammit i gotta go CD\n");
+		if (HvGetPlayerLocation(hv, me) == CASTLE_DRACULA) {
+			return NOWHERE;
+		} else {
+			return bestMove;
+		}
+	}
+
 	int dracLocAge = 0;
 	PlaceId lastDracLoc = HvGetLastKnownDraculaLocation(hv, &dracLocAge);
 	dracLocAge = HvGetRound(hv) - dracLocAge;
@@ -148,10 +179,7 @@ PlaceId patrolMode(HunterView hv, Message *message) {
 		}
 	}
 
-	Player me = HvGetPlayer(hv);
-	PlaceId *path;
 	int numPathLocs;
-	PlaceId bestMove = NOWHERE;
 
 	for (int i = 0; i < numLocs; i++) {
 		if (whosSearching[i] == me) {

@@ -21,6 +21,7 @@
 #include "Game.h"
 #include "Places.h"
 // add your own #includes here
+#define TELEPORT_THRESHOLD 3
 
 typedef struct hunterView *HunterView;
 
@@ -223,5 +224,7 @@ PlaceId *HvGetReachable(
 	HunterView hv, Player player, Round round, PlaceId from,
 	int *numReturnedLocs
 );
+
+int numTeleports(HunterView hv);
 
 #endif // !defined (FOD__HUNTER_VIEW_H_)
