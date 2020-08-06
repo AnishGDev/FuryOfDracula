@@ -444,3 +444,23 @@ PlaceId *HvGetReachable(
 ) {
 	return GvGetReachable(hv->gv, player, round, from, numReturnedLocs);
 }
+
+int numTeleports(HunterView hv) {
+	int numHist = -1;
+	bool canFreeHist = false;
+	PlaceId *history = GvGetLocationHistory(hv->gv, PLAYER_DRACULA, &numHist, &canFreeHist);
+
+	int numTeleports = 0;
+
+	for (int i = 0; i < numHist; i++) {
+		if (history[i] == CASTLE_DRACULA) {
+			numTeleports++;
+		}
+		if (numTeleports > TELEPORT_THRESHOLD) {
+			break;
+		}
+	}
+
+	if (canFreeHist) free(history);
+	return numTeleports;
+}
