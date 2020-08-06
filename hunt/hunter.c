@@ -133,7 +133,6 @@ PlaceId patrolMode(HunterView hv, Message *message) {
 				closestHunter = i;
 				bestMove = path[0];
 			}
-			free(path);
 		}
 	}
 	if (closestHunter == me) {
