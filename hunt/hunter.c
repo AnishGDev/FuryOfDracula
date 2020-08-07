@@ -119,10 +119,10 @@ PlaceId patrolMode(HunterView hv, Message *message) {
 
 	int teleports = numTeleports(hv);
 	printf("NTP: %d\n", teleports);
-	Player closestHunter = me + 1;
 	PlaceId bestMove = NOWHERE;
 	PlaceId *path;
 	if (teleports > TELEPORT_THRESHOLD) {
+		Player closestHunter = PLAYER_DRACULA;
 		// If closest Hunter to CD, stay on CD
 		int bestDistToCD = 100;
 		int distToCD;
@@ -134,15 +134,16 @@ PlaceId patrolMode(HunterView hv, Message *message) {
 				bestMove = path[0];
 			}
 		}
-	}
-	if (closestHunter == me) {
-		printf("Dammit i gotta go CD\n");
-		if (HvGetPlayerLocation(hv, me) == CASTLE_DRACULA) {
-			return NOWHERE;
-		} else {
-			return bestMove;
+		if (closestHunter == me) {
+			printf("Dammit i gotta go CD\n");
+			if (HvGetPlayerLocation(hv, me) == CASTLE_DRACULA) {
+				return NOWHERE;
+			} else {
+				return bestMove;
+			}
 		}
 	}
+	bestMove = NOWHERE;
 
 	int dracLocAge = 0;
 	PlaceId lastDracLoc = HvGetLastKnownDraculaLocation(hv, &dracLocAge);
