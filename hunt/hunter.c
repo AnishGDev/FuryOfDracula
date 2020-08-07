@@ -134,13 +134,13 @@ PlaceId patrolMode(HunterView hv, Message *message) {
 	PlaceId lastDracLoc = HvGetLastKnownDraculaLocation(hv, &dracLocAge);
 	dracLocAge = HvGetRound(hv) - dracLocAge;
 
-	//PlaceType dracLocType = placeIdToType(HvGetPlayerLocation(hv, PLAYER_DRACULA));
+	PlaceType dracLocType = placeIdToType(HvGetPlayerLocation(hv, PLAYER_DRACULA));
 	//printf("LastDLoc: %s\n", placeIdToName(lastDracLoc));
 	int numLocs = -1;
 	PlaceId *patrolLocs = locationsNNodesAway(hv, lastDracLoc, dracLocAge, &numLocs);
 
 	// Should be handleded by locationsNNodesAway
-	//patrolLocs = removeLocsByType(patrolLocs, dracLocType, &numLocs);
+	patrolLocs = removeLocsByType(patrolLocs, dracLocType, &numLocs);
 
 	PlaceId bestMove = patrolBestMove(hv, me, patrolLocs, numLocs);
 	free(patrolLocs);
