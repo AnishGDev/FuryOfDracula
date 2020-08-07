@@ -43,11 +43,21 @@ typedef struct _EvaluatedLoc {
 	int score;
 } EvaluatedLoc;
 
+typedef struct _CDLocation {
+	bool goToCD;
+	PlaceId bestMove;
+} CDLocation;
+
 PlaceId earlyMode(HunterView hv, Message *message);
 PlaceId researchMode(HunterView hv, Message *message);
 PlaceId patrolMode(HunterView hv, Message *message);
 PlaceId huntMode(HunterView hv, Message *message);
 
+// Patrol mode helper fuctions
+CDLocation campAtCD(HunterView hv, Player me);
+PlaceId patrolBestMove(HunterView hv, Player me, PlaceId *patrolLocs, int numPatrolLocs);
+
+// Hunt mode helper functions
 PlaceId bestDracLoc(HunterView hv);
 EvaluatedLoc runBestDracLoc(
 	HunterView *history, PlaceId from, Round fromRound, Round toRound
@@ -70,16 +80,10 @@ void decideHunterMove(HunterView hv) {
 	Message message = "";
 
 	Round dracLocAge = RESEARCH_THRESHOLD;
-	//printf("DracLoc:%s\n", placeIdToName(HvGetLastKnownDraculaLocation(hv, &dracLocAge)));
-	
+
 	if (HvGetLastKnownDraculaLocation(hv, &dracLocAge) != NOWHERE) {
 		dracLocAge = HvGetRound(hv) - dracLocAge;
 	}
-
-	//printf("Round: %d\n", HvGetRound(hv));
-	//printf("DracLocAge %d\n", dracLocAge);
-	//printf("CurLoc %s\n", placeIdToName(HvGetPlayerLocation(hv, HvGetPlayer(hv))));
-	//printf("CurHealth %d\n", HvGetHealth(hv, HvGetPlayer(hv)));
 
 	if (dracLocAge >= RESEARCH_THRESHOLD) {
 		if (HvGetRound(hv) < EARLY_GAME_ROUNDS) {
@@ -113,9 +117,86 @@ PlaceId researchMode(HunterView hv, Message *message) {
 
 // Spread out and cover a large area to find the trail
 PlaceId patrolMode(HunterView hv, Message *message) {
-	// TODO: determine locations dracula could have gone
-
+	
 	Player me = HvGetPlayer(hv);
+
+	CDLocation shouldICampAtCD = campAtCD(hv, me);
+	if (shouldICampAtCD.goToCD == true) {
+		if (HvGetPlayerLocation(hv, me) == CASTLE_DRACULA) {
+			return NOWHERE;
+		} else {
+			return shouldICampAtCD.bestMove;
+		}
+	}
+	// If it is false then make a normal move
+	
+	int dracLocAge = 0;
+	PlaceId lastDracLoc = HvGetLastKnownDraculaLocation(hv, &dracLocAge);
+	dracLocAge = HvGetRound(hv) - dracLocAge;
+
+	//PlaceType dracLocType = placeIdToType(HvGetPlayerLocation(hv, PLAYER_DRACULA));
+	//printf("LastDLoc: %s\n", placeIdToName(lastDracLoc));
+	int numLocs = -1;
+	PlaceId *patrolLocs = locationsNNodesAway(hv, lastDracLoc, dracLocAge, &numLocs);
+
+	// Should be handleded by locationsNNodesAway
+	//patrolLocs = removeLocsByType(patrolLocs, dracLocType, &numLocs);
+
+	PlaceId bestMove = patrolBestMove(hv, me, patrolLocs, numLocs);
+	free(patrolLocs);
+
+	return bestMove;
+}
+
+// Determines the best way to split patrol locations amoung the hunters
+// Returns the best move for the current hunter
+PlaceId patrolBestMove(HunterView hv, Player me, PlaceId *patrolLocs, int numPatrolLocs) {
+	
+	PlaceId bestMove = NOWHERE;
+	PlaceId *path;
+	Player whosSearching[NUM_REAL_PLACES];
+	int bestLen = 100;
+	int lenToDest;
+
+	for (int i = 0; i < numPatrolLocs; i++) {
+		bestLen = 100;
+		for (int j = 0; j < NUM_PLAYERS - 1; j++) {
+			HvGetShortestPathTo(hv, j, patrolLocs[i], &lenToDest);
+			if (lenToDest < bestLen) {
+				bestLen = lenToDest;
+				whosSearching[i] = j;
+			}
+		}
+	}
+
+	int numPathLocs;
+
+	for (int i = 0; i < numPatrolLocs; i++) {
+		if (whosSearching[i] == me) {
+			path = HvGetShortestPathTo(hv, me, patrolLocs[i], &numPathLocs);
+			if (numPatrolLocs > 0) {
+				bestMove = path[0];
+				break;
+			}
+		}
+	}
+	// If the hunter isnt closest to any node move to any target
+	if (bestMove == NOWHERE) {
+		path = HvGetShortestPathTo(hv, me, patrolLocs[numPatrolLocs/2], &numPathLocs);
+		bestMove = path[0];
+	}
+	free(path);
+
+	return bestMove;
+}
+
+// .goToCD returns true if should go to CD, and sets bestMove
+// to best move to make in situation, do NOT access bestMove
+// if .goToCD is false 
+CDLocation campAtCD(HunterView hv, Player me) {
+	
+	CDLocation evalueated;
+	evalueated.goToCD = false;
 
 	int teleports = numTeleports(hv);
 	printf("NTP: %d\n", teleports);
@@ -135,70 +216,14 @@ PlaceId patrolMode(HunterView hv, Message *message) {
 			}
 		}
 		if (closestHunter == me) {
-			printf("Dammit i gotta go CD\n");
-			if (HvGetPlayerLocation(hv, me) == CASTLE_DRACULA) {
-				return NOWHERE;
-			} else {
-				return bestMove;
-			}
-		}
-	}
-	bestMove = NOWHERE;
-
-	int dracLocAge = 0;
-	PlaceId lastDracLoc = HvGetLastKnownDraculaLocation(hv, &dracLocAge);
-	dracLocAge = HvGetRound(hv) - dracLocAge;
-
-	PlaceType dracLocType = placeIdToType(HvGetPlayerLocation(hv, PLAYER_DRACULA));
-	//printf("LastDLoc: %s\n", placeIdToName(lastDracLoc));
-	int numLocs = -1;
-	PlaceId *patrolLocs = locationsNNodesAway(hv, lastDracLoc, dracLocAge, &numLocs);
-
-	patrolLocs = removeLocsByType(patrolLocs, dracLocType, &numLocs);
-	//printf("NLocs: %d\n", numLocs);
-	//for (int i = 0; i < numLocs; i++) printf("Patrol: %s %d\n", placeIdToName(patrolLocs[i]), placeIdToType(patrolLocs[i]));
-
-
-	// TODO: Discard Nodes whose path would've resulted in 
-	// a hunter revealing a better dracLocAge
-
-	// TODO: determine the best way to split the nodes
-	// amoung the hunters
-	Player whosSearching[NUM_REAL_PLACES];
-	int bestLen = 100;
-	int lenToDest;
-
-	for (int i = 0; i < numLocs; i++) {
-		bestLen = 100;
-		for (int j = 0; j < NUM_PLAYERS - 1; j++) {
-			HvGetShortestPathTo(hv, j, patrolLocs[i], &lenToDest);
-			if (lenToDest < bestLen) {
-				bestLen = lenToDest;
-				whosSearching[i] = j;
-			}
+			evalueated.goToCD = true;
+			evalueated.bestMove = bestMove;
 		}
 	}
 
-	int numPathLocs;
-
-	for (int i = 0; i < numLocs; i++) {
-		if (whosSearching[i] == me) {
-			path = HvGetShortestPathTo(hv, me, patrolLocs[i], &numPathLocs);
-			if (numLocs > 0) {
-				bestMove = path[0];
-				break;
-			}
-		}
-	}
-	// If the hunter isnt closest to any node move to any target
-	if (bestMove == NOWHERE) {
-		path = HvGetShortestPathTo(hv, me, patrolLocs[numLocs/2], &numPathLocs);
-		bestMove = path[0];
-	}
-	free(patrolLocs);
-	free(path);
-	return bestMove;
+	return evalueated;
 }
+
 // Array of place names for debugging; TODO: remove
 char *d[] = {"ADRIATIC_SEA", "ALICANTE", "AMSTERDAM", "ATHENS", "ATLANTIC_OCEAN", "BARCELONA", "BARI", "BAY_OF_BISCAY", "BELGRADE", "BERLIN", "BLACK_SEA", "BORDEAUX", "BRUSSELS", "BUCHAREST", "BUDAPEST", "CADIZ", "CAGLIARI", "CASTLE_DRACULA", "CLERMONT_FERRAND", "COLOGNE", "CONSTANTA", "DUBLIN", "EDINBURGH", "ENGLISH_CHANNEL", "FLORENCE", "FRANKFURT", "GALATZ", "GALWAY", "GENEVA", "GENOA", "GRANADA", "HAMBURG", "IONIAN_SEA", "IRISH_SEA", "KLAUSENBURG", "LE_HAVRE", "LEIPZIG", "LISBON", "LIVERPOOL", "LONDON", "MADRID", "MANCHESTER", "MARSEILLES", "MEDITERRANEAN_SEA", "MILAN", "MUNICH", "NANTES", "NAPLES", "NORTH_SEA", "NUREMBURG", "PARIS", "PLYMOUTH", "PRAGUE", "ROME", "SALONICA", "SANTANDER", "SARAGOSSA", "SARAJEVO", "SOFIA", "ST_JOSEPH_AND_ST_MARY", "STRASBOURG", "SWANSEA", "SZEGED", "TOULOUSE", "TYRRHENIAN_SEA", "VALONA", "VARNA", "VENICE", "VIENNA", "ZAGREB", "ZURICH"};
 
