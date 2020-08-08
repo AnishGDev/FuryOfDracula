@@ -59,15 +59,15 @@ void decideDraculaMove(DraculaView dv)
 		int max_pid = -1; 
 		int maxScore = -1;
 		for (int pid = 0; pid < NUM_REAL_PLACES; pid++) {
-			PlaceId filter[8] = {GALWAY, DUBLIN, SWANSEA, PLYMOUTH, LONDON, LIVERPOOL, MANCHESTER, EDINBURGH};
+			//PlaceId filter[8] = {GALWAY, DUBLIN, SWANSEA, PLYMOUTH, LONDON, LIVERPOOL, MANCHESTER, EDINBURGH};
 			int score = 1;
-			if (placeIdToType(pid) != SEA && pid != HOSPITAL_PLACE && insideArray(filter, pid, 8)==false) {
+			if (placeIdToType(pid) != SEA && pid != HOSPITAL_PLACE) {
 				for (int player = 0; player < NUM_PLAYERS-1; player++) {
 					//printf("Distance from %s to %s is %d\n", placeIdToName(DvGetPlayerLocation(dv, player)),placeIdToName(pid), calculateHunterDistFromDrac(dv, player, 0, DvGetPlayerLocation(dv, player), pid, true, true, true));
-					score = calculateHunterDistFromDrac(dv, player, 0, DvGetPlayerLocation(dv, player), 
+					score += calculateHunterDistFromDrac(dv, player, 1, DvGetPlayerLocation(dv, player), 
 								pid, true, true, true); 
 				}
-				if (score > maxScore) {
+				if (score/4 > maxScore) {
 					score/=4;
 					maxScore = score;
 					max_pid = pid; 
@@ -264,7 +264,7 @@ int minimax(DraculaView currView, int currDepth, bool isMaximising, char * prevS
 */
 
 int minimax(DraculaView currView, int currDepth, bool isMaximising, char * prevString, int *counter) {
-	if (currDepth >= MAX_DEPTH) return evalFunction(currView);
+	if (currDepth >= MAX_DEPTH) return evalFunction(currView)/(currDepth);
 
 	PlaceId minScores[NUM_PLAYERS-1] = {NOWHERE, NOWHERE, NOWHERE, NOWHERE};
 	int len = -1; 
@@ -310,9 +310,9 @@ int minimax(DraculaView currView, int currDepth, bool isMaximising, char * prevS
 				strcat(extension, "...."); // Lets ignore traps and vampires. Game engine will deal with this.
 				DraculaView newState = extendGameState(currView, extension, 40);
 				//printf("Health is %d\n", DvGetHealth(newState, PLAYER_DRACULA));
-				if (DvGetHealth(newState, PLAYER_DRACULA) <= 0) return evalFunction(newState);
+				if (DvGetHealth(newState, PLAYER_DRACULA) <= 0) return -10000/currDepth;
 				int score = minimax(newState, currDepth+1, !isMaximising, NULL, counter);
-				if (currDepth != MAX_DEPTH-1) score+= evalFunction(newState)/currDepth; 
+				if (currDepth != MAX_DEPTH-1) score+= evalFunction(newState)/(currDepth); 
 				if (possibleMoves[i] == CASTLE_DRACULA) {
 					score+= CASTLE_DRACULA_WEIGHTING/(currDepth+1); // The more moves you take to get to Castle Dracula, the smaller the increase.
 				} 
