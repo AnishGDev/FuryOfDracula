@@ -218,13 +218,17 @@ PlaceId *HvWhereCanTheyGoByType(HunterView hv, Player player,
 
 HunterView HvWaybackMachine(HunterView hv, Round round);
 
-PlaceId *locationsNNodesAway(HunterView hv, PlaceId from, int maxDepth, int *numLocs);
+HunterView HvWayforwardMachine(
+	HunterView hv, char *extension, int extensionLength
+);
+
+PlaceId *HvLocationsNNodesAway(HunterView hv, PlaceId from, int maxDepth, int *numLocs);
 
 PlaceId *HvGetReachable(
 	HunterView hv, Player player, Round round, PlaceId from,
 	int *numReturnedLocs
 );
 
-int numTeleports(HunterView hv);
+int HvNumTeleports(HunterView hv);
 
 #endif // !defined (FOD__HUNTER_VIEW_H_)

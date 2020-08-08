@@ -18,9 +18,9 @@
 #define RESEARCH_THRESHOLD 11
 #define PATROL_THRESHOLD 4
 #define HUNT_THRESHOLD 0
-
 #define EARLY_GAME_ROUNDS 5
 #define TURN_CHARS 8
+#define MAX_DEPTH 1
 
 #define LORD_GODALMING_EARLY_GAME_PATH { \
 	EDINBURGH, MANCHESTER, LONDON, SWANSEA, LIVERPOOL \
@@ -137,9 +137,9 @@ PlaceId patrolMode(HunterView hv, Message *message) {
 	PlaceType dracLocType = placeIdToType(HvGetPlayerLocation(hv, PLAYER_DRACULA));
 	//printf("LastDLoc: %s\n", placeIdToName(lastDracLoc));
 	int numLocs = -1;
-	PlaceId *patrolLocs = locationsNNodesAway(hv, lastDracLoc, dracLocAge, &numLocs);
+	PlaceId *patrolLocs = HvLocationsNNodesAway(hv, lastDracLoc, dracLocAge, &numLocs);
 
-	// Should be handleded by locationsNNodesAway
+	// Should be handleded by HvLocationsNNodesAway
 	patrolLocs = removeLocsByType(patrolLocs, dracLocType, &numLocs);
 
 	PlaceId bestMove = patrolBestMove(hv, me, patrolLocs, numLocs);
@@ -198,7 +198,7 @@ CDLocation campAtCD(HunterView hv, Player me) {
 	CDLocation evalueated;
 	evalueated.goToCD = false;
 
-	int teleports = numTeleports(hv);
+	int teleports = HvNumTeleports(hv);
 	printf("NTP: %d\n", teleports);
 	PlaceId bestMove = NOWHERE;
 	PlaceId *path;
@@ -224,24 +224,75 @@ CDLocation campAtCD(HunterView hv, Player me) {
 	return evalueated;
 }
 
-// Array of place names for debugging; TODO: remove
-char *d[] = {"ADRIATIC_SEA", "ALICANTE", "AMSTERDAM", "ATHENS", "ATLANTIC_OCEAN", "BARCELONA", "BARI", "BAY_OF_BISCAY", "BELGRADE", "BERLIN", "BLACK_SEA", "BORDEAUX", "BRUSSELS", "BUCHAREST", "BUDAPEST", "CADIZ", "CAGLIARI", "CASTLE_DRACULA", "CLERMONT_FERRAND", "COLOGNE", "CONSTANTA", "DUBLIN", "EDINBURGH", "ENGLISH_CHANNEL", "FLORENCE", "FRANKFURT", "GALATZ", "GALWAY", "GENEVA", "GENOA", "GRANADA", "HAMBURG", "IONIAN_SEA", "IRISH_SEA", "KLAUSENBURG", "LE_HAVRE", "LEIPZIG", "LISBON", "LIVERPOOL", "LONDON", "MADRID", "MANCHESTER", "MARSEILLES", "MEDITERRANEAN_SEA", "MILAN", "MUNICH", "NANTES", "NAPLES", "NORTH_SEA", "NUREMBURG", "PARIS", "PLYMOUTH", "PRAGUE", "ROME", "SALONICA", "SANTANDER", "SARAGOSSA", "SARAJEVO", "SOFIA", "ST_JOSEPH_AND_ST_MARY", "STRASBOURG", "SWANSEA", "SZEGED", "TOULOUSE", "TYRRHENIAN_SEA", "VALONA", "VARNA", "VENICE", "VIENNA", "ZAGREB", "ZURICH"};
+int evaluateState(HunterView hv) {
+	return 0;
+}
+
+HunterView extendState(HunterView hv, PlaceId loc) {
+	char extension[TURN_CHARS];
+
+	Player playerId = HvGetPlayer(hv) + 1;
+	if (playerId > PLAYER_DRACULA) playerId = 0;
+
+	char player = '.';
+	if (playerId == 0) player = 'G'; 
+	if (playerId == 1) player = 'S'; 
+	if (playerId == 2) player = 'H'; 
+	if (playerId == 3) player = 'M'; 
+	if (playerId == 4) player = 'D'; 
+
+	sprintf(extension, "%c%s....", player, placeIdToAbbrev(loc));
+
+	return HvWayforwardMachine(hv, extension, TURN_CHARS);
+}
+
+int huntMinimax(HunterView hv, PlaceId dracLoc, int depth) {
+	if (depth >= MAX_DEPTH * NUM_PLAYERS) return evaluateState(hv);
+
+	Player player = HvGetPlayer(hv);
+	PlaceId from = dracLoc;
+	if (player != PLAYER_DRACULA) {
+		from = HvGetPlayerLocation(hv, player);
+	}
+
+	int n = 0;
+	PlaceId *moves = HvGetReachable(
+		hv, HvGetPlayer(hv), HvGetRound(hv), from, &n
+	);
+
+	int best = 0;
+	for (int i = 0; i < n; i++) {
+		int score = huntMinimax(
+			extendState(hv, moves[i]), dracLoc, depth + 1
+		);
+
+		if (score > best) score = best;
+	}
+
+	free(moves);
+	return best;
+}
 
 // Try to force an encounter, used when info is accurate
 PlaceId huntMode(HunterView hv, Message *message) {
-	// TODO: have the hunters approach from different directions
-	int n;
-	PlaceId *path = HvGetShortestPathTo(
-		hv, HvGetPlayer(hv), bestDracLoc(hv), &n
-	);
+	int n = 0;
+	PlaceId *moves = HvWhereCanIGo(hv, &n);
+	PlaceId dracLoc = bestDracLoc(hv);
 
-	PlaceId move = NOWHERE; // No movement
-	if (n > 0) {
-		move = path[0];
+	int bestScore = 0;
+	PlaceId bestMove = NOWHERE;
+
+	for (int i = 0; i < n; i++) {
+		int score = huntMinimax(extendState(hv, moves[i]), dracLoc, 1);
+
+		if (score > bestScore) {
+			bestScore = score;
+			bestMove = moves[i];
+		}
 	}
 
-	free(path);
-	return move;
+	free(moves);
+	return bestMove;
 }
 
 // Approximates the singularly most likely place where Dracula would

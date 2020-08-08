@@ -338,6 +338,7 @@ PlaceId *HvWhereCanTheyGoByType(
 ////////////////////////////////////////////////////////////////////////
 // Your own interface functions
 
+// Travel backwards in time, to the given round
 HunterView HvWaybackMachine(HunterView hv, Round round) {
 	Round currentRound = GvGetRound(hv->gv);
 	if (round > currentRound) round = currentRound;
@@ -351,9 +352,17 @@ HunterView HvWaybackMachine(HunterView hv, Round round) {
 	return HvNewGeneric(substring, NULL, true); // TODO: is NULL ok?
 }
 
-PlaceId *locationsNNodesAway(HunterView hv, PlaceId from, int maxDepth, int *numLocs) {
-	// Uses a DFS to get locations at max depth away
-	// I think should be a BFS
+// Travel forwards in time, given a play-string extension
+HunterView HvWayforwardMachine(
+	HunterView hv, char *extension, int extensionLength
+) {
+	HunterView new = malloc(sizeof(*hv));
+	new->gv = copyGameState(hv->gv, extension, extensionLength);
+	return new;
+}
+
+// Uses a DFS to get locations at max depth away
+PlaceId *HvLocationsNNodesAway(HunterView hv, PlaceId from, int maxDepth, int *numLocs) {
 	int numRetLocs[NUM_PLAYERS];
 	bool canfree[NUM_PLAYERS];
 	PlaceId *playerPrevMoves[NUM_PLAYERS];
@@ -445,22 +454,22 @@ PlaceId *HvGetReachable(
 	return GvGetReachable(hv->gv, player, round, from, numReturnedLocs);
 }
 
-int numTeleports(HunterView hv) {
+int HvNumTeleports(HunterView hv) {
 	int numHist = -1;
 	bool canFreeHist = false;
 	PlaceId *history = GvGetLocationHistory(hv->gv, PLAYER_DRACULA, &numHist, &canFreeHist);
 
-	int numTeleports = 0;
+	int num = 0;
 
 	for (int i = 0; i < numHist; i++) {
 		if (history[i] == CASTLE_DRACULA) {
-			numTeleports++;
+			num++;
 		}
-		if (numTeleports > TELEPORT_THRESHOLD) {
+		if (num > TELEPORT_THRESHOLD) {
 			break;
 		}
 	}
 
 	if (canFreeHist) free(history);
-	return numTeleports;
+	return num;
 }
