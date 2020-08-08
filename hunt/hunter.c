@@ -15,8 +15,8 @@
 #include "hunter.h"
 #include "HunterView.h"
 
-#define RESEARCH_THRESHOLD 11
-#define PATROL_THRESHOLD 4
+#define RESEARCH_THRESHOLD 10
+#define PATROL_THRESHOLD 5
 #define HUNT_THRESHOLD 0
 
 #define EARLY_GAME_ROUNDS 5
