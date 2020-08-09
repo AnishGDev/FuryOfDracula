@@ -190,6 +190,7 @@ PlaceId patrolBestMove(HunterView hv, Player me, PlaceId *patrolLocs, int numPat
 	return bestMove;
 }
 
+
 // .goToCD returns true if should go to CD, and sets bestMove
 // to best move to make in situation, do NOT access bestMove
 // if .goToCD is false 
@@ -219,8 +220,8 @@ CDLocation campAtCD(HunterView hv, Player me) {
 			evalueated.goToCD = true;
 			evalueated.bestMove = bestMove;
 		}
+		free(path);
 	}
-
 	return evalueated;
 }
 

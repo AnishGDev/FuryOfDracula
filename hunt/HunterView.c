@@ -391,7 +391,7 @@ PlaceId *locationsNNodesAway(HunterView hv, PlaceId from, int maxDepth, int *num
 		}
 	}
 	
-	PlaceId *locations = malloc(sizeof(PlaceId) * NUM_REAL_PLACES);
+	PlaceId *locations = calloc(NUM_REAL_PLACES, sizeof(PlaceId));
 	int freeLocIndex = 0;
 	for (int i = 0; i < NUM_REAL_PLACES; i++) {
 		if (visited[i] == maxDepth) {
