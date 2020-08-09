@@ -353,7 +353,6 @@ HunterView HvWaybackMachine(HunterView hv, Round round) {
 
 PlaceId *locationsNNodesAway(HunterView hv, PlaceId from, int maxDepth, int *numLocs) {
 	// Uses a DFS to get locations at max depth away
-	// I think should be a BFS
 	int numRetLocs[NUM_PLAYERS];
 	bool canfree[NUM_PLAYERS];
 	PlaceId *playerPrevMoves[NUM_PLAYERS];
@@ -381,9 +380,7 @@ PlaceId *locationsNNodesAway(HunterView hv, PlaceId from, int maxDepth, int *num
 	int depth = 0;
 	visited[from] = depth;
 	Map m = MapNew();
-	//maxDepth--;
 	*numLocs = 0;
-	//printf("MaxDepth: %d\n", maxDepth);
 	dfsHelper(hv, m, from, maxDepth, depth, visited, numLocs, playerPrevMoves, numRetLocs);
 
 	// Free Hunter Moves
