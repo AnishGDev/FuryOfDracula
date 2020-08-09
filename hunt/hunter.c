@@ -15,8 +15,8 @@
 #include "hunter.h"
 #include "HunterView.h"
 
-#define RESEARCH_THRESHOLD 11
-#define PATROL_THRESHOLD 4
+#define RESEARCH_THRESHOLD 10
+#define PATROL_THRESHOLD 5
 #define HUNT_THRESHOLD 0
 
 #define EARLY_GAME_ROUNDS 5
@@ -43,16 +43,26 @@ typedef struct _EvaluatedLoc {
 	int score;
 } EvaluatedLoc;
 
+typedef struct _CDLocation {
+	bool goToCD;
+	PlaceId bestMove;
+} CDLocation;
+
 PlaceId earlyMode(HunterView hv, Message *message);
 PlaceId researchMode(HunterView hv, Message *message);
 PlaceId patrolMode(HunterView hv, Message *message);
 PlaceId huntMode(HunterView hv, Message *message);
 
+// Patrol mode helper fuctions
+CDLocation campAtCD(HunterView hv, Player me);
+PlaceId patrolBestMove(HunterView hv, Player me, PlaceId *patrolLocs, int numPatrolLocs);
+
+// Hunt mode helper functions
 PlaceId bestDracLoc(HunterView hv);
 EvaluatedLoc runBestDracLoc(
 	HunterView *history, PlaceId from, Round fromRound, Round toRound
 );
-int evaluateDracLoc(HunterView hv, PlaceId loc);
+int evaluateDracLoc(HunterView hv, PlaceId loc, Round dracLocAge);
 HunterView *buildHistory(HunterView hv, int *length);
 void freeHistory(HunterView *history, int length);
 
@@ -70,16 +80,10 @@ void decideHunterMove(HunterView hv) {
 	Message message = "";
 
 	Round dracLocAge = RESEARCH_THRESHOLD;
-	//printf("DracLoc:%s\n", placeIdToName(HvGetLastKnownDraculaLocation(hv, &dracLocAge)));
-	
+
 	if (HvGetLastKnownDraculaLocation(hv, &dracLocAge) != NOWHERE) {
 		dracLocAge = HvGetRound(hv) - dracLocAge;
 	}
-
-	//printf("Round: %d\n", HvGetRound(hv));
-	//printf("DracLocAge %d\n", dracLocAge);
-	//printf("CurLoc %s\n", placeIdToName(HvGetPlayerLocation(hv, HvGetPlayer(hv))));
-	//printf("CurHealth %d\n", HvGetHealth(hv, HvGetPlayer(hv)));
 
 	if (dracLocAge >= RESEARCH_THRESHOLD) {
 		if (HvGetRound(hv) < EARLY_GAME_ROUNDS) {
@@ -113,7 +117,19 @@ PlaceId researchMode(HunterView hv, Message *message) {
 
 // Spread out and cover a large area to find the trail
 PlaceId patrolMode(HunterView hv, Message *message) {
-	// TODO: determine locations dracula could have gone
+	
+	Player me = HvGetPlayer(hv);
+
+	CDLocation shouldICampAtCD = campAtCD(hv, me);
+	if (shouldICampAtCD.goToCD == true) {
+		if (HvGetPlayerLocation(hv, me) == CASTLE_DRACULA) {
+			return NOWHERE;
+		} else {
+			return shouldICampAtCD.bestMove;
+		}
+	}
+	// If it is false then make a normal move
+	
 	int dracLocAge = 0;
 	PlaceId lastDracLoc = HvGetLastKnownDraculaLocation(hv, &dracLocAge);
 	dracLocAge = HvGetRound(hv) - dracLocAge;
@@ -123,21 +139,26 @@ PlaceId patrolMode(HunterView hv, Message *message) {
 	int numLocs = -1;
 	PlaceId *patrolLocs = locationsNNodesAway(hv, lastDracLoc, dracLocAge, &numLocs);
 
+	// Should be handleded by locationsNNodesAway
 	patrolLocs = removeLocsByType(patrolLocs, dracLocType, &numLocs);
-	//printf("NLocs: %d\n", numLocs);
-	//for (int i = 0; i < numLocs; i++) printf("Patrol: %s %d\n", placeIdToName(patrolLocs[i]), placeIdToType(patrolLocs[i]));
 
+	PlaceId bestMove = patrolBestMove(hv, me, patrolLocs, numLocs);
+	free(patrolLocs);
 
-	// TODO: Discard Nodes whose path would've resulted in 
-	// a hunter revealing a better dracLocAge
+	return bestMove;
+}
 
-	// TODO: determine the best way to split the nodes
-	// amoung the hunters
+// Determines the best way to split patrol locations amoung the hunters
+// Returns the best move for the current hunter
+PlaceId patrolBestMove(HunterView hv, Player me, PlaceId *patrolLocs, int numPatrolLocs) {
+	
+	PlaceId bestMove = NOWHERE;
+	PlaceId *path;
 	Player whosSearching[NUM_REAL_PLACES];
 	int bestLen = 100;
 	int lenToDest;
 
-	for (int i = 0; i < numLocs; i++) {
+	for (int i = 0; i < numPatrolLocs; i++) {
 		bestLen = 100;
 		for (int j = 0; j < NUM_PLAYERS - 1; j++) {
 			HvGetShortestPathTo(hv, j, patrolLocs[i], &lenToDest);
@@ -148,15 +169,12 @@ PlaceId patrolMode(HunterView hv, Message *message) {
 		}
 	}
 
-	Player me = HvGetPlayer(hv);
-	PlaceId *path;
 	int numPathLocs;
-	PlaceId bestMove = NOWHERE;
 
-	for (int i = 0; i < numLocs; i++) {
+	for (int i = 0; i < numPatrolLocs; i++) {
 		if (whosSearching[i] == me) {
 			path = HvGetShortestPathTo(hv, me, patrolLocs[i], &numPathLocs);
-			if (numLocs > 0) {
+			if (numPatrolLocs > 0) {
 				bestMove = path[0];
 				break;
 			}
@@ -164,13 +182,48 @@ PlaceId patrolMode(HunterView hv, Message *message) {
 	}
 	// If the hunter isnt closest to any node move to any target
 	if (bestMove == NOWHERE) {
-		path = HvGetShortestPathTo(hv, me, patrolLocs[numLocs/2], &numPathLocs);
+		path = HvGetShortestPathTo(hv, me, patrolLocs[numPatrolLocs/2], &numPathLocs);
 		bestMove = path[0];
 	}
-	free(patrolLocs);
 	free(path);
+
 	return bestMove;
 }
+
+// .goToCD returns true if should go to CD, and sets bestMove
+// to best move to make in situation, do NOT access bestMove
+// if .goToCD is false 
+CDLocation campAtCD(HunterView hv, Player me) {
+	
+	CDLocation evalueated;
+	evalueated.goToCD = false;
+
+	int teleports = numTeleports(hv);
+	printf("NTP: %d\n", teleports);
+	PlaceId bestMove = NOWHERE;
+	PlaceId *path;
+	if (teleports > TELEPORT_THRESHOLD) {
+		Player closestHunter = PLAYER_DRACULA;
+		// If closest Hunter to CD, stay on CD
+		int bestDistToCD = 100;
+		int distToCD;
+		for (int i = 0; i < NUM_PLAYERS - 1; i++) {
+			path = HvGetShortestPathTo(hv, i, CASTLE_DRACULA, &distToCD);
+			if (bestDistToCD > distToCD) {
+				bestDistToCD = distToCD;
+				closestHunter = i;
+				bestMove = path[0];
+			}
+		}
+		if (closestHunter == me) {
+			evalueated.goToCD = true;
+			evalueated.bestMove = bestMove;
+		}
+	}
+
+	return evalueated;
+}
+
 // Array of place names for debugging; TODO: remove
 char *d[] = {"ADRIATIC_SEA", "ALICANTE", "AMSTERDAM", "ATHENS", "ATLANTIC_OCEAN", "BARCELONA", "BARI", "BAY_OF_BISCAY", "BELGRADE", "BERLIN", "BLACK_SEA", "BORDEAUX", "BRUSSELS", "BUCHAREST", "BUDAPEST", "CADIZ", "CAGLIARI", "CASTLE_DRACULA", "CLERMONT_FERRAND", "COLOGNE", "CONSTANTA", "DUBLIN", "EDINBURGH", "ENGLISH_CHANNEL", "FLORENCE", "FRANKFURT", "GALATZ", "GALWAY", "GENEVA", "GENOA", "GRANADA", "HAMBURG", "IONIAN_SEA", "IRISH_SEA", "KLAUSENBURG", "LE_HAVRE", "LEIPZIG", "LISBON", "LIVERPOOL", "LONDON", "MADRID", "MANCHESTER", "MARSEILLES", "MEDITERRANEAN_SEA", "MILAN", "MUNICH", "NANTES", "NAPLES", "NORTH_SEA", "NUREMBURG", "PARIS", "PLYMOUTH", "PRAGUE", "ROME", "SALONICA", "SANTANDER", "SARAGOSSA", "SARAJEVO", "SOFIA", "ST_JOSEPH_AND_ST_MARY", "STRASBOURG", "SWANSEA", "SZEGED", "TOULOUSE", "TYRRHENIAN_SEA", "VALONA", "VARNA", "VENICE", "VIENNA", "ZAGREB", "ZURICH"};
 
@@ -218,7 +271,7 @@ EvaluatedLoc runBestDracLoc(
 	if (fromRound == toRound) {
 		return (EvaluatedLoc) {
 			.place = from,
-			.score = evaluateDracLoc(hv, from)
+			.score = evaluateDracLoc(hv, from, fromRound)
 		};
 	}
 
@@ -253,10 +306,20 @@ EvaluatedLoc runBestDracLoc(
 
 // Evaluate a location for Dracula within a game state; currently just
 // sums the distance to each hunter
-int evaluateDracLoc(HunterView hv, PlaceId loc) {
+// sum goes negative if a hunter is already there, and dracula isnt
+int evaluateDracLoc(HunterView hv, PlaceId loc, Round dracLocAge) {
 	int score = 0;
+	dracLocAge = HvGetRound(hv) - dracLocAge;
 
 	for (int i = 0; i < NUM_PLAYERS - 1; i++) {
+		
+		if (dracLocAge != 0) {	//If draculas position isnt known
+			for (int i = 0; i < NUM_PLAYERS - 1; i++) {
+				if (HvGetPlayerLocation(hv, i) == loc) { // If a hunter is on that location, dont check it
+					return -1;
+				}
+			}
+		}
 		int distance = 0;
 		free(HvGetShortestPathTo(hv, i, loc, &distance));
 		if (distance == 1) return 0;
