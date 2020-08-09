@@ -385,7 +385,7 @@ PlaceId *locationsNNodesAway(HunterView hv, PlaceId from, int maxDepth, int *num
 	dfsHelper(hv, m, from, maxDepth, depth, visited, numLocs, playerPrevMoves, numRetLocs);
 
 	// Free Hunter Moves
-	for (int i = 0; i < NUM_PLAYERS - 1; i++) {
+	for (int i = 0; i < NUM_PLAYERS; i++) {
 		if (canfree[i]) {
 			free(playerPrevMoves[i]);
 			playerPrevMoves[i] = NULL;
