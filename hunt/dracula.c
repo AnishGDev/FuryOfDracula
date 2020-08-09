@@ -159,7 +159,7 @@ PlaceId minimaxHelper(DraculaView rootView, int currDepth) {
 		counter+=1; 
 		DvFree(newState);
 	}
-	//printf("We did %d calculations \n", counter);
+	printf("We did %d calculations \n", counter);
 	PlaceId ret = possibleMoves[index];
 	free(possibleMoves);
 	return ret; 

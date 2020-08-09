@@ -44,7 +44,8 @@ static void dfsHelper(HunterView hv, Map m, PlaceId from, int maxDepth, int dept
 // Constructor/Destructor
 
 HunterView HvNewGeneric(
-	char *pastPlays, Message messages[], bool canFreePastPlays
+	char *pastPlays, Message messages[], GameView gv,
+	bool canFreePastPlays
 ) {
 	HunterView hv = malloc(sizeof(*hv));
 	if (hv == NULL) {
@@ -52,7 +53,7 @@ HunterView HvNewGeneric(
 		exit(EXIT_FAILURE);
 	}
 
-	hv->gv = GvNew(pastPlays, messages);
+	hv->gv = gv;
 	hv->pastPlays = pastPlays;
 	hv->canFreePastPlays = canFreePastPlays;
 
@@ -66,7 +67,9 @@ HunterView HvNewGeneric(
 }
 
 HunterView HvNew(char *pastPlays, Message messages[]) {
-	return HvNewGeneric(pastPlays, messages, false);
+	return HvNewGeneric(
+		pastPlays, messages, GvNew(pastPlays, messages), false
+	);
 }
 
 void HvFree(HunterView hv) {
@@ -349,16 +352,23 @@ HunterView HvWaybackMachine(HunterView hv, Round round) {
 	memmove(substring, hv->pastPlays, length);
 	substring[length] = '\0';
 
-	return HvNewGeneric(substring, NULL, true); // TODO: is NULL ok?
+	return HvNewGeneric(
+		substring, NULL, GvNew(substring, NULL), true
+	); // TODO: is NULL ok?
 }
 
 // Travel forwards in time, given a play-string extension
 HunterView HvWayforwardMachine(
 	HunterView hv, char *extension, int extensionLength
 ) {
-	HunterView new = malloc(sizeof(*hv));
-	new->gv = copyGameState(hv->gv, extension, extensionLength);
-	return new;
+	GameView gv = copyGameState(hv->gv, extension, extensionLength);
+	return HvNewGeneric(GvGetPastPlays(gv), NULL, gv, false);
+
+	// char *newString = malloc(
+	// 	strlen(hv->pastPlays) + extensionLength + 1
+	// );
+	// sprintf(newString, "%s %s", hv->pastPlays, extension);
+	// return HvNewGeneric(newString, NULL, GvNew(newString, NULL), true);
 }
 
 // Uses a DFS to get locations at max depth away

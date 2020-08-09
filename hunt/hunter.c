@@ -15,12 +15,13 @@
 #include "hunter.h"
 #include "HunterView.h"
 
-#define RESEARCH_THRESHOLD 11
-#define PATROL_THRESHOLD 4
+#define RESEARCH_THRESHOLD 10
+#define PATROL_THRESHOLD 5
 #define HUNT_THRESHOLD 0
 #define EARLY_GAME_ROUNDS 5
 #define TURN_CHARS 8
-#define MAX_DEPTH 1
+#define MAX_DEPTH 2
+#define HEALTH_WEIGHT 2
 
 #define LORD_GODALMING_EARLY_GAME_PATH { \
 	EDINBURGH, MANCHESTER, LONDON, SWANSEA, LIVERPOOL \
@@ -85,6 +86,7 @@ void decideHunterMove(HunterView hv) {
 		dracLocAge = HvGetRound(hv) - dracLocAge;
 	}
 
+	// printf("let's hunt! a %d\n", dracLocAge);
 	if (dracLocAge >= RESEARCH_THRESHOLD) {
 		if (HvGetRound(hv) < EARLY_GAME_ROUNDS) {
 			move = earlyMode(hv, &message);
@@ -96,10 +98,15 @@ void decideHunterMove(HunterView hv) {
 	} else if (dracLocAge >= HUNT_THRESHOLD) {
 		move = huntMode(hv, &message);
 	}
+	// printf("let's hunt! b %d\n", dracLocAge);
 
 	if (move == NOWHERE) { // Indicates no movement
 		move = HvGetPlayerLocation(hv, HvGetPlayer(hv));
 	}
+
+	// printf("let's hunt! c %d\n", dracLocAge);
+
+	// printf("dracLocAge: %d\n", dracLocAge);
 
 	registerBestPlay((char *) placeIdToAbbrev(move), message);
 }
@@ -224,15 +231,30 @@ CDLocation campAtCD(HunterView hv, Player me) {
 	return evalueated;
 }
 
-int evaluateState(HunterView hv) {
-	return 0;
+int evaluateState(HunterView hv, PlaceId dracLoc, int depth) {
+	int score = (
+		NUM_REAL_PLACES + GAME_START_BLOOD_POINTS * HEALTH_WEIGHT
+	); // max score
+
+	int dracHealth = HvGetHealth(hv, PLAYER_DRACULA) * HEALTH_WEIGHT;
+
+	if (dracHealth > GAME_START_BLOOD_POINTS) {
+		dracHealth = GAME_START_BLOOD_POINTS;
+	}
+
+	for (int i = 0; i < NUM_PLAYERS - 1; i++) {
+		int distance = 0;
+		free(HvGetShortestPathTo(hv, i, dracLoc, &distance));
+		score -= distance;
+	}
+
+	return score;
 }
 
-HunterView extendState(HunterView hv, PlaceId loc) {
+HunterView extendState(HunterView hv, PlaceId loc, PlaceId dracLoc) {
 	char extension[TURN_CHARS];
 
-	Player playerId = HvGetPlayer(hv) + 1;
-	if (playerId > PLAYER_DRACULA) playerId = 0;
+	Player playerId = HvGetPlayer(hv);
 
 	char player = '.';
 	if (playerId == 0) player = 'G'; 
@@ -241,13 +263,30 @@ HunterView extendState(HunterView hv, PlaceId loc) {
 	if (playerId == 3) player = 'M'; 
 	if (playerId == 4) player = 'D'; 
 
-	sprintf(extension, "%c%s....", player, placeIdToAbbrev(loc));
+	sprintf(
+		extension, "%c%s%c...", player, placeIdToAbbrev(loc),
+		(player != PLAYER_DRACULA && loc == dracLoc) ? 'D' : '.'
+	);
+	// printf("%d extension: %s\n", HvGetPlayer(hv), extension);
 
-	return HvWayforwardMachine(hv, extension, TURN_CHARS);
+	// `- 1` to exclude '\0'
+	return HvWayforwardMachine(hv, extension, TURN_CHARS - 1);
 }
 
-int huntMinimax(HunterView hv, PlaceId dracLoc, int depth) {
-	if (depth >= MAX_DEPTH * NUM_PLAYERS) return evaluateState(hv);
+int counter = 0;
+int prunedc = 0;
+int brancht = 0;
+int branchc = 0;
+int branchm = 0;
+
+int huntMinimax(
+	HunterView hv, PlaceId dracLoc, int depth, int scoreToBeat,
+	Player originalPlayer
+) {
+	if (depth >= MAX_DEPTH * NUM_PLAYERS) {
+		counter++;
+		return evaluateState(hv, dracLoc, depth);
+	}
 
 	Player player = HvGetPlayer(hv);
 	PlaceId from = dracLoc;
@@ -256,21 +295,82 @@ int huntMinimax(HunterView hv, PlaceId dracLoc, int depth) {
 	}
 
 	int n = 0;
-	PlaceId *moves = HvGetReachable(
-		hv, HvGetPlayer(hv), HvGetRound(hv), from, &n
-	);
-
-	int best = 0;
-	for (int i = 0; i < n; i++) {
-		int score = huntMinimax(
-			extendState(hv, moves[i]), dracLoc, depth + 1
+	PlaceId *moves;
+	if (player == originalPlayer || player == PLAYER_DRACULA) {
+		moves = HvGetReachable(
+			hv, HvGetPlayer(hv), HvGetRound(hv), from, &n
 		);
-
-		if (score > best) score = best;
 	}
 
-	free(moves);
-	return best;
+	int bestScore = 0;
+
+	if (player == originalPlayer) {
+		for (int i = 0; i < n; i++) {
+			HunterView extended = extendState(hv, moves[i], dracLoc);
+			int score = huntMinimax(
+				extended, dracLoc, depth + 1, bestScore, originalPlayer
+			);
+			HvFree(extended);
+
+			if (score > bestScore) bestScore = score;
+			if (bestScore >= scoreToBeat) prunedc++;
+			if (bestScore >= scoreToBeat) break;
+		}
+
+		brancht += n;
+		branchc++;
+		if (n > branchm) branchm = n;
+	} else if (player != PLAYER_DRACULA) {
+		int n;
+		PlaceId *path = HvGetShortestPathTo(hv, player, dracLoc, &n);
+
+		PlaceId move = NOWHERE;
+		if (n > 0) {
+			move = path[0];
+		}
+		free(path);
+
+		// In case something goes wrong
+		if (move == NOWHERE) {
+			return evaluateState(hv, dracLoc, depth);
+		}
+
+		HunterView extended = extendState(hv, move, dracLoc);
+		bestScore = huntMinimax(
+			extended, dracLoc, depth + 1, scoreToBeat, originalPlayer
+		);
+		HvFree(extended);
+	} else {
+		PlaceId bestMove = NOWHERE;
+
+		for (int i = 0; i < n; i++) {
+			int score = evaluateDracLoc(hv, moves[i]);
+			if (score >= bestScore) {
+				bestScore = score;
+				bestMove = moves[i];
+			}
+		}
+
+		// In case something goes wrong
+		if (bestMove == NOWHERE) {
+			free(moves);
+			return evaluateState(hv, dracLoc, depth);
+		}
+
+		HunterView extended = extendState(hv, bestMove, dracLoc);
+		bestScore = huntMinimax(
+			extended, bestMove, depth + 1, scoreToBeat, originalPlayer
+		);
+		brancht += 1;
+		branchc++;
+		HvFree(extended);
+	}
+
+	if (player == originalPlayer || player == PLAYER_DRACULA) {
+		free(moves);
+	}
+
+	return bestScore;
 }
 
 // Try to force an encounter, used when info is accurate
@@ -283,16 +383,41 @@ PlaceId huntMode(HunterView hv, Message *message) {
 	PlaceId bestMove = NOWHERE;
 
 	for (int i = 0; i < n; i++) {
-		int score = huntMinimax(extendState(hv, moves[i]), dracLoc, 1);
+		HunterView extended = extendState(hv, moves[i], dracLoc);
+		int score = huntMinimax(
+			extended, dracLoc, 1, bestScore, HvGetPlayer(hv)
+		);
+		HvFree(extended);
 
-		if (score > bestScore) {
+		printf("%s: %d\n", placeIdToAbbrev(moves[i]), score);
+
+		if (score >= bestScore) {
 			bestScore = score;
 			bestMove = moves[i];
 		}
 	}
 
 	free(moves);
+	printf("counter: %d\n", counter);
+	printf("pruned: %d\n", prunedc);
+	printf("branching factor: %f\n", ((float) brancht) / ((float) branchc));
+	printf("max. branches: %d\n", branchm);
 	return bestMove;
+
+	// Old version:
+
+	// int n;
+	// PlaceId *path = HvGetShortestPathTo(
+	// 	hv, HvGetPlayer(hv), bestDracLoc(hv), &n
+	// );
+
+	// PlaceId move = NOWHERE; // No movement
+	// if (n > 0) {
+	// 	move = path[0];
+	// }
+
+	// free(path);
+	// return move;
 }
 
 // Approximates the singularly most likely place where Dracula would

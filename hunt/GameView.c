@@ -147,7 +147,7 @@ GameView GvNew(char *pastPlays, Message messages[]) {
 void GvFree(GameView gv) {
 	free(DRAC_LHIST);
 	free(DRAC_MHIST);
-	free(gv->dracula); 
+	free(gv->dracula);
 	
 	for (int i = 0; i < NUM_PLAYERS-1; i++) {
 		free(gv->hunters[i]->moveHistory);
@@ -597,4 +597,8 @@ PlaceId GvGetLastKnownDraculaLocation(GameView gv, int *round) {
 	}
 
 	return DRAC_LHIST[gv->dracula->lastRevealed];
+}
+
+char *GvGetPastPlays(GameView gv) {
+	return gv->pastPlays;
 }
