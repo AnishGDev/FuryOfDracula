@@ -24,9 +24,9 @@
 #define DISTANCE_WEIGHTING 12
 #define HEALTH_LOSS_WEIGHTING -14
 #define MAX_DIST_IGNORE DISTANCE_WEIGHTING * 10 // At what distance to ignore DISTANCE_WEIGHTING. Set it rlly high (100 * 7) 7 combinations
-#define CASTLE_DRACULA_WEIGHTING 5 // You get health points. So weight it higher. Inverse proportional to curr_depth
+#define CASTLE_DRACULA_WEIGHTING 4 // You get health points. So weight it higher. Inverse proportional to curr_depth
 #define TELEPORT_WEIGHTING -10
-#define SEA_WEIGHTING -10
+#define SEA_WEIGHTING -15
 #define SCORE_WEIGHTING 2
 
 #define TELEPORT_THRESHOLD 2 // n units away
