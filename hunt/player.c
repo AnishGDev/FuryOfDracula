@@ -93,7 +93,7 @@ typedef HunterView View;
 	"GED.... STS.... HAO.... MBS.... DCD.V.." \
 )
 */
-#define xPastPlays "GED.... SMA.... HRO.... MGA.... DMI.V.. GMN.... SBO.... HMIVD.. MKL.... DC?T... GED.... SPA.... HMU.... MSZ.... DMUT... GNS.... SST.... HMUTD.. MVI.... DC?T... GHA.... SZU...."
+#define xPastPlays "GED.... SMA.... HRO.... MGA.... DBE.V.. GMN.... SBO.... HMI.... MCD.... DSOT... GLO.... SNA.... HZU.... MKL.... DC?T... GSW.... SLE.... HST.... MBEV... DS?.... GIR.... SPA.... HMU.... MVR...."
 # define xMsgs {}
 
 #endif
