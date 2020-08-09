@@ -279,7 +279,7 @@ void reconstructGameState(GameView gv) {
 				CURR_HUNTER->currLoc = HOSPITAL_PLACE;
 			}
 
-			if (CURR_HUNTER->moveHistory[gv->roundNum-1] == CURR_HUNTER->currLoc) {
+			if (gv->roundNum > 0 && CURR_HUNTER->moveHistory[gv->roundNum-1] == CURR_HUNTER->currLoc) {
 				CURR_HUNTER->health += LIFE_GAIN_REST;
 			}
 
