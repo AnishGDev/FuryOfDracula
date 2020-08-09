@@ -62,7 +62,7 @@ PlaceId bestDracLoc(HunterView hv);
 EvaluatedLoc runBestDracLoc(
 	HunterView *history, PlaceId from, Round fromRound, Round toRound
 );
-int evaluateDracLoc(HunterView hv, PlaceId loc, Round dracLocAge);
+int evaluateDracLoc(HunterView hv, PlaceId loc);
 HunterView *buildHistory(HunterView hv, int *length);
 void freeHistory(HunterView *history, int length);
 
@@ -225,9 +225,6 @@ CDLocation campAtCD(HunterView hv, Player me) {
 	return evalueated;
 }
 
-// Array of place names for debugging; TODO: remove
-char *d[] = {"ADRIATIC_SEA", "ALICANTE", "AMSTERDAM", "ATHENS", "ATLANTIC_OCEAN", "BARCELONA", "BARI", "BAY_OF_BISCAY", "BELGRADE", "BERLIN", "BLACK_SEA", "BORDEAUX", "BRUSSELS", "BUCHAREST", "BUDAPEST", "CADIZ", "CAGLIARI", "CASTLE_DRACULA", "CLERMONT_FERRAND", "COLOGNE", "CONSTANTA", "DUBLIN", "EDINBURGH", "ENGLISH_CHANNEL", "FLORENCE", "FRANKFURT", "GALATZ", "GALWAY", "GENEVA", "GENOA", "GRANADA", "HAMBURG", "IONIAN_SEA", "IRISH_SEA", "KLAUSENBURG", "LE_HAVRE", "LEIPZIG", "LISBON", "LIVERPOOL", "LONDON", "MADRID", "MANCHESTER", "MARSEILLES", "MEDITERRANEAN_SEA", "MILAN", "MUNICH", "NANTES", "NAPLES", "NORTH_SEA", "NUREMBURG", "PARIS", "PLYMOUTH", "PRAGUE", "ROME", "SALONICA", "SANTANDER", "SARAGOSSA", "SARAJEVO", "SOFIA", "ST_JOSEPH_AND_ST_MARY", "STRASBOURG", "SWANSEA", "SZEGED", "TOULOUSE", "TYRRHENIAN_SEA", "VALONA", "VARNA", "VENICE", "VIENNA", "ZAGREB", "ZURICH"};
-
 // Try to force an encounter, used when info is accurate
 PlaceId huntMode(HunterView hv, Message *message) {
 	// TODO: have the hunters approach from different directions
@@ -272,7 +269,7 @@ EvaluatedLoc runBestDracLoc(
 	if (fromRound == toRound) {
 		return (EvaluatedLoc) {
 			.place = from,
-			.score = evaluateDracLoc(hv, from, fromRound)
+			.score = evaluateDracLoc(hv, from)
 		};
 	}
 
@@ -308,21 +305,23 @@ EvaluatedLoc runBestDracLoc(
 // Evaluate a location for Dracula within a game state; currently just
 // sums the distance to each hunter
 // sum goes negative if a hunter is already there, and dracula isnt
-int evaluateDracLoc(HunterView hv, PlaceId loc, Round dracLocAge) {
+int evaluateDracLoc(HunterView hv, PlaceId loc) {
+	PlaceType knownType = placeIdToType(
+		HvGetPlayerLocation(hv, PLAYER_DRACULA)
+	);
+	PlaceType thisType = placeIdToType(loc);
+
+	if (
+		(knownType == LAND && thisType == SEA)
+	 || (knownType == SEA  && thisType == LAND)
+	) return 0;
+
 	int score = 0;
-	dracLocAge = HvGetRound(hv) - dracLocAge;
 
 	for (int i = 0; i < NUM_PLAYERS - 1; i++) {
-		
-		if (dracLocAge != 0) {	//If draculas position isnt known
-			for (int i = 0; i < NUM_PLAYERS - 1; i++) {
-				if (HvGetPlayerLocation(hv, i) == loc) { // If a hunter is on that location, dont check it
-					return -1;
-				}
-			}
-		}
 		int distance = 0;
 		free(HvGetShortestPathTo(hv, i, loc, &distance));
+
 		if (distance == 1) return 0;
 		score += distance;
 	}
