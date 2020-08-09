@@ -21,21 +21,12 @@
 #define INFINITY 1e9
 #define NEGATIVE_INFINITY -1e9
 
-<<<<<<< HEAD
-#define DISTANCE_WEIGHTING 12
-#define HEALTH_LOSS_WEIGHTING -14
-#define MAX_DIST_IGNORE DISTANCE_WEIGHTING * 10 // At what distance to ignore DISTANCE_WEIGHTING. Set it rlly high (100 * 7) 7 combinations
-#define CASTLE_DRACULA_WEIGHTING 4 // You get health points. So weight it higher. Inverse proportional to curr_depth
-#define TELEPORT_WEIGHTING -10
-#define SEA_WEIGHTING -15
-=======
 #define DISTANCE_WEIGHTING 25
 #define HEALTH_LOSS_WEIGHTING -15
 #define MAX_DIST_IGNORE DISTANCE_WEIGHTING * 100 // At what distance to ignore DISTANCE_WEIGHTING. Set it rlly high (100 * 7) 7 combinations
 #define CASTLE_DRACULA_WEIGHTING 5 // You get health points. So weight it higher. Inverse proportional to curr_depth
 #define TELEPORT_WEIGHTING -25
 #define SEA_WEIGHTING -5
->>>>>>> d745cb22dcb3a49f2521a465adc8cc3a3c9a99ff
 #define SCORE_WEIGHTING 2
 
 #define TIEBREAK -1
