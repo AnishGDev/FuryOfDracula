@@ -353,14 +353,14 @@ HunterView HvWaybackMachine(HunterView hv, Round round) {
 
 PlaceId *locationsNNodesAway(HunterView hv, PlaceId from, int maxDepth, int *numLocs) {
 	// Uses a DFS to get locations at max depth away
-	// I think should be a BFS
 	int numRetLocs[NUM_PLAYERS];
 	bool canfree[NUM_PLAYERS];
 	PlaceId *playerPrevMoves[NUM_PLAYERS];
-	for (int i = 0; i < NUM_PLAYERS; i++) {
+	for (int i = 0; i < NUM_PLAYERS - 1; i++) {
 		playerPrevMoves[i] = GvGetLastLocations(hv->gv, i, TRAIL_SIZE, &numRetLocs[i], &canfree[i]);
 	}
-	
+	playerPrevMoves[PLAYER_DRACULA] = GvGetLastLocations(hv->gv, PLAYER_DRACULA, maxDepth, &numRetLocs[PLAYER_DRACULA], &canfree[PLAYER_DRACULA]);
+
 	int numDracMoves;
 	bool canFreeDrac;
 	PlaceId *dracMoves = GvGetLastMoves(hv->gv, PLAYER_DRACULA, TRAIL_SIZE, &numDracMoves, &canFreeDrac);
@@ -381,13 +381,11 @@ PlaceId *locationsNNodesAway(HunterView hv, PlaceId from, int maxDepth, int *num
 	int depth = 0;
 	visited[from] = depth;
 	Map m = MapNew();
-	//maxDepth--;
 	*numLocs = 0;
-	//printf("MaxDepth: %d\n", maxDepth);
 	dfsHelper(hv, m, from, maxDepth, depth, visited, numLocs, playerPrevMoves, numRetLocs);
 
 	// Free Hunter Moves
-	for (int i = 0; i < NUM_PLAYERS - 1; i++) {
+	for (int i = 0; i < NUM_PLAYERS; i++) {
 		if (canfree[i]) {
 			free(playerPrevMoves[i]);
 			playerPrevMoves[i] = NULL;
@@ -413,8 +411,10 @@ static void dfsHelper(HunterView hv, Map m, PlaceId from, int maxDepth, int dept
 
 	bool expandNode = false;
 	// Check if dracula couldve been here
-	int dracLocIndex = numPlayerLocs[PLAYER_DRACULA] - 1 - maxDepth + depth - 1;
+	int dracLocIndex = depth - 1;
 
+	if (dracLocIndex < 0) return;
+	
 	if (playerMoves[PLAYER_DRACULA][dracLocIndex] == CITY_UNKNOWN) {
 		if (placeIdToType(from) == LAND) {
 			expandNode = true;

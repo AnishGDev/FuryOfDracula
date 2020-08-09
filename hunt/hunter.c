@@ -304,7 +304,6 @@ EvaluatedLoc runBestDracLoc(
 
 // Evaluate a location for Dracula within a game state; currently just
 // sums the distance to each hunter
-// sum goes negative if a hunter is already there, and dracula isnt
 int evaluateDracLoc(HunterView hv, PlaceId loc) {
 	PlaceType knownType = placeIdToType(
 		HvGetPlayerLocation(hv, PLAYER_DRACULA)
