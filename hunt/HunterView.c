@@ -361,12 +361,29 @@ PlaceId *locationsNNodesAway(HunterView hv, PlaceId from, int maxDepth, int *num
 		playerPrevMoves[i] = GvGetLastLocations(hv->gv, i, TRAIL_SIZE, &numRetLocs[i], &canfree[i]);
 	}
 	
+	int numDracMoves;
+	bool canFreeDrac;
+	PlaceId *dracMoves = GvGetLastMoves(hv->gv, PLAYER_DRACULA, TRAIL_SIZE, &numDracMoves, &canFreeDrac);
+	//printf("MaxDepth Ori: %d\n", maxDepth);
+	for (int i = 0; i < numDracMoves; i++) {
+		//printf("place:%s\n", placeIdToName(dracMoves[i]));
+		if (dracMoves[i] == HIDE) {
+			maxDepth--;
+		} else if (dracMoves[i] >= DOUBLE_BACK_1 && dracMoves[i] <= DOUBLE_BACK_5){
+			maxDepth--;
+		}
+	}
+	if (canFreeDrac) free(dracMoves);
+	dracMoves = NULL;
+	
+	
 	int visited[NUM_REAL_PLACES] = {0};
 	int depth = 0;
 	visited[from] = depth;
 	Map m = MapNew();
-	maxDepth--;
+	//maxDepth--;
 	*numLocs = 0;
+	//printf("MaxDepth: %d\n", maxDepth);
 	dfsHelper(hv, m, from, maxDepth, depth, visited, numLocs, playerPrevMoves, numRetLocs);
 
 	// Free Hunter Moves
