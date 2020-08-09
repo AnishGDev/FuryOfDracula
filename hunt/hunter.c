@@ -62,7 +62,7 @@ PlaceId bestDracLoc(HunterView hv);
 EvaluatedLoc runBestDracLoc(
 	HunterView *history, PlaceId from, Round fromRound, Round toRound
 );
-int evaluateDracLoc(HunterView hv, PlaceId loc);
+int evaluateDracLoc(HunterView hv, PlaceId loc, Round dracLocAge);
 HunterView *buildHistory(HunterView hv, int *length);
 void freeHistory(HunterView *history, int length);
 
@@ -271,7 +271,7 @@ EvaluatedLoc runBestDracLoc(
 	if (fromRound == toRound) {
 		return (EvaluatedLoc) {
 			.place = from,
-			.score = evaluateDracLoc(hv, from)
+			.score = evaluateDracLoc(hv, from, fromRound)
 		};
 	}
 
@@ -306,21 +306,20 @@ EvaluatedLoc runBestDracLoc(
 
 // Evaluate a location for Dracula within a game state; currently just
 // sums the distance to each hunter
-int evaluateDracLoc(HunterView hv, PlaceId loc) {
-	Round round;
-	PlaceType knownType = placeIdToType(
-		HvGetLastKnownDraculaLocation(hv, &round)
-	);
-	PlaceType thisType = placeIdToType(loc);
-
-	if (
-		(knownType == LAND && thisType == SEA)
-	 || (knownType == SEA  && thisType == LAND)
-	) return 0;
-
+// sum goes negative if a hunter is already there, and dracula isnt
+int evaluateDracLoc(HunterView hv, PlaceId loc, Round dracLocAge) {
 	int score = 0;
+	dracLocAge = HvGetRound(hv) - dracLocAge;
 
 	for (int i = 0; i < NUM_PLAYERS - 1; i++) {
+		
+		if (dracLocAge != 0) {	//If draculas position isnt known
+			for (int i = 0; i < NUM_PLAYERS - 1; i++) {
+				if (HvGetPlayerLocation(hv, i) == loc) { // If a hunter is on that location, dont check it
+					return -1;
+				}
+			}
+		}
 		int distance = 0;
 		free(HvGetShortestPathTo(hv, i, loc, &distance));
 		if (distance == 1) return 0;
