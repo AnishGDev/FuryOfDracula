@@ -307,6 +307,17 @@ EvaluatedLoc runBestDracLoc(
 // Evaluate a location for Dracula within a game state; currently just
 // sums the distance to each hunter
 int evaluateDracLoc(HunterView hv, PlaceId loc) {
+	Round round;
+	PlaceType knownType = placeIdToType(
+		HvGetLastKnownDraculaLocation(hv, &round)
+	);
+	PlaceType thisType = placeIdToType(loc);
+
+	if (
+		(knownType == LAND && thisType == SEA)
+	 || (knownType == SEA  && thisType == LAND)
+	) return 0;
+
 	int score = 0;
 
 	for (int i = 0; i < NUM_PLAYERS - 1; i++) {
