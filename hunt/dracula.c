@@ -1,12 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 // COMP2521 20T2 ... the Fury of Dracula
-// dracula.c: your "Fury of Dracula" Dracula AI
-//
-// 2014-07-01	v1.0	Team Dracula <cs2521@cse.unsw.edu.au>
-// 2017-12-01	v1.1	Team Dracula <cs2521@cse.unsw.edu.au>
-// 2018-12-31	v2.0	Team Dracula <cs2521@cse.unsw.edu.au>
-// 2020-07-10	v3.0	Team Dracula <cs2521@cse.unsw.edu.au>
-//
+// A "Fury of Dracula" Dracula AI for UNSW'S COMP2521 
 ////////////////////////////////////////////////////////////////////////
 
 #include "dracula.h"
@@ -15,23 +9,22 @@
 #include <limits.h>
 #include <string.h>
 #include <stdio.h>
-// structure to store a snapshot of a game state. 
-// Anything above 8 won't make the 1.5 second time limit. 
+
 #define MAX_DEPTH 5 // Look ahead n
 #define INFINITY 1e9
 #define NEGATIVE_INFINITY -1e9
 
 #define DISTANCE_WEIGHTING 25
 #define HEALTH_LOSS_WEIGHTING -15
-#define MAX_DIST_IGNORE 100// At what distance to ignore DISTANCE_WEIGHTING. Set it rlly high (100 * 7) 7 combinations
-#define CASTLE_DRACULA_WEIGHTING 5 // You get health points. So weight it higher. Inverse proportional to curr_depth
+#define MAX_DIST_IGNORE 3// At what distance to ignore DISTANCE_WEIGHTING.
+#define CASTLE_DRACULA_WEIGHTING 5 
 #define TELEPORT_WEIGHTING -25
 #define SEA_WEIGHTING -5
 #define SCORE_WEIGHTING 2
 
 #define TIEBREAK -1
 #define TELEPORT_THRESHOLD 4 // n units away
-#define AT_HUNTER_POS -100;
+#define AT_HUNTER_POS -150;
 
 static inline int max(int a, int b) {
 	return a > b ? a : b; 
@@ -63,7 +56,6 @@ void decideDraculaMove(DraculaView dv)
 			int score = 1;
 			if (placeIdToType(pid) != SEA && pid != HOSPITAL_PLACE && !insideArray(filter, pid, 8)) {
 				for (int player = 0; player < NUM_PLAYERS-1; player++) {
-					//printf("Distance from %s to %s is %d\n", placeIdToName(DvGetPlayerLocation(dv, player)),placeIdToName(pid), calculateHunterDistFromDrac(dv, player, 0, DvGetPlayerLocation(dv, player), pid, true, true, true));
 					score += calculateHunterDistFromDrac(dv, player, 1, DvGetPlayerLocation(dv, player), 
 								pid, true, true, true); 
 				}
@@ -73,9 +65,7 @@ void decideDraculaMove(DraculaView dv)
 					max_pid = pid; 
 				}
 			}
-			//printf("%s: %d\n",placeIdToName(pid), score);
 		}
-		//printf("%d\n", max_pid);
 		registerBestPlay((char *)placeIdToAbbrev(max_pid), "");
 	} else {
 		registerBestPlay((char *)placeIdToAbbrev(minimaxHelper(dv, 0)), "");
@@ -87,6 +77,8 @@ int evalFunction(DraculaView currView) {
 	int score = 0; 
 	for (int i = 0; i < NUM_PLAYERS - 1; i++) {
 		/*
+		Taking combinatorics of distances.
+
 		int dist = calculateHunterDistFromDrac(currView, i, DvGetRound(currView), 
 					DvGetPlayerLocation(currView, i), DvGetPlayerLocation(currView, PLAYER_DRACULA), 
 					true, false, false);
@@ -113,24 +105,26 @@ int evalFunction(DraculaView currView) {
 				DvGetPlayerLocation(currView, i), DvGetPlayerLocation(currView, PLAYER_DRACULA), 
 				true, true, true);
 		int dist = 0; 
-		if (plus == 0 && placeIsLand(DvGetPlayerLocation(currView, PLAYER_DRACULA))) {
-			score+=AT_HUNTER_POS; 
+		if (plus == 0){ //&& placeIsLand(DvGetPlayerLocation(currView, PLAYER_DRACULA))) {
+			if (placeIsLand(DvGetPlayerLocation(currView, PLAYER_DRACULA))) {
+				score+=AT_HUNTER_POS
+			} else {
+				dist = 1;
+			}
 		} else {
 			dist+=plus;
 		}
 
 		if (dist > (MAX_DIST_IGNORE)) {
-			//printf("%d was bigger", dist);
 			dist = MAX_DIST_IGNORE;
 		}	
 		score+= DISTANCE_WEIGHTING * (dist);
 	}
-	//score/=4;
-	//score+= (GAME_START_SCORE - DvGetScore(currView)) * SCORE_WEIGHTING;
 	score+= (GAME_START_BLOOD_POINTS- DvGetHealth(currView, PLAYER_DRACULA)) * HEALTH_LOSS_WEIGHTING;
 	return score;
 }
 
+// Root state. Do a DFS search from the root state. 
 PlaceId minimaxHelper(DraculaView rootView, int currDepth) {
 	// is maxmising set to true for Drac.
 	bool isMaximising = true; 
@@ -152,7 +146,7 @@ PlaceId minimaxHelper(DraculaView rootView, int currDepth) {
 			score+= CASTLE_DRACULA_WEIGHTING;
 		} 
 		printf("poggers2\n");
-		//printf("Evaluated %s with a score of %d \n",placeIdToName(possibleMoves[i]), score);
+		printf("Evaluated %s with a score of %d \n",placeIdToName(possibleMoves[i]), score);
 		if (score > max) {
 			max = score;
 			index = i; 
@@ -160,15 +154,11 @@ PlaceId minimaxHelper(DraculaView rootView, int currDepth) {
 		counter+=1; 
 		DvFree(newState);
 	}
-	//printf("We did %d calculations \n", counter);
 	PlaceId ret = possibleMoves[index];
 	free(possibleMoves);
 	return ret; 
 }
 
-// Evaluate each substate and return a score.
-// Need to support Hunter States as well. 
-// Perhaps only consider distance for now? Hunter's goal is to minimize distance. 
 char playerIdToName(int id) {
 	if (id == 0) {
 		return 'G'; 
@@ -183,7 +173,7 @@ char playerIdToName(int id) {
 	}
 }
 
-
+// Create new substates and send them to evaluation function. 
 int minimax(DraculaView currView, int currDepth, bool isMaximising, char * prevString, int *counter) {
 	if (currDepth >= MAX_DEPTH) return evalFunction(currView)/(currDepth);
 
@@ -215,57 +205,42 @@ int minimax(DraculaView currView, int currDepth, bool isMaximising, char * prevS
 				strcat(extension, ".... ");
 			}
 		} else {
-			//int maxScore = INT_MIN; 
 			int pos = -1;
-			//char extension[40];
-			//int index = -1; 
 			PlaceId * possibleMoves = DvGetValidMoves(currView, &pos);
-				
-			//printf("CURR DEPTH : %d \nPossible moves from %s : ",currDepth, placeIdToName(DvGetPlayerLocation(currView, PLAYER_DRACULA)));
 			
 			for (int i = 0; i < pos; i++) {
-				//strcpy(extension, prevString); 
 				extension[32] = '\0';
 				strcat(extension, "D");
 				strcat(extension, placeIdToAbbrev(possibleMoves[i])); 
 				strcat(extension, "...."); // Lets ignore traps and vampires. Game engine will deal with this.
 				DraculaView newState = extendGameState(currView, extension, 40);
-				//printf("Health is %d\n", DvGetHealth(newState, PLAYER_DRACULA));
-				if (DvGetHealth(newState, PLAYER_DRACULA) <= 0) return -10000/currDepth;
+				if (DvGetHealth(newState, PLAYER_DRACULA) <= 0) return -10000/(currDepth+1);
 				int score = minimax(newState, currDepth+1, !isMaximising, NULL, counter);
 				if (currDepth != MAX_DEPTH-1) score+= evalFunction(newState)/(currDepth); 
 				if (possibleMoves[i] == CASTLE_DRACULA) {
 					score+= CASTLE_DRACULA_WEIGHTING/(currDepth+1); // The more moves you take to get to Castle Dracula, the smaller the increase.
 				} 
 				if (placeIdToType(possibleMoves[i]) == SEA) {
-					//printf("Its the sea!\n");
 					score+= SEA_WEIGHTING/(currDepth+1); 
 				}
 				if (possibleMoves[i] >= HIDE && possibleMoves[i] <= DOUBLE_BACK_5) {
 					score+=TIEBREAK;
 				}
 				if (score > maxScore) {
-					maxScore = score;
-					//index = i; 
+					maxScore = score; 
 				}
 				*counter+=1; 
 				DvFree(newState);
 			}
-			//printf("Returning %d for %s from %s currDepth: %d\n", maxScore, placeIdToName(possibleMoves[index]), placeIdToName(DvGetPlayerLocation(currView, PLAYER_DRACULA)), currDepth);
+
 			if (possibleMoves == NULL) {
-				//strcpy(extension, prevString);
 				extension[32] = '\0';
 				int minDist = INT_MAX; 
 				for (int i = 0; i < NUM_PLAYERS - 1; i++) {
-					/*
-					printf("Dist is %d\n", calculateHunterDistFromDrac(currView, i, DvGetRound(currView)+1, 
-						DvGetPlayerLocation(currView, i), CASTLE_DRACULA, true, true, true));
-					*/
 					minDist = min(calculateHunterDistFromDrac(currView, i, DvGetRound(currView)+1, 
 						DvGetPlayerLocation(currView, i), CASTLE_DRACULA, 
 						true, true, true), minDist);
 				}
-				//printf("OKAY Teleport threshold is %d versus %d\n", minDist, TELEPORT_THRESHOLD);
 				if (minDist < (TELEPORT_THRESHOLD)) {
 					return -5000;
 				}
@@ -278,46 +253,4 @@ int minimax(DraculaView currView, int currDepth, bool isMaximising, char * prevS
 		}
 	}
 	return maxScore;  
-	/*
-	int maxScore = INT_MIN; 
-	int pos = -1;
-	//char extension[40];
-	//int index = -1; 
-	PlaceId * possibleMoves = DvGetValidMoves(currView, &pos);
-		
-	//printf("CURR DEPTH : %d \nPossible moves from %s : ",currDepth, placeIdToName(DvGetPlayerLocation(currView, PLAYER_DRACULA)));
-	
-	for (int i = 0; i < pos; i++) {
-		//strcpy(extension, prevString); 
-		extension[32] = '\0';
-		strcat(extension, "D");
-		strcat(extension, placeIdToAbbrev(possibleMoves[i])); 
-		strcat(extension, "...."); // Lets ignore traps and vampires. Game engine will deal with this.
-		DraculaView newState = extendGameState(currView, extension, 40);
-		int score = minimax(newState, currDepth+1, !isMaximising, NULL, counter); 
-		if (possibleMoves[i] == CASTLE_DRACULA) {
-			score+= CASTLE_DRACULA_WEIGHTING/currDepth; // The more moves you take to get to Castle Dracula, the smaller the increase.
-		} 
-		if (placeIdToType(possibleMoves[i]) == SEA) {
-			//printf("Its the sea!\n");
-			score+= SEA_WEIGHTING; 
-		}
-		if (score > maxScore) {
-			maxScore = score;
-			//index = i; 
-		}
-		*counter+=1; 
-		DvFree(newState);
-	}
-	//printf("Returning %d for %s from %s currDepth: %d\n", maxScore, placeIdToName(possibleMoves[index]), placeIdToName(DvGetPlayerLocation(currView, PLAYER_DRACULA)), currDepth);
-	if (possibleMoves == NULL) {
-		//strcpy(extension, prevString);
-		extension[32] = '\0';
-		strcat(extension, "DTP....");
-		DraculaView newState = extendGameState(currView, extension, 40);
-		maxScore = minimax(newState, currDepth+1, !isMaximising, NULL, counter);
-		DvFree(newState);
-	} else free(possibleMoves);
-	return maxScore;  
-	*/
 }
